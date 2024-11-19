@@ -1,0 +1,11 @@
+const express = require('express');
+const router = express.Router();
+const userController = require('../controller/wasm-controller');
+
+
+//get data
+
+router.get('/users',userController.getAllStudents);
+
+
+module.exports=router;
