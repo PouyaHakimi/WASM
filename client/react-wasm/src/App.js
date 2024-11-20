@@ -3,11 +3,11 @@ import './App.css';
 import React, { useEffect, useState } from 'react';
 // import MyPlot from './components/plotly.js';
 // import useWasmData from './wasm/wasmProcessor.js';
-import StudentTable from './components/studentTable.jsx';
+import StudentTable from './components/StudentTable.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import getStudent from './API/API.js';
 import {BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
-
+import StudentLayout from './config/layouts.js';
 
 function App() {
 
@@ -32,19 +32,20 @@ function App() {
 
   },[])
   
+
   
   return (
-    <>
+    
     <BrowserRouter>
     <Routes>
-         <Route path='/student'>
-         <Route path='' index element={<StudentTable student={students} />} />
+         <Route path='/student' element={<StudentLayout/>}>
+         <Route index element={<StudentTable student={students} />} />
          </Route>
     </Routes>
     {/* Process the students data with WasmProcessor */}
     {/* <WasmProcessor students={students} setStudents={setStudents} /> */}
     </BrowserRouter>
-    </>
+   
   );
 }
 

@@ -1,4 +1,6 @@
 import Table from 'react-bootstrap/Table';
+import '../';
+
 
 
 function StudentTable(props) {
