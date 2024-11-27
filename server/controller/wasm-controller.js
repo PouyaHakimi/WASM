@@ -4,6 +4,7 @@ const Students = require('../models/wasm-model');
  exports.getAllStudents = async(req,res)=>{
   try {
         const users = await Students.findAll();
+        console.log(users+"heeereeee");
         
         // Log the plain data to the terminal
         const plainUsers = users.map(user => user.get({ plain: true }));

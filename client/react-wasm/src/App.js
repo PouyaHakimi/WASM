@@ -56,19 +56,4 @@ export default App;
 
 
 
-//<div className="App">
-    //   <header className="App-header">
-      
-    //     <h1>React + WebAssembly Example</h1>
-    //   </header>
-        
-    //   {loading ? (
-    //     <p>Loading data...</p>
-    //   ) : (
-    //     <MyPlot xs={inputArr} ys={outputArr} />
-    //   )}
-      
-    //  <StudentTable  studet={studet}/>
-     
-     
-    //  </div>
+
