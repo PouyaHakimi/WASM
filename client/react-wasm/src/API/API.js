@@ -18,20 +18,18 @@ async function getStudent() {
        
 
             const Module = await createModule(); // Call the wrapper function to initialize WASM
-            console.log("******"+Module);
+            
             
             //Initialize WASM
             Module._init_students(list.length);
           
              list.map((student, index) => {
-                console.log("&&&&&" + student);
-            
+                
                 const namePtr = Module._malloc(Module.lengthBytesUTF8(student.sname) + 1);
-                Module.stringToUTF8(student.sname, namePtr, Module.lengthBytesUTF8(student.sname) + 1);
-                const updateResult = Module._update_student(index, student.id, namePtr, student.marks);
-                Module._free(namePtr);
-            
-                return updateResult; // Returning the result of _update_student
+                 Module.stringToUTF8(student.sname, namePtr, Module.lengthBytesUTF8(student.sname) + 1);
+                 Module._update_student(index, student.id, namePtr, student.marks);//insert data in address of the memory
+                 Module._free(namePtr);
+                
             });
             
             
@@ -48,22 +46,18 @@ async function getStudent() {
 
             const processeddata=list.map((_,index)=>{
                 const studentPtr=Module._get_student(index);
-                console.log(studentPtr+"$$$");
+                
+                
                 
            
 
                 return {
                     id: Module.HEAP32[studentPtr / 4],// each entry in heap32 represent 4 bytes of memory (if 0x0020 then 0x0024) to get the pointer position we devide to 4
                     sname: Module.UTF8ToString(studentPtr + 4), // Assuming offset of 4 for `sname`
-                    marks: Module.HEAP32[(studentPtr + 54)/4], // Assuming offset for `marks`
+                    marks: Module.HEAP32[(studentPtr + 56)/4], //54+2 padding byte 
                     
                   };
                 });
-            
-            console.log("+++++"+processeddata);
-            
-
-
             
        return processeddata
             

@@ -25,7 +25,6 @@ void init_students(int count) {
 // Function to update a specific student at a given index
 void update_student(int index, int id, const char* sname, int marks) {
     if (index < 0 || index >= num_students) return;
-
     students[index].id = id;
     strncpy(students[index].sname, sname, 50);
     students[index].marks = marks;
