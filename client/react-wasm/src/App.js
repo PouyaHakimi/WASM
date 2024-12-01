@@ -5,15 +5,20 @@ import React, { useEffect, useState } from 'react';
 // import useWasmData from './wasm/wasmProcessor.js';
 import StudentTable from './components/StudentTable.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import getStudent from './API/API.js';
+import {getStudent,getDuckDBStd} from './API/API.js';
 import {BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import StudentLayout from './config/layouts.js';
+import DockDB from './DockDB.js';
+import DockDBTable from './components/DockDBTable.jsx';
+
 
 function App() {
 
   //const { inputArr, outputArr, loading } = useWasmData();
   const [students,setStudents]=useState([])
- console.log("heeereeee"+students);
+  const [stdDuckDB,setStdDuckDB]=useState([])
+  console.log("++++++"+stdDuckDB);
+    
  
  
   
@@ -21,7 +26,9 @@ function App() {
   
   async function loadData() {
     const result = await getStudent();
+  //  const resDuckDB = await DockDB();
     setStudents(result);
+    //setStdDuckDB(resDuckDB)
    // WasmProcessor(student);
   }
   
@@ -32,6 +39,7 @@ function App() {
 
   },[])
   
+  
 
   
   return (
@@ -39,7 +47,10 @@ function App() {
     <BrowserRouter>
     <Routes>
          <Route path='/student' element={<StudentLayout/>}>
-         <Route index element={<StudentTable student={students} />} />
+         <Route index element={<><StudentTable student={students} /><DockDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} /></>} />
+         </Route>
+         <Route path='/dockDB' element={<StudentLayout/>}>
+         <Route index element={<DockDB student={stdDuckDB} />} />
          </Route>
     </Routes>
     {/* Process the students data with WasmProcessor */}

@@ -1,5 +1,5 @@
 import createModule from "../wasm/student2";
-
+import {AsyncDuckDB} from '@duckdb/duckdb-wasm';
 
 
 const BACKENDURL = 'http://localhost:3001/api'
@@ -10,7 +10,7 @@ async function getStudent() {
     try {
         
         const response = await fetch(URL);
-   
+        
         
         if (response.ok) {
 
@@ -32,17 +32,6 @@ async function getStudent() {
                 
             });
             
-            
-            // list.forEach((student,index)=>{
-            //     console.log("&&&&&"+student);
-                
-                
-            //     const namePtr = Module._malloc(Module.lengthBytesUTF8(student.sname) + 1)
-            //     Module.stringToUTF8(student.sname, namePtr, Module.lengthBytesUTF8(student.sname) + 1);
-            //     Module._update_student(index, student.id, namePtr, student.marks);
-            //     Module._free(namePtr);
-                
-            // })
 
             const processeddata=list.map((_,index)=>{
                 const studentPtr=Module._get_student(index);
@@ -78,4 +67,30 @@ async function getStudent() {
     
 }
 
-export default getStudent;
+async function getDuckDBStd() {
+
+    const URL = BACKENDURL+"/dockDB"
+
+    try {
+
+        const response = await fetch(URL)
+        const result = await response.json()
+        console.log("API"+result);
+        
+        return result
+        
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+    
+}
+
+
+
+
+export { getStudent, getDuckDBStd};
+
+
+
+

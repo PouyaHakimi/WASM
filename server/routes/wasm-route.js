@@ -6,6 +6,7 @@ const userController = require('../controller/wasm-controller');
 //get data
 
 router.get('/users',userController.getAllStudents);
+router.get('/dockDB',userController.getAllStudents)
 
 
 module.exports=router;
