@@ -1,6 +1,8 @@
 import Table from 'react-bootstrap/Table';
 import '../';
+import { createContext, useContext } from 'react';
 
+const ThemeContext = createContext(null);
 
 
 function StudentTable(props) {
@@ -9,6 +11,8 @@ props.student.map((std)=>(
   console.log("test maaap"+std)
   
 ))
+
+
   //const students = Array.isArray(props.student) ? props.student : [1,2,3];
   return (
     <Table striped bordered hover>
@@ -37,7 +41,11 @@ props.student.map((std)=>(
 
 
       </tbody>
+      
+      
     </Table>
+    
+    
   );
 }
 
