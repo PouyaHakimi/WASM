@@ -1,11 +1,10 @@
-import { useState } from 'react';
 import {Table,Button} from 'react-bootstrap';
-import { getDuckDBStd } from '../API/API';
 import DockDB from '../DockDB';
 
 function  DockDBTable(props) {
 
 
+ 
   return (
 
     <>
@@ -14,7 +13,10 @@ function  DockDBTable(props) {
 
       async () => {
         const res =  await DockDB();
-        props.setStdDuckDB(res);
+
+        console.log(res.toArray()+"reeeeesssss");
+        
+        props.setStdDuckDB(res.toArray());
       }
     }>
       Run DockDB
@@ -33,9 +35,8 @@ function  DockDBTable(props) {
         </tr>
       </thead>
       <tbody>
-        
-
-        {/* {Array.isArray(props.student) &&*/}{props.stdDuckDB.map((std) => ( 
+       
+            {props.stdDuckDB.map((std) => (  
         
           
             <tr key={std.id}>
@@ -45,7 +46,7 @@ function  DockDBTable(props) {
           </tr>
         ))}
         
-
+ 
 
 
       </tbody>

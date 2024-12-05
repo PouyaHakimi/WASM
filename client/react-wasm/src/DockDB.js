@@ -72,7 +72,7 @@ console.log(table +"kiiiiiirrrrrr");
      
         
         //SetDBdata(data);
-        return data
+        return table
 
     } catch (error) {
 
