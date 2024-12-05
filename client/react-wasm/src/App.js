@@ -17,7 +17,7 @@ function App() {
   //const { inputArr, outputArr, loading } = useWasmData();
   const [students,setStudents]=useState([])
   const [stdDuckDB,setStdDuckDB]=useState([])
-  console.log("++++++"+stdDuckDB);
+ 
     
  
  

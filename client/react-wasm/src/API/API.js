@@ -51,7 +51,7 @@ async function getStudent() {
        return processeddata
             
         } else {
-                console.log(response.statusText);
+                
                 const text = await response.text()
                 throw new TypeError(text)
               
@@ -75,7 +75,7 @@ async function getDuckDBStd() {
 
         const response = await fetch(URL)
         const result = await response.json()
-        console.log("API"+result);
+       
         
         return result
         
