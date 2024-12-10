@@ -8,8 +8,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {getStudent,getDuckDBStd} from './API/API.js';
 import {BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import StudentLayout from './config/layouts.js';
-import DockDB from './DockDB.js';
-import DockDBTable from './components/DockDBTable.jsx';
+import DockDB from './DuckDB.js';
+import DockDBTable from './components/DuckDBTable.jsx';
 
 
 function App() {
@@ -17,20 +17,13 @@ function App() {
   //const { inputArr, outputArr, loading } = useWasmData();
   const [students,setStudents]=useState([])
   const [stdDuckDB,setStdDuckDB]=useState([])
-
- 
-    
- 
- 
   
  
   
   async function loadData() {
     const result = await getStudent();
-  //  const resDuckDB = await DockDB();
     setStudents(result);
-    //setStdDuckDB(resDuckDB)
-   // WasmProcessor(student);
+    
   }
   
   useEffect(()=>{
