@@ -1,7 +1,8 @@
 import {Table,Button} from 'react-bootstrap';
-import DockDB from '../DockDB';
+import DuckDB from '../DuckDB';
+import memoryData from '../wasm/memoryData';
 
-function  DockDBTable(props) {
+function  DuckDBTable(props) {
 
 
  
@@ -12,14 +13,14 @@ function  DockDBTable(props) {
     <Button  variant="success" size="lg" onClick={
 
       async () => {
-        const res =  await DockDB();
+        const res =  await memoryData();
 
-        console.log(res.toArray()+"reeeeesssss");
+        // console.log(res.toArray()+"reeeeesssss");
         
-        props.setStdDuckDB(res.toArray());
+        props.setStdDuckDB(res);
       }
     }>
-      Run DockDB
+      Run DuckDB
      </Button>
      </div>
      <br/>
@@ -57,4 +58,4 @@ function  DockDBTable(props) {
   );
 }
 
-export default DockDBTable;
+export default DuckDBTable;
