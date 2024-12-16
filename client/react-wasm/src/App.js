@@ -8,8 +8,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {getStudent,getDuckDBStd} from './API/API.js';
 import {BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import StudentLayout from './config/layouts.js';
-import DockDB from './DuckDB.js';
-import DockDBTable from './components/DuckDBTable.jsx';
+import DuckDB from './DuckDB.js';
+import DuckDBTable from './components/DuckDBTable.jsx';
 
 
 function App() {
@@ -17,6 +17,7 @@ function App() {
   //const { inputArr, outputArr, loading } = useWasmData();
   const [students,setStudents]=useState([])
   const [stdDuckDB,setStdDuckDB]=useState([])
+  const [chartData, setChartData]=useState(null)
   
  
   
@@ -41,11 +42,25 @@ function App() {
     <BrowserRouter>
     <Routes>
          <Route path='/student' element={<StudentLayout/>}>
-         <Route index element={<><StudentTable student={students} /><DockDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} /></>} />
+         <Route index element={
+          <>
+
+            <StudentTable student={students} />
+            <DuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} />
+            
+          </>} />
          </Route>
-         <Route path='/dockDB' element={<StudentLayout/>}>
-         <Route index element={<DockDB student={stdDuckDB} />} />
+         <Route path='/duckdb' element={<StudentLayout/>}>
+         <Route index element={
+           <>
+          <StudentTable students={students} chartData={chartData}  setChartData={setChartData}/>
+          <DuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData}  setChartData={setChartData} />
+            </>
+        
+        } />
+            
          </Route>
+         
     </Routes>
     {/* Process the students data with WasmProcessor */}
     {/* <WasmProcessor students={students} setStudents={setStudents} /> */}
