@@ -7,7 +7,8 @@ function StudentLayout() {
     return (
         <>
             <h1> <Header /></h1>
-            <footer><Footer/></footer>
+
+            {/* <footer><Footer/></footer> */}
             <Outlet />
         </>
     )

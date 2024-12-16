@@ -30,6 +30,7 @@
     align-items:center;
     height: 10vh; /* Makes the container take the full viewport height */
     margin: 0;
+    
   }
   
   /* Make the button circular */
@@ -43,5 +44,21 @@
     align-items: center;
   }
   
-
+  .grid-container {
+    display: grid; /* Use grid for layout */
+    grid-template-columns: 35% 65%; /* Define column widths */
+    height: 100vh; /* Full height of the viewport */
+  }
+  
+  .left-panel {
+    background-color: #f8f9fa; /* Optional: background color */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+    border-right: 1px solid #ddd; /* Optional: border for separation */
+  }
+  
+  .right-panel {
+    background-color: #fff; /* Optional: background color */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+  }
+  
 
