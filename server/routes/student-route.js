@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controller/wasm-controller');
+const userController = require('../controller/student-controller');
 
 
 //get data

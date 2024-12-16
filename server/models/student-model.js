@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize=require('../db');
-const { all } = require('../routes/wasm-route');
+const { all } = require('../routes/student-route');
 
-const Student= sequelize.define('User',{
+const Student= sequelize.define('student',{
 
  id:{
   type:DataTypes.INTEGER,
