@@ -34,19 +34,22 @@ function StudentTable(props) {
 
           <th>student ID</th>
           <th>Full Name</th>
-          <th>Mark</th>
+          <th>Age</th>
         </tr>
       </thead>
       <tbody>
-        
+        {/* {props.students.map((std) => (console.log(std)
+        ))} */}
+        {console.log(props.students)
+        }
 
-        {/* {Array.isArray(props.student) &&*/}{props.students.map((std) => ( 
+      {Array.isArray(props.students) && props.students.map((std) => ( 
         
           
           <tr key={std.id}>
             <td>{std.id}</td>
             <td>{std.sname}</td>
-            <td>{std.marks}</td>
+            <td>{std.age}</td>
           </tr>
         ))}
 
