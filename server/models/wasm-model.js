@@ -17,7 +17,7 @@ const Student= sequelize.define('User',{
     
 
   },
-  marks:{
+  age:{
     type:DataTypes.INTEGER,
     allowNull:false
   

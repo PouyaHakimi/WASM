@@ -36,15 +36,17 @@ async function DuckDB(props) {
             CREATE TABLE students (
                 id INTEGER,
                 sname TEXT,
-                marks INTEGER
+                age INTEGER
             );
         `);
         console.log("Table created");
 
         for (const row of data) {
+            
+            
             await c.query(`
-                INSERT INTO students (id, sname, marks)
-                VALUES (${row.id}, '${row.sname}', ${row.marks});
+                INSERT INTO students (id, sname, age)
+                VALUES (${row.id}, '${row.sname}', ${row.age});
             `);
         }
         console.log("Data inserted into table");

@@ -23,6 +23,8 @@ function App() {
   
   async function loadData() {
     const result = await getStudent();
+    console.log(result+"+++++++++");
+    
     setStudents(result);
     
   }
@@ -45,7 +47,7 @@ function App() {
          <Route index element={
           <>
 
-            <StudentTable student={students} />
+            <StudentTable students={students} />
             <DuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} />
             
           </>} />

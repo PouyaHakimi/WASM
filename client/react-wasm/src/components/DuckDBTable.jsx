@@ -8,6 +8,7 @@ function DuckDBTable(props) {
     labels: [],
     datasets: [],
   });
+  const [showChart,setSowChart]=useState(false);
 
   const generateChartData = () => {
     const labels = props.stdDuckDB.map((std) => std.sname); // Student names
@@ -27,6 +28,11 @@ function DuckDBTable(props) {
     });
   };
 
+  const handleGenerateChart = ()=>{
+    generateChartData();
+    setSowChart(true);
+  }
+
   return (
     <div className="container">
       <div className="row">
@@ -37,8 +43,8 @@ function DuckDBTable(props) {
           <div className="card text-center">
             <div className="card-header">Bar Chart</div>
             <div className="card-body">
-              <BarChart chartData={chartData} />
-              <Button className="btn btn-success mt-3" onClick={generateChartData}>
+           { showChart&& <BarChart chartData={chartData}  />}
+              <Button className="btn btn-success mt-3" onClick={handleGenerateChart}>
                 Generate Chart
               </Button>
             </div>
@@ -62,7 +68,7 @@ function DuckDBTable(props) {
               <tr>
                 <th>Student ID</th>
                 <th>Full Name</th>
-                <th>Mark</th>
+                <th>Age</th>
               </tr>
             </thead>
             <tbody>
@@ -70,7 +76,7 @@ function DuckDBTable(props) {
                 <tr key={std.id}>
                   <td>{std.id}</td>
                   <td>{std.sname}</td>
-                  <td>{std.marks}</td>
+                  <td>{std.age}</td>
                 </tr>
               ))}
             </tbody>

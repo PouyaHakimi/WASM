@@ -13,7 +13,7 @@ async function memoryData(props) {
         (student,index)=>{
             const namePtr = module._malloc(module.lengthBytesUTF8(student.sname)+1)
             module.stringToUTF8(student.sname,namePtr,module.lengthBytesUTF8(student.sname)+1)
-            module._update_student(index,student.id,namePtr,student.marks)
+            module._update_student(index,student.id,namePtr,student.age)
             module._free()
         }   
     )
@@ -24,7 +24,7 @@ async function memoryData(props) {
         const memoryData={
             id: module.HEAP32[stdpointer /4],
             sname: module.UTF8ToString(stdpointer+4),
-            marks: module.HEAP32[(stdpointer+56)/4]
+            age: module.HEAP32[(stdpointer+56)/4]
 
         }
 
