@@ -13,8 +13,14 @@ function MainDuckDBTable(props) {
   const [showChart,setSowChart]=useState(false);
 
   const generateChartData = () => {
-    const labels = props.courseDuckDB.map((course) => course.cname); // course names
-    const data=[]
+    const labels = props.fullMarks.map((data) => data.course_name); // course names
+    
+    
+    const data=props.fullMarks.map((data) => data.student_count)
+    const attendedData=props.attendedStd.map((data) => data.attended_students)
+    console.log("stdcount   "+attendedData);
+    
+
 
     setChartData({
       labels: labels,
@@ -22,6 +28,7 @@ function MainDuckDBTable(props) {
         {
           label: 'Number Of Students',
           data: data,
+          attendedData:attendedData,
           backgroundColor: 'rgba(54, 235, 99, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 1,
@@ -46,7 +53,14 @@ function MainDuckDBTable(props) {
             <div className="card-header">Bar Chart</div>
             <div className="card-body">
            { showChart&& <BarChart chartData={chartData}  />}
-              <Button className="btn btn-success mt-3" onClick={handleGenerateChart}>
+              <Button className="btn btn-success mt-3" onClick={
+                   
+                async()=>{
+                  console.log("full Markssssss"+props.fullMarks[0]);
+                  handleGenerateChart()
+                }
+                
+                }>
                 Generate Chart
               </Button>
             </div>
@@ -61,12 +75,12 @@ function MainDuckDBTable(props) {
             onClick={async () => {
               const res = await memoryStudentData();
               const mainData = await mainDataDuckDB();
-              console.log("duckDB Table******"+mainData);
-              
               const courseTest= await getDuckDBCourses();
               props.setCourseDuckDB(courseTest);
               props.setStdDuckDB(res);
-              props.setMainDuckDB(mainData);
+              props.setMainDuckDB(mainData.dataWithKeys);
+              props.setFullMarks(mainData.fullMarksArray);
+              props.setattendedStd(mainData.allAttendedArray);
             }}
           >
             Run DuckDB

@@ -132,6 +132,7 @@ export async function mainDataDuckDB(params) {
 
             );  
          `)
+      
 
         console.log("Table created");
 
@@ -167,11 +168,31 @@ export async function mainDataDuckDB(params) {
             JOIN Courses c ON r.cid = c.cid
             ORDER BY s.sname;`)
 
+        const fullMarks = c.query(`SELECT c.cname AS course_name, COUNT(*) AS student_count
+            FROM marks m
+            JOIN courses c ON m.cid = c.cid
+            WHERE m.marks = 30
+            GROUP BY c.cname
+            ORDER BY c.cname;`)
+
+        const allAttended= c.query(`SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
+            FROM marks m
+            JOIN courses c ON m.cid = c.cid
+            WHERE m.cid IN (
+                    SELECT DISTINCT cid
+                    FROM marks
+                    WHERE marks = 30
+                    )
+            GROUP BY c.cname
+            ORDER BY c.cname;
+        `)    
+
         console.log("Raw Query Result:", result);
 
 
         const table = await result;  // Await the Promise to resolve it
-
+        const fullMarksTable = await fullMarks;
+        const  attendedTable = await allAttended;
 
 
         await c.close()
@@ -179,7 +200,8 @@ export async function mainDataDuckDB(params) {
 
         // convert data from arrow format retrieved from query to standard array of js
         const dataArray = table.toArray()
-
+        const fullMarksArray = fullMarksTable.toArray()
+        const allAttendedArray = attendedTable.toArray()
 
         // Generate unique keys for each row
         const dataWithKeys = dataArray.map((row, index) => ({
@@ -188,11 +210,11 @@ export async function mainDataDuckDB(params) {
         }));
 
 
-        return (
+        return {
             dataWithKeys,
-            //test to send several select result
-            dataArray
-        )
+            fullMarksArray,
+            allAttendedArray
+        }
 
     } catch (error) {
 
