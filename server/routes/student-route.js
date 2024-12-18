@@ -5,7 +5,7 @@ const userController = require('../controller/student-controller');
 
 //get data
 
-router.get('/users',userController.getAllStudents);
+router.get('/students',userController.getAllStudents);
 router.get('/dockDB',userController.getAllStudents)
 
 
