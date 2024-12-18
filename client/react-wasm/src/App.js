@@ -22,6 +22,9 @@ function App() {
   const [courseDuckDB, setCourseDuckDB] = useState([])
   const [marksDuckDB,setMarksDuckDB] = useState([])
   const [mainDuckDB,setMainDuckDB] = useState([])
+  const [fullMarks,setFullMarks] = useState([])
+  const [attendedStd,setattendedStd] = useState([])
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -84,7 +87,7 @@ function App() {
           <Route index element={
             <>
         
-              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} courseDuckDB={courseDuckDB} setCourseDuckDB={setCourseDuckDB} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} />
+              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} courseDuckDB={courseDuckDB} setCourseDuckDB={setCourseDuckDB} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
             </>
 
           } />
