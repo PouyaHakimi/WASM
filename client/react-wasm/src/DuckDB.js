@@ -1,14 +1,15 @@
-import { getDuckDBStd } from "./API/API";
+
+import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
 
 
 
-async function DuckDB(props) {
+export async function studentDuckDB(props) {
 
 
     try {
 
-        const data = await getDuckDBStd();
+        const studentData = await getDuckDBStd();
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
@@ -26,7 +27,7 @@ async function DuckDB(props) {
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
         console.log("DuckDB initialized successfully!");
-        
+
 
         const c = await db.connect()
 
@@ -41,15 +42,15 @@ async function DuckDB(props) {
         `);
         console.log("Table created");
 
-        for (const row of data) {
-            
-            
+        for (const row of studentData) {
+
+
             await c.query(`
                 INSERT INTO students (id, sname, age)
                 VALUES (${row.id}, '${row.sname}', ${row.age});
             `);
         }
-        console.log("Data inserted into table");
+        console.log("Data inserted into student table");
 
         const result = c.query(`select * from students`)
 
@@ -74,11 +75,133 @@ async function DuckDB(props) {
 }
 
 
+//*********************create and join all tables in DuckDB******** 
+
+export async function mainDataDuckDB(params) {
+
+    try {
+
+        const studentData = await getDuckDBStd();
+        const courseData = await getDuckDBCourses();
+        const markData = await getDuckDBMarks();
+
+        const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+        const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+
+        const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+
+        const logger = new duckdb.ConsoleLogger();
+
+
+        const db = new duckdb.AsyncDuckDB(logger, worker);
+        console.log("db" + db);
+
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+        console.log("DuckDB initialized successfully!");
+
+
+        const c = await db.connect()
+
+        console.log("Database connection established");
+
+        await c.query(`
+            CREATE TABLE students (
+                id INTEGER PRIMARY KEY,
+                sname TEXT,
+                age INTEGER
+            );
+        `);
+        await c.query(`
+            CREATE TABLE courses(
+               cid INTEGER PRIMARY KEY,
+               cname TEXT,
+               credits INTEGER
+            );
+        `);
+        await c.query(`
+            CREATE TABLE marks(
+                id INTEGER PRIMARY KEY,
+                sid INTEGER NOT NULL,
+                cid INTEGER NOT NULL,
+                marks INTEGER,
+                FOREIGN KEY (sid) REFERENCES students (id),
+                FOREIGN KEY (cid) REFERENCES courses (cid)
+
+            );  
+         `)
+
+        console.log("Table created");
+
+        for (const row of studentData) {
+
+
+            await c.query(`
+                INSERT INTO students (id, sname, age)
+                VALUES (${row.id}, '${row.sname}', ${row.age});
+            `);
+        }
+
+        for (const row of courseData) {
+            console.log("&&&&&&&&&&&&&&&&&" + row);
+
+            await c.query(` 
+                INSERT INTO courses(cid,cname,credits)
+                VALUES (${row.cid},'${row.cname}',${row.credits})    
+            `);
+        }
+
+        for (const row of markData) {
+            await c.query(` 
+                INSERT INTO marks(id,sid,cid,marks)
+                VALUES (${row.id},${row.sid},${row.cid},${row.marks})    
+            `);
+        }
+        console.log("Data inserted into student table");
+
+        const result = c.query(`SELECT s.id, s.sname, c.cname , r.marks
+            FROM marks r
+            JOIN Students s ON r.sid = s.id
+            JOIN Courses c ON r.cid = c.cid
+            ORDER BY s.sname;`)
+
+        console.log("Raw Query Result:", result);
+
+
+        const table = await result;  // Await the Promise to resolve it
+
+
+
+        await c.close()
+
+
+        // convert data from arrow format retrieved from query to standard array of js
+        const dataArray = table.toArray()
+
+
+        // Generate unique keys for each row
+        const dataWithKeys = dataArray.map((row, index) => ({
+            ...row,
+            key: `${row.id}-${row.cname}-${index}`, // Use a combination of fields and index for uniqueness
+        }));
+
+
+        return (
+            dataWithKeys,
+            //test to send several select result
+            dataArray
+        )
+
+    } catch (error) {
+
+        console.error("error of fetching in BrowserDB", error)
+
+    }
+
+}
 
 
 
 
-
-
-
-export default DuckDB;

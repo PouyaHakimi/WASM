@@ -1,9 +1,9 @@
-import DuckDB from "../DuckDB";
+import {studentDuckDB} from "../DuckDB";
 import createModule from "../wasm/student2";
 
-async function memoryData(props) {
+export async function memoryStudentData(props) {
 
-    const DuckData = await DuckDB()
+    const DuckData = await studentDuckDB()
     
     const module = await createModule() // wraper Module that has created by makin import creatModule functional the name can be even asghar
 
@@ -36,4 +36,3 @@ async function memoryData(props) {
     
 }
 
-export default memoryData;
