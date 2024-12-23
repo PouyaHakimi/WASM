@@ -97,8 +97,12 @@ function MainDuckDBTable(props) {
               </tr>
             </thead>
             <tbody>
+
+              {/* {console.log("yeeeeessssss"+props.mainDuckDB.map((std)=>(console.log(std)
+              )))
+              } */}
               
-              {props.mainDuckDB.map((std,index) => (
+              {Array.isArray(props.mainDuckDB)&& props.mainDuckDB.map((std,index) => (
                
                 
                 <tr key={std.key}>

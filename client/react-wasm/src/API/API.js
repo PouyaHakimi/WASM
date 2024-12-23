@@ -10,7 +10,7 @@ async function getStudent() {
     try {
 
         const response = await fetch(URL);
-        console.log(response + "In APIIII");
+        console.log(response + "*****In APIIII");
 
 
         // if (response.ok) {
@@ -106,7 +106,7 @@ async function getDuckDBCourses(params) {
 
 }
 
-async function getDuckDBMarks(params) {
+async function getDuckDBMarks() {
 
     const URL = BACKENDURL + '/marks'
     try {

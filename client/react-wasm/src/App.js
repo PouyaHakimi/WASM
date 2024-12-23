@@ -31,18 +31,18 @@ function App() {
 
       try {
         //optimize way to invoke several data function
-        //const [students,courses,marks,mainData]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDuckDB()]);
-       //const result = await mainDataDuckDB();
-      // const coursetest = await getDuckDBCourses();
+        const [students,courses,marks,maiDataDuckDB]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDataDuckDB()]);
+      // const result = await mainDataDuckDB();
+      //const coursetest = await getDuckDBCourses();
       
       //console.log(result + '    test mainData in app');
       setStudents(students);
 
       //to test all page
       setStdDuckDB(students)
-      // setCourseDuckDB(courses)
-      // setMarksDuckDB(marks)
-      //setMainDuckDB(result)
+       setCourseDuckDB(courses)
+       setMarksDuckDB(marks)
+       setMainDuckDB(maiDataDuckDB)
       } catch (error) {
 
         console.error("Loading Data Error:" + error)

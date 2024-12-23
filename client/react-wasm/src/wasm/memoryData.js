@@ -19,7 +19,7 @@ export async function memoryStudentData(props) {
     )
 
 
-    const proceeddata= DuckData.map((_,index)=>{
+    const stdproceeddata= DuckData.map((_,index)=>{
         const stdpointer = module._get_student(index)
         const memoryData={
             id: module.HEAP32[stdpointer /4],
@@ -32,7 +32,7 @@ export async function memoryStudentData(props) {
     })
     
     
-    return proceeddata
+    return stdproceeddata
     
 }
 
