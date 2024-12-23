@@ -10,6 +10,7 @@ function StudentTable(props) {
 
 
 
+
   //const students = Array.isArray(props.student) ? props.student : [1,2,3];
   return (
     <div class="container">
@@ -40,7 +41,7 @@ function StudentTable(props) {
       <tbody>
         {/* {props.students.map((std) => (console.log(std)
         ))} */}
-        {console.log(props.students)
+        {console.log("kiriiiiii"+props.students)
         }
 
       {Array.isArray(props.students) && props.students.map((std) => ( 
