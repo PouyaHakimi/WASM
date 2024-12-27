@@ -10,7 +10,7 @@ export async function studentDuckDB(props) {
     try {
 
         const studentData = await getDuckDBStd();
-
+        
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
         const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
@@ -65,6 +65,8 @@ export async function studentDuckDB(props) {
 
         // convert data from arrow format retrieved from query to standard array of js
         const dataArray = table.toArray()
+        console.log(dataArray+"kiriiiiii");
+        
         return dataArray
 
     } catch (error) {
@@ -193,6 +195,10 @@ export async function mainDataDuckDB(params) {
         const table = await result;  // Await the Promise to resolve it
         const fullMarksTable = await fullMarks;
         const  attendedTable = await allAttended;
+        console.log("FullMaaaark"+fullMarksTable);
+        console.log("attended Students"+attendedTable);
+        
+        
 
 
         await c.close()
@@ -208,10 +214,11 @@ export async function mainDataDuckDB(params) {
             ...row,
             key: `${row.id}-${row.cname}-${index}`, // Use a combination of fields and index for uniqueness
         }));
-
+        console.log("Data With Key "+ dataWithKeys);
+        
 
         return {
-            dataWithKeys,
+            dataArray,
             fullMarksArray,
             allAttendedArray
         }

@@ -57,10 +57,11 @@ function DuckDBTable(props) {
           <Button
             variant="success"
             size="lg"
+
             onClick={async () => {
               const res = await memoryStudentData();
-              const courseTest= await getDuckDBCourses();
-              props.setCourseDuckDB(courseTest);
+              //const courseTest= await getDuckDBCourses();
+              //props.setCourseDuckDB(courseTest);
               props.setStdDuckDB(res);
             }}
           >
