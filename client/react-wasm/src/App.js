@@ -24,25 +24,26 @@ function App() {
   const [mainDuckDB,setMainDuckDB] = useState([])
   const [fullMarks,setFullMarks] = useState([])
   const [attendedStd,setattendedStd] = useState([])
-
+  console.log(mainDuckDB+"In App teeesssstt");
+  
 
   useEffect(() => {
     const loadData = async () => {
 
       try {
         //optimize way to invoke several data function
-        const [students,courses,marks,maiDataDuckDB]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDataDuckDB()]);
-      // const result = await mainDataDuckDB();
+       // const [students,courses,marks,maiDataDuckDB]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDataDuckDB()]);
+       const students = await getStudent();
       //const coursetest = await getDuckDBCourses();
       
       //console.log(result + '    test mainData in app');
       setStudents(students);
 
       //to test all page
-      setStdDuckDB(students)
-       setCourseDuckDB(courses)
-       setMarksDuckDB(marks)
-       setMainDuckDB(maiDataDuckDB)
+     // setStdDuckDB(students)
+      //  setCourseDuckDB(courses)
+      //  setMarksDuckDB(marks)
+      //  setMainDuckDB(maiDataDuckDB)
       } catch (error) {
 
         console.error("Loading Data Error:" + error)

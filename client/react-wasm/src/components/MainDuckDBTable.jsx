@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
-import {memoryStudentData} from '../wasm/memoryData';
+import {memoryStudentData,memoryStdCourseData} from '../wasm/memoryData';
 import BarChart from './BarChart';
 import { getDuckDBCourses } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
@@ -73,14 +73,20 @@ function MainDuckDBTable(props) {
             variant="success"
             size="lg"
             onClick={async () => {
-              const res = await memoryStudentData();
-              const mainData = await mainDataDuckDB();
-              const courseTest= await getDuckDBCourses();
-              props.setCourseDuckDB(courseTest);
-              props.setStdDuckDB(res);
-              props.setMainDuckDB(mainData.dataWithKeys);
-              props.setFullMarks(mainData.fullMarksArray);
-              props.setattendedStd(mainData.allAttendedArray);
+              //const res = await memoryStudentData();
+              const mainData2 = await mainDataDuckDB();
+              const mainData= await memoryStdCourseData();
+              console.log(mainData+"kiiirriiittooo");
+              
+              
+            //  const courseTest= await getDuckDBCourses();
+              //props.setCourseDuckDB(courseTest);
+             // props.setStdDuckDB(res);
+
+              //*******this three data should be handled in a way that can cover our requirement*/
+              props.setMainDuckDB(mainData);
+              props.setFullMarks(mainData2.fullMarksArray);
+              props.setattendedStd(mainData2.allAttendedArray);
             }}
           >
             Run DuckDB
@@ -98,12 +104,13 @@ function MainDuckDBTable(props) {
             </thead>
             <tbody>
 
-              {/* {console.log("yeeeeessssss"+props.mainDuckDB.map((std)=>(console.log(std)
-              )))
-              } */}
-              
+             
+              {console.log(JSON.stringify(props.mainDuckDB)+"heeereee")
+              }
+              { props.mainDuckDB.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))}
               {Array.isArray(props.mainDuckDB)&& props.mainDuckDB.map((std,index) => (
                
+                
                 
                 <tr key={std.key}>
                   <td>{index + 1 }</td>

@@ -39,10 +39,7 @@ function StudentTable(props) {
         </tr>
       </thead>
       <tbody>
-        {/* {props.students.map((std) => (console.log(std)
-        ))} */}
-        {console.log("kiriiiiii"+props.students)
-        }
+    
 
       {Array.isArray(props.students) && props.students.map((std) => ( 
         
