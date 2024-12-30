@@ -1,7 +1,7 @@
 
 import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
-
+import { faker, Faker,it } from '@faker-js/faker';
 
 
 
@@ -239,6 +239,38 @@ export async function fakeDataDuckDB(params) {
         const courseData = []//await getDuckDBCourses();
         const markData = []//await getDuckDBMarks();        
 
+        const customFaker = new Faker({ locale: [it] });
+        for(let i = 1 ; i<=100000 ; i++){
+            studentData.push({
+                id:i,
+                sname: customFaker.person.fullName().replace(/'/g, "''"),
+                age:faker.number.int({ min: 18, max: 25 })
+
+            })
+        }
+
+        for(let i = 1 ; i<=5 ; i++){
+        
+            courseData.push({
+                cid: i,
+                cname:faker.commerce.productName(),
+                credits:faker.number.int({ min: 1, max: 10 })
+            })
+
+        }
+        for(let i = 1 ; i<=100000 ; i++){
+            const sid = faker.number.int({ min: 1, max: 100000 });
+            const cid = faker.number.int({ min: 1, max: 5 });
+            markData.push({
+                id:i,
+                sid:sid,
+                cid:cid,
+                marks: faker.number.int({min:30, max:30})
+
+            })
+        }
+
+        
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
         const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
@@ -353,10 +385,11 @@ export async function fakeDataDuckDB(params) {
         await c.close()
 
 
-        // convert data from arrow format retrieved from query to standard array of js
-        const dataArray = table.toArray()
-        const fullMarksArray = fullMarksTable.toArray()
-        const allAttendedArray = attendedTable.toArray()
+        // convert data from arrow format retrieved from query to standard plain array of js
+
+        const dataArray = table.toArray().map(row=>({...row}))    // Convert each row to a plain object
+        const fullMarksArray = fullMarksTable.toArray().map(row =>({...row}))
+        const allAttendedArray = attendedTable.toArray().map(row =>({...row}))
 
         // Generate unique keys for each row
         const dataWithKeys = dataArray.map((row, index) => ({
