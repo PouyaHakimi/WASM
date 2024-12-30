@@ -161,14 +161,16 @@ export async function memoryStdCourseFakeData() {
     const module = await createMainModule() // wraper Module that has created by makin import creatModule functional the name can be even asghar
 
     module._std_init(mainData.dataArray.length)
+    module._fullMark_init(mainData.fullMarksArray.length)
+    module._attended_init(mainData.allAttendedArray.length)
 
     mainData.dataArray.map(
         (student, index) => {
 
-
+            console.log(student.sname+"OOOOOO");
+            
 
             const snamePtr = module._malloc(module.lengthBytesUTF8(student.sname) + 1)
-
             const cnamePtr = module._malloc(module.lengthBytesUTF8(student.cname) + 1)
             module.stringToUTF8(student.sname, snamePtr, module.lengthBytesUTF8(student.sname) + 1)
             module.stringToUTF8(student.cname, cnamePtr, module.lengthBytesUTF8(student.cname) + 1)
@@ -178,6 +180,21 @@ export async function memoryStdCourseFakeData() {
         }
     )
 
+    mainData.fullMarksArray.map((std, index) => {
+
+        const fmCnamePtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
+        module.stringToUTF8(std.course_name, fmCnamePtr, module.lengthBytesUTF8(std.course_name))
+        module._insert_fullMark(index, fmCnamePtr, Number(std.student_count))
+        module._free()
+    })
+
+    mainData.allAttendedArray.map((std, index) => {
+        const allAttendedPtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
+        module.stringToUTF8(std.course_name, allAttendedPtr, module.lengthBytesUTF8(std.course_name) + 1)
+        module._insert_attended(index, allAttendedPtr, Number(std.attended_students))
+        module._free()
+
+    })
 
     const stdproceeddata = mainData.dataArray.map((_, index) => {
 
@@ -196,32 +213,6 @@ export async function memoryStdCourseFakeData() {
         return memoryData
     })
 
-
-    return stdproceeddata
-
-}
-
-
-
-//***************Fake Data Chart */
-export async function memoryStdDataFaker() {
-
-    const mainData = await fakeDataDuckDB()
-   console.log(mainData+"fake dataaa chart");
-   
-    const module = await createMainModule();
-
-    module._fullMark_init(mainData.fullMarksArray.length)
-    module._attended_init(mainData.allAttendedArray.length)
-
-    mainData.fullMarksArray.map((std, index) => {
-
-        const fmCnamePtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
-        module.stringToUTF8(std.course_name, fmCnamePtr, module.lengthBytesUTF8(std.course_name))
-        module._insert_fullMark(index, fmCnamePtr, Number(std.student_count))
-        module._free()
-    })
-
     const proceedDataFm = mainData.fullMarksArray.map((_, index) => {
         const fullMarkPtr = module._get_fullMark(index)
        
@@ -237,13 +228,6 @@ export async function memoryStdDataFaker() {
 
 
     })
-    mainData.allAttendedArray.map((std, index) => {
-        const allAttendedPtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
-        module.stringToUTF8(std.course_name, allAttendedPtr, module.lengthBytesUTF8(std.course_name) + 1)
-        module._insert_attended(index, allAttendedPtr, Number(std.attended_students))
-        module._free()
-
-    })
 
     const proceedDataAt = mainData.allAttendedArray.map((_, index) => {
         const AttendedPtr = module._get_attended(index)
@@ -254,17 +238,81 @@ export async function memoryStdDataFaker() {
         
         return memoryDataAt
     })
-     
+    
+    const resulstd =JSON.stringify(stdproceeddata)
     const resultFm = JSON.stringify(proceedDataFm)
     const resultAt = JSON.stringify(proceedDataAt)
 
-    
-    return {
-        resultFm,
-        resultAt
-    }
 
 
-
+    return {resulstd,resultFm,resultAt}
 
 }
+
+
+
+// //***************Fake Data Chart */
+// export async function memoryStdDataFaker() {
+
+//     const mainData = await fakeDataDuckDB()
+//    console.log(mainData+"fake dataaa chart");
+   
+//     const module = await createMainModule();
+
+//     module._fullMark_init(mainData.fullMarksArray.length)
+//     module._attended_init(mainData.allAttendedArray.length)
+
+//     mainData.fullMarksArray.map((std, index) => {
+
+//         const fmCnamePtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
+//         module.stringToUTF8(std.course_name, fmCnamePtr, module.lengthBytesUTF8(std.course_name))
+//         module._insert_fullMark(index, fmCnamePtr, Number(std.student_count))
+//         module._free()
+//     })
+
+//     const proceedDataFm = mainData.fullMarksArray.map((_, index) => {
+//         const fullMarkPtr = module._get_fullMark(index)
+       
+//         const memoryDataFm = {
+//             course_name: module.UTF8ToString(fullMarkPtr),
+//             student_count: module.HEAP32[(fullMarkPtr + 52) / 4]
+
+//         }
+
+       
+
+//         return memoryDataFm
+
+
+//     })
+//     mainData.allAttendedArray.map((std, index) => {
+//         const allAttendedPtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
+//         module.stringToUTF8(std.course_name, allAttendedPtr, module.lengthBytesUTF8(std.course_name) + 1)
+//         module._insert_attended(index, allAttendedPtr, Number(std.attended_students))
+//         module._free()
+
+//     })
+
+//     const proceedDataAt = mainData.allAttendedArray.map((_, index) => {
+//         const AttendedPtr = module._get_attended(index)
+//         const memoryDataAt = {
+//             course_name: module.UTF8ToString(AttendedPtr),
+//             attended_students: module.HEAP32[(AttendedPtr+52)/4]
+//         }
+        
+//         return memoryDataAt
+//     })
+     
+//     const resultFm = JSON.stringify(proceedDataFm)
+//     const resultAt = JSON.stringify(proceedDataAt)
+
+    
+//     return {
+//         resultFm,
+//         resultAt
+//     }
+
+
+
+
+//}

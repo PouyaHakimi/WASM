@@ -19,22 +19,22 @@ function FakeDuckDBTable(props) {
     if (!props.fullMarks || !props.attendedStd || props.fullMarks.length === 0 || props.attendedStd.length === 0) {
       console.error("Data is not available yet for generating chart.");
       return;
-  }
-   
-    let fullMarks1 = Array.isArray(props.fullMarks)
-        ? props.fullMarks
-        : JSON.parse(props.fullMarks);
+    }
 
-    let attendedStd1 = Array.isArray(props.attendedStd)
-        ? props.attendedStd
-        : JSON.parse(props.attendedStd);
+    // let fullMarks1 = Array.isArray(props.fullMarks)
+    //   ? props.fullMarks
+    //   : JSON.parse(props.fullMarks);
 
-    const labels = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.course_name) : [] // course names
+    // let attendedStd1 = Array.isArray(props.attendedStd)
+    //   ? props.attendedStd
+    //   : JSON.parse(props.attendedStd);
+
+    const labels = Array.isArray(props.fullMarks) ? props.fullMarks.map((data) => data.course_name) : [] // course names
 
 
-    const data = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.student_count) : []
-    const attendedData = Array.isArray(attendedStd1) ? attendedStd1.map((data) => data.attended_students) : []
-   
+    const data = Array.isArray(props.fullMarks) ? props.fullMarks.map((data) => data.student_count) : []
+    const attendedData = Array.isArray(props.attendedStd) ? props.attendedStd.map((data) => data.attended_students) : []
+
 
     setChartData({
       labels: labels,
@@ -53,18 +53,18 @@ function FakeDuckDBTable(props) {
 
   const handleGenerateChart = () => {
     generateChartData();
-      setSowChart(true);
-    
-    
+    setSowChart(true);
+
+
   }
 
   //The useEffect hook ensures the chart is generated only when props.fullMarks and props.attendedStd are populated.
 
   useEffect(() => {
     if (props.fullMarks && props.attendedStd && props.fullMarks.length > 0 && props.attendedStd.length > 0) {
-        generateChartData();
+      generateChartData();
     }
-}, [props.fullMarks, props.attendedStd]);
+  }, [props.fullMarks, props.attendedStd]);
 
   return (
     <div className="container">
@@ -81,10 +81,10 @@ function FakeDuckDBTable(props) {
 
                 async () => {
                   // console.log("full Markssssss"+props.fullMarks[0]);
-                  const mainData2 = await mainDataDuckDB();
-                  const stdMarkData = await memoryStdDataFaker()
-                  props.setFullMarks(stdMarkData.resultFm);
-                  props.setattendedStd(stdMarkData.resultAt);
+                  // const mainData2 = await mainDataDuckDB();
+                  // const stdMarkData = await memoryStdDataFaker()
+                  // props.setFullMarks(stdMarkData.resultFm);
+                  // props.setattendedStd(stdMarkData.resultAt);
                   handleGenerateChart()
 
                 }
@@ -102,9 +102,14 @@ function FakeDuckDBTable(props) {
             variant="success"
             size="lg"
             onClick={async () => {
-             
+
               const fakeData = await memoryStdCourseFakeData();
-              props.setFakeDuckDB(fakeData);
+              let arraystdData = Array.isArray(fakeData.resulstd) ? fakeData.resulstd : JSON.parse(fakeData.resulstd)
+              let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
+              let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
+              props.setFakeDuckDB(arraystdData);
+              props.setFullMarks(arrayFullMaraks);
+              props.setattendedStd(arrayAttendedStd);
               //fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB}
             }}
           >
@@ -124,10 +129,12 @@ function FakeDuckDBTable(props) {
             <tbody>
 
 
-              {/* {console.log(JSON.stringify(props.mainDuckDB)+"heeereee")
+              {/* {console.log(Array.isArray(props.fakeDuckDB) && props.fakeDuckDB.map((std)=>console.log(std)
+              )+"heeereee")
               } */}
               {/* { props.mainDuckDB.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))} */}
               {Array.isArray(props.fakeDuckDB) && props.fakeDuckDB.map((std, index) => (
+
 
 
 

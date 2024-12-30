@@ -24,7 +24,7 @@ export default function BasicBars({ chartData }) {
 
   return (
     <BarChart
-      width={400}
+      width={1300}
       height={300}
       series={[
         { data: pData, label: 'Full Mark', id: 'pvId' },
