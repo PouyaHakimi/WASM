@@ -2,11 +2,8 @@ import * as React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 
 export default function BasicBars({ chartData }) {
-  console.log(chartData + ")))))))))))))))");
+  
 
-
-
-  console.log("Chart Data:", chartData);
 
   if (!chartData || !chartData.labels || !chartData.datasets) {
     console.error("Invalid chart data format");

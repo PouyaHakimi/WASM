@@ -11,7 +11,7 @@ async function getStudent() {
     try {
 
         const response = await fetch(URL);
-        console.log(response + "*****In APIIII");
+        
         return await response.json()//processeddata
 
 
@@ -33,7 +33,6 @@ async function getDuckDBStd() {
 
         const response = await fetch(URL)
         const result = await response.json()
-        console.log(result + "In API");
         return result
 
 
@@ -51,7 +50,6 @@ async function getDuckDBCourses(params) {
 
         const response = await fetch(URL)
         const result = response.json();
-        console.log("course In API**" + response);
         return result
 
     } catch (error) {
@@ -70,7 +68,6 @@ async function getDuckDBMarks() {
 
         const response = await fetch(URL)
         const result = response.json();
-        console.log("marks In API**" + response);
         return result
 
     } catch (error) {

@@ -24,7 +24,7 @@ function App() {
   const [mainDuckDB,setMainDuckDB] = useState([])
   const [fullMarks,setFullMarks] = useState([])
   const [attendedStd,setattendedStd] = useState([])
-  console.log(mainDuckDB+"In App teeesssstt");
+ 
   
 
   useEffect(() => {

@@ -4,13 +4,16 @@ const Students = require('../models/student-model');
  exports.getAllStudents = async(req,res)=>{
   try {
         const users = await Students.findAll();
-
         
         // Log the plain data to the terminal
         const plainUsers = users.map(user => user.get({ plain: true }));
         console.log("Retrieved students:", plainUsers);
        
         res.status(200).json(users);
+        
+
+        
+        
         
         
   } catch (error) {

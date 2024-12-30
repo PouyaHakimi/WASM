@@ -1,26 +1,38 @@
 import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
-import {memoryStudentData,memoryStdCourseData} from '../wasm/memoryData';
+import { memoryStdMarkData, memoryStdCourseData } from '../wasm/memoryData';
 import BarChart from './BarChart';
 import { getDuckDBCourses } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
-
+import { useEffect } from 'react';
 function MainDuckDBTable(props) {
-  const [chartData, setChartData] = useState({ labels: [],datasets: [] }); 
-    
-    
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
 
-  const [showChart,setSowChart]=useState(false);
+
+
+  const [showChart, setSowChart] = useState(false);
 
   const generateChartData = () => {
-    const labels = props.fullMarks.map((data) => data.course_name); // course names
-    
-    
-    const data=props.fullMarks.map((data) => data.student_count)
-    const attendedData=props.attendedStd.map((data) => data.attended_students)
-    console.log("stdcount   "+attendedData);
-    
 
+    if (!props.fullMarks || !props.attendedStd || props.fullMarks.length === 0 || props.attendedStd.length === 0) {
+      console.error("Data is not available yet for generating chart.");
+      return;
+  }
+   
+    let fullMarks1 = Array.isArray(props.fullMarks)
+        ? props.fullMarks
+        : JSON.parse(props.fullMarks);
+
+    let attendedStd1 = Array.isArray(props.attendedStd)
+        ? props.attendedStd
+        : JSON.parse(props.attendedStd);
+
+    const labels = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.course_name) : [] // course names
+
+
+    const data = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.student_count) : []
+    const attendedData = Array.isArray(attendedStd1) ? attendedStd1.map((data) => data.attended_students) : []
+   
 
     setChartData({
       labels: labels,
@@ -28,7 +40,7 @@ function MainDuckDBTable(props) {
         {
           label: 'Number Of Students',
           data: data,
-          attendedData:attendedData,
+          attendedData: attendedData,//attendedData,
           backgroundColor: 'rgba(54, 235, 99, 0.2)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 1,
@@ -37,10 +49,20 @@ function MainDuckDBTable(props) {
     });
   };
 
-  const handleGenerateChart = ()=>{
+  const handleGenerateChart = () => {
     generateChartData();
-    setSowChart(true);
+      setSowChart(true);
+    
+    
   }
+
+  //The useEffect hook ensures the chart is generated only when props.fullMarks and props.attendedStd are populated.
+
+  useEffect(() => {
+    if (props.fullMarks && props.attendedStd && props.fullMarks.length > 0 && props.attendedStd.length > 0) {
+        generateChartData();
+    }
+}, [props.fullMarks, props.attendedStd]);
 
   return (
     <div className="container">
@@ -52,15 +74,20 @@ function MainDuckDBTable(props) {
           <div className="card text-center">
             <div className="card-header">Bar Chart</div>
             <div className="card-body">
-           { showChart&& <BarChart chartData={chartData}  />}
+              {showChart && <BarChart chartData={chartData} />}
               <Button className="btn btn-success mt-3" onClick={
-                   
-                async()=>{
-                  console.log("full Markssssss"+props.fullMarks[0]);
+
+                async () => {
+                  // console.log("full Markssssss"+props.fullMarks[0]);
+                  const mainData2 = await mainDataDuckDB();
+                  const stdMarkData = await memoryStdMarkData()
+                  props.setFullMarks(stdMarkData.resultFm);
+                  props.setattendedStd(stdMarkData.resultAt);
                   handleGenerateChart()
+
                 }
-                
-                }>
+
+              }>
                 Generate Chart
               </Button>
             </div>
@@ -73,20 +100,10 @@ function MainDuckDBTable(props) {
             variant="success"
             size="lg"
             onClick={async () => {
-              //const res = await memoryStudentData();
-              const mainData2 = await mainDataDuckDB();
-              const mainData= await memoryStdCourseData();
-              console.log(mainData+"kiiirriiittooo");
-              
-              
-            //  const courseTest= await getDuckDBCourses();
-              //props.setCourseDuckDB(courseTest);
-             // props.setStdDuckDB(res);
-
-              //*******this three data should be handled in a way that can cover our requirement*/
+             
+              const mainData = await memoryStdCourseData();
               props.setMainDuckDB(mainData);
-              props.setFullMarks(mainData2.fullMarksArray);
-              props.setattendedStd(mainData2.allAttendedArray);
+
             }}
           >
             Run DuckDB
@@ -104,16 +121,16 @@ function MainDuckDBTable(props) {
             </thead>
             <tbody>
 
-             
-              {console.log(JSON.stringify(props.mainDuckDB)+"heeereee")
-              }
-              { props.mainDuckDB.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))}
-              {Array.isArray(props.mainDuckDB)&& props.mainDuckDB.map((std,index) => (
-               
-                
-                
+
+              {/* {console.log(JSON.stringify(props.mainDuckDB)+"heeereee")
+              } */}
+              {/* { props.mainDuckDB.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))} */}
+              {Array.isArray(props.mainDuckDB) && props.mainDuckDB.map((std, index) => (
+
+
+
                 <tr key={std.key}>
-                  <td>{index + 1 }</td>
+                  <td>{index + 1}</td>
                   <td>{std.id}</td>
                   <td>{std.sname}</td>
                   <td>{std.cname}</td>
@@ -129,5 +146,9 @@ function MainDuckDBTable(props) {
   );
 }
 
+// MainDuckDBTable.defaultProps = {
+//   fullMarks: '[]',
+//   attendedStd: '[]',
+// };
 export default MainDuckDBTable;
 
