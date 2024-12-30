@@ -22,7 +22,7 @@ export async function studentDuckDB(props) {
 
 
         const db = new duckdb.AsyncDuckDB(logger, worker);
-        console.log("db" + db);
+       
 
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
@@ -54,7 +54,6 @@ export async function studentDuckDB(props) {
 
         const result = c.query(`select * from students`)
 
-        console.log("Raw Query Result:", result);
 
 
         const table = await result;  // Await the Promise to resolve it
@@ -65,7 +64,6 @@ export async function studentDuckDB(props) {
 
         // convert data from arrow format retrieved from query to standard array of js
         const dataArray = table.toArray()
-        console.log(dataArray+"kiriiiiii");
         
         return dataArray
 
@@ -98,7 +96,7 @@ export async function mainDataDuckDB(params) {
 
 
         const db = new duckdb.AsyncDuckDB(logger, worker);
-        console.log("db" + db);
+        
 
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
@@ -140,7 +138,6 @@ export async function mainDataDuckDB(params) {
 
         for (const row of studentData) {
 
-
             await c.query(`
                 INSERT INTO students (id, sname, age)
                 VALUES (${row.id}, '${row.sname}', ${row.age});
@@ -148,7 +145,6 @@ export async function mainDataDuckDB(params) {
         }
 
         for (const row of courseData) {
-            console.log("&&&&&&&&&&&&&&&&&" + row);
 
             await c.query(` 
                 INSERT INTO courses(cid,cname,credits)
@@ -189,14 +185,13 @@ export async function mainDataDuckDB(params) {
             ORDER BY c.cname;
         `)    
 
-        console.log("Raw Query Result:", result);
+       
 
 
         const table = await result;  // Await the Promise to resolve it
         const fullMarksTable = await fullMarks;
         const  attendedTable = await allAttended;
-        console.log("FullMaaaark"+fullMarksTable);
-        console.log("attended Students"+attendedTable);
+    
         
         
 
@@ -214,7 +209,7 @@ export async function mainDataDuckDB(params) {
             ...row,
             key: `${row.id}-${row.cname}-${index}`, // Use a combination of fields and index for uniqueness
         }));
-        console.log("Data With Key "+ dataWithKeys);
+      
         
 
         return {
