@@ -9,7 +9,7 @@ import { getStudent, getDuckDBCourses, getDuckDBMarks } from './API/API.js';
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import StudentLayout from './config/layouts.js';
 import DuckDB from './DuckDB.js';
-import DuckDBTable from './components/DuckDBTable.jsx';
+import FakeDuckDBTable from './components/FakeDuckDBTable.jsx';
 import MainDuckDBTable from './components/MainDuckDBTable.jsx';
 import { mainDataDuckDB } from './DuckDB.js';
 
@@ -19,7 +19,7 @@ function App() {
   const [students, setStudents] = useState([])
   const [stdDuckDB, setStdDuckDB] = useState([])
   const [chartData, setChartData] = useState(null)
-  const [courseDuckDB, setCourseDuckDB] = useState([])
+  const [fakeDuckDB, setFakeDuckDB] = useState([])
   const [marksDuckDB,setMarksDuckDB] = useState([])
   const [mainDuckDB,setMainDuckDB] = useState([])
   const [fullMarks,setFullMarks] = useState([])
@@ -70,15 +70,15 @@ function App() {
             <>
 
               <StudentTable students={students} />
-              <DuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} />
+              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} />
 
             </>} />
         </Route>
-        <Route path='/duckdb' element={<StudentLayout />}>
+        <Route path='/duckdbfaker' element={<StudentLayout />}>
           <Route index element={
             <>
               <StudentTable students={students} chartData={chartData} setChartData={setChartData} />
-              <DuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} courseDuckDB={courseDuckDB} setCourseDuckDB={setCourseDuckDB} />
+              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
             </>
 
           } />
@@ -88,7 +88,7 @@ function App() {
           <Route index element={
             <>
         
-              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} courseDuckDB={courseDuckDB} setCourseDuckDB={setCourseDuckDB} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
+              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
             </>
 
           } />
