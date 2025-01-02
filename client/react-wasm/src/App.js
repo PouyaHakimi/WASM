@@ -12,6 +12,7 @@ import DuckDB from './DuckDB.js';
 import FakeDuckDBTable from './components/FakeDuckDBTable.jsx';
 import MainDuckDBTable from './components/MainDuckDBTable.jsx';
 import { mainDataDuckDB } from './DuckDB.js';
+import StudentCourseMarkTable from './components/StudentCourseMarkTable.jsx';
 
 function App() {
 
@@ -24,8 +25,9 @@ function App() {
   const [mainDuckDB,setMainDuckDB] = useState([])
   const [fullMarks,setFullMarks] = useState([])
   const [attendedStd,setattendedStd] = useState([])
+  const [stdCourseMark,setStdCourseMark] =useState([])
+ console.log(attendedStd +"aaappppp");
  
-  
 
   useEffect(() => {
     const loadData = async () => {
@@ -70,7 +72,7 @@ function App() {
             <>
 
               <StudentTable students={students} />
-              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} />
+              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} />
 
             </>} />
         </Route>
