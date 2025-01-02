@@ -27,7 +27,7 @@ app.use(express.json());
 //Routes
 app.use('/api/',studentRoutes);
 app.use('/api/',courseRoutes);
-app.use('/api/',marksRoutes)
+app.use('/api/',marksRoutes);
 
 //connect to db and start server
 
