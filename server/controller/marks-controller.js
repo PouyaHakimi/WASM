@@ -38,3 +38,38 @@ exports.getCourseFullMarkCount = async (req,res) => {
             }
         
 }
+
+
+exports.insertMarks =async (req,res) => {
+    console.log(req.body);
+    
+      try {
+      const {table,records} =req.body;
+      
+    
+      records.map(async (data)=>{
+        const id =data.id
+        const cid = data.cid
+        const sid =data.sid
+        const marks =data.marks
+        const sqlQuery =`insert into ${table}(id,sid,cid,marks ) values (${id},'${sid}',${cid},${marks})`
+        try {
+          await sequelize.query(sqlQuery)
+        } catch (error) {
+          console.error(error.message +"&&&&&&&&&&")
+          
+        }
+        
+      }
+      )
+      
+      res.status(200).json({message:"inserted successfully"})
+    
+      } catch (error) {
+          console.error("fail to insert")
+          res.status(500).json({error:error.message})
+          
+      }
+     
+    }
+    

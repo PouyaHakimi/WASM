@@ -126,10 +126,83 @@ async function getAttendedStudents() {
 
 }
 
+async function insertstd(table,records) {
+
+    const URL = BACKENDURL+'/std'
+    const response = await fetch(URL,{
+        method:'post',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({table,records})
+    })
+
+    const result = await response.json()
+    
+   
+    if (response.ok) {
+        console.log(`data successfully inserted in ${table}`,result);
+        return result
+        
+        
+    } else {
+
+        console.error('Error inserting data:', result);
+        throw new Error(result.error || 'Failed to insert data');
+        
+    }
+    
+}
 
 
 
-export { getStudent, getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getStudentCourseMark,getFulleMark,getAttendedStudents };
+async function insertCourse(table,records) {
+        
+    const URL = BACKENDURL + '/courses'
+    const response = await fetch(URL ,{
+        method:'post',
+        headers: {'Content-Type':'application/json'},
+        body:JSON.stringify({table,records})
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+        console.log(`data inserted successfully in ${table}`,result);
+        return result
+        
+    } else {
+        console.error('Error inserting data:', result);
+        throw new Error(result.error || 'Failed to insert data');
+    }
+}
+
+
+async function insertMarks(table,records) {
+    
+
+    
+    const URL = BACKENDURL + '/marks'
+    const response = await fetch(URL ,{
+        method:'post',
+        headers: {'Content-Type':'application/json'},
+        body:JSON.stringify({table,records})
+    })
+
+    const result = await response.json()
+
+    if (response.ok) {
+        console.log(`data inserted successfully in ${table}`,result);
+        return result
+        
+    } else {
+        console.error('Error inserting data:', result);
+        throw new Error(result.error || 'Failed to insert data');
+    }
+}
+
+
+
+export { getStudent, getDuckDBStd, getDuckDBCourses, getDuckDBMarks,
+    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks};
 
 
 

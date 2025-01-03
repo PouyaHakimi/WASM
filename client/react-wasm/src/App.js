@@ -71,7 +71,7 @@ function App() {
           <Route index element={
             <>
 
-              <StudentTable students={students} />
+              {/* <StudentTable students={students} /> */}
               <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} />
 
             </>} />
@@ -79,7 +79,7 @@ function App() {
         <Route path='/duckdbfaker' element={<StudentLayout />}>
           <Route index element={
             <>
-              <StudentTable students={students} chartData={chartData} setChartData={setChartData} />
+              {/* <StudentTable students={students} chartData={chartData} setChartData={setChartData} /> */}
               <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
             </>
 

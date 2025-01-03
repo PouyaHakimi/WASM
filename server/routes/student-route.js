@@ -9,5 +9,6 @@ router.get('/students',studentController.getAllStudents);
 router.get('/dockDB',studentController.getAllStudents)
 router.get('/studentCourseMark',studentController.getStudentCourseMark)
 router.get('/attended',studentController.getCourseAttendedStudents)
+router.post('/std',studentController.insertStd)
 
 module.exports=router;
