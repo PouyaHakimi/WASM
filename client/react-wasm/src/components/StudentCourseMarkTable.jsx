@@ -5,6 +5,8 @@ import BarChart from './BarChart';
 import { getDuckDBCourses, getStudentCourseMark,getFulleMark, getAttendedStudents } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
+import { faker ,it,Faker} from '@faker-js/faker';
+import { insertstd,insertCourse,insertMarks } from '../API/API';
 
 
 
@@ -114,7 +116,7 @@ function StudentCourseMarkTable(props) {
             onClick={async () => {
 
               const studentCourseMarkData = await getStudentCourseMark();
-              
+              //insertFakeData()
               
             
           
@@ -127,7 +129,7 @@ function StudentCourseMarkTable(props) {
               //fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB}
             }}
           >
-            Run DuckDB
+            Exams Result
           </Button>
           <Table striped bordered hover>
             <thead>
@@ -172,5 +174,57 @@ function StudentCourseMarkTable(props) {
 //   fullMarks: '[]',
 //   attendedStd: '[]',
 // };
+
+const insertFakeData = async () => {
+    try {
+
+      let students = []
+      let courses = []
+      let marks = []
+      const customFaker = new Faker({ locale: [it] });
+      for(let i=1 ; i<=1000 ; i++){
+        students.push({
+          id:i,
+          sname:customFaker.person.fullName().replace(/'/g, "''"),
+          age:faker.number.int({min:18 ,max:45})
+        })
+      }
+      
+      for(let i =1 ;i<=10 ;i++){
+        courses.push({
+          cid:i,
+          cname:faker.commerce.productName(),
+          credits:customFaker.number.int({min:6 ,max:10}),
+
+        })
+      }
+      for(let i=1 ; i<=1000 ; i++){
+        marks.push({
+          id:i,
+          sid:faker.number.int({min:1 ,max:1000}),
+          cid:faker.number.int({min:1 ,max:10}),
+          marks:faker.number.int({min:17 ,max:30})
+        })
+      }
+
+
+      
+      if (students) {
+        insertstd("student",students)
+      }
+      if (courses){
+        insertCourse("courses",courses)
+
+      }
+      if(marks){
+        insertMarks("marks",marks)
+      }
+
+    } catch (error) {
+      console.error('Error generating or inserting fake data:', error.message);
+    }
+}
+
+
 export default StudentCourseMarkTable;
 
