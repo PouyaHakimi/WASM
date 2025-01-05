@@ -167,9 +167,6 @@ export async function memoryStdCourseFakeData() {
     mainData.dataArray.map(
         (student, index) => {
 
-            console.log(student.sname+"OOOOOO");
-            
-
             const snamePtr = module._malloc(module.lengthBytesUTF8(student.sname) + 1)
             const cnamePtr = module._malloc(module.lengthBytesUTF8(student.cname) + 1)
             module.stringToUTF8(student.sname, snamePtr, module.lengthBytesUTF8(student.sname) + 1)
