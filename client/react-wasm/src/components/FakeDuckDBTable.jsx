@@ -9,9 +9,6 @@ import { useEffect } from 'react';
 
 function FakeDuckDBTable(props) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
-
-
-
   const [showChart, setSowChart] = useState(false);
 
   const generateChartData = () => {

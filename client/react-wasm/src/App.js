@@ -7,12 +7,14 @@ import StudentTable from './components/StudentTable.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getStudent, getDuckDBCourses, getDuckDBMarks } from './API/API.js';
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
-import StudentLayout from './config/layouts.js';
+import ApiServerLayout from './config/apiServerLayout.js';
 import DuckDB from './DuckDB.js';
 import FakeDuckDBTable from './components/FakeDuckDBTable.jsx';
 import MainDuckDBTable from './components/MainDuckDBTable.jsx';
 import { mainDataDuckDB } from './DuckDB.js';
 import StudentCourseMarkTable from './components/StudentCourseMarkTable.jsx';
+import ApiDuckDBLayout from './config/apiDuckDBLayout.js';
+import FakeDockDbLayout from './config/fakeDuckDbLayout.js';
 
 function App() {
 
@@ -26,7 +28,10 @@ function App() {
   const [fullMarks,setFullMarks] = useState([])
   const [attendedStd,setattendedStd] = useState([])
   const [stdCourseMark,setStdCourseMark] =useState([])
- console.log(attendedStd +"aaappppp");
+  const [search, setSearch] = useState("")
+  const [searchData ,setSearchData] =useState([])
+
+  searchData.map((s)=>console.log(JSON.stringify(s)+"aaappppp"))
  
 
   useEffect(() => {
@@ -60,23 +65,37 @@ function App() {
 
   }, [])
 
+  const keys = ["id","sname","cname","marks"]
 
+  useEffect(()=>{
+    
+    setSearchData(
+      stdCourseMark.filter((item) =>
+          keys.some((key) =>
+              String(item[key]).toLowerCase().includes(search)
+          )
+      )
+  );
+
+stdCourseMark.filter(std => std.sname.includes("pouya"))
+
+  },[search])
 
 
   return (
 
     <BrowserRouter>
       <Routes>
-        <Route path='/student' element={<StudentLayout />}>
+        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} setSearchData={setSearchData}/>}>
           <Route index element={
             <>
 
               {/* <StudentTable students={students} /> */}
-              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} />
+              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} searchData={searchData} setSearchData={setSearchData} search={search}/>
 
             </>} />
         </Route>
-        <Route path='/duckdbfaker' element={<StudentLayout />}>
+        <Route path='/duckdbfaker' element={<FakeDockDbLayout />}>
           <Route index element={
             <>
               {/* <StudentTable students={students} chartData={chartData} setChartData={setChartData} /> */}
@@ -86,7 +105,7 @@ function App() {
           } />
 
         </Route>
-        <Route path='/all' element={<StudentLayout />}>
+        <Route path='/all' element={<ApiDuckDBLayout />}>
           <Route index element={
             <>
         
