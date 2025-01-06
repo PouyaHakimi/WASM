@@ -34,7 +34,7 @@ exports.insertCourse =async (req,res) => {
         try {
           await sequelize.query(sqlQuery)
         } catch (error) {
-          console.error(error.message +"&&&&&&&&&&")
+          console.error(error.message )
           
         }
         

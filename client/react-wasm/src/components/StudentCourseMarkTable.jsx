@@ -6,24 +6,31 @@ import { getDuckDBCourses, getStudentCourseMark, getFulleMark, getAttendedStuden
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
 import { faker, it, Faker } from '@faker-js/faker';
-import { insertstd, insertCourse, insertMarks } from '../API/API';
+import { insertstd, insertCourse, insertMarks ,getsearch} from '../API/API';
 
 
 
-function StudentCourseMarkTable(props) {
+function StudentCourseMarkTable(props,{setStdCourseMark}) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [showChart, setSowChart] = useState(false);
+    
+    // let stdCourseMarkData;
 
-    let stdCourseMarkData;
+    // // if (props.search && props.search.length>0) {
+    // //   // Use searchData for rendering
+    // //   //stdCourseMarkData = props.SearchApiData;
+    // //   stdCourseMarkData = Array.isArray( props.SearchApiData) ?  props.SearchApiData : [];
 
-    if (props.search && props.search.length>0) {
-      // Use searchData for rendering
-      stdCourseMarkData = props.searchData;
-    } else {
-      // Default to stdCourseMark if no searchData
-      stdCourseMarkData = props.stdCourseMark;
-    }
-    console.log(JSON.stringify(stdCourseMarkData) );
+    // //   console.log(stdCourseMarkData+"inssiiiideeeee");
+      
+    // // } else {
+    // //   // Default to stdCourseMark if no searchData
+    // //   stdCourseMarkData = props.stdCourseMark;
+    // //   console.log("ooooouuuutttt");
+      
+    // // }
+    // console.log(Array.isArray(stdCourseMarkData)  );
+    // console.log(JSON.stringify(stdCourseMarkData, null, 2)+"^^^^^^^");
 
     const generateChartData = () => {
 
@@ -98,10 +105,10 @@ function StudentCourseMarkTable(props) {
 
                     const dataFm = await getFulleMark()
                     const dataAt = await getAttendedStudents()
-
+                    
                     const fullMarks = JSON.stringify(dataFm)
                     const attendedStd = JSON.stringify(dataAt)
-                    console.log(attendedStd + "aaaatttttteeeee");
+                   
 
                     props.setFullMarks(fullMarks);
                     props.setattendedStd(attendedStd);
@@ -118,19 +125,23 @@ function StudentCourseMarkTable(props) {
 
           {/* Table Column */}
           <div className="col-8 d-flex align-items-center justify-content-center flex-column">
-            <Button
+            {/* <Button
               variant="success"
               size="lg"
               onClick={async () => {
 
-                const studentCourseMarkData = await getStudentCourseMark();
+               // const studentCourseMarkData = await getStudentCourseMark();
                 //insertFakeData()
 
+                // const searchData = await getsearch(props.search)
+                // console.log(searchData[0]+"********");
+                
+
+              //  props.setSearchApiData(searchData[0])
 
 
 
-
-                props.setStdCourseMark(studentCourseMarkData[0]);
+                //props.setStdCourseMark(studentCourseMarkData[0]);
 
                 //   props.setFullMarks(arrayFullMaraks);
                 //   props.setattendedStd(arrayAttendedStd);
@@ -138,7 +149,7 @@ function StudentCourseMarkTable(props) {
               }}
             >
               Exams Result
-            </Button>
+            </Button> */}
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -151,16 +162,9 @@ function StudentCourseMarkTable(props) {
                 </tr>
               </thead>
               <tbody>
-
-
-                {/* {console.log(props.stdCourseMark)+"tttttttt"
-              } */}
-                {/* { props.stdCourseMark.rows.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))} */}
-
-                {Array.isArray(stdCourseMarkData) && stdCourseMarkData.map((std, index) => (
-
-
-
+                {console.log(JSON.stringify( props.stdCourseMark) +"tesssssstttt++++")
+                }
+                { Array.isArray(props.stdCourseMark)&&props.stdCourseMark.map((std, index) => (
 
                   <tr key={std.key}>
                     <td>{index + 1}</td>
@@ -178,11 +182,6 @@ function StudentCourseMarkTable(props) {
       </div>
     );
   }
-
-  // MainDuckDBTable.defaultProps = {
-  //   fullMarks: '[]',
-  //   attendedStd: '[]',
-  // };
 
   const insertFakeData = async () => {
     try {

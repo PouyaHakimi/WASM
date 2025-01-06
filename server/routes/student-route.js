@@ -8,6 +8,7 @@ const studentController = require('../controller/student-controller');
 router.get('/students',studentController.getAllStudents);
 router.get('/dockDB',studentController.getAllStudents)
 router.get('/studentCourseMark',studentController.getStudentCourseMark)
+router.get('/search',studentController.getSearchData)
 router.get('/attended',studentController.getCourseAttendedStudents)
 router.post('/std',studentController.insertStd)
 

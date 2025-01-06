@@ -11,6 +11,21 @@ function FakeDuckDBTable(props) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const [showChart, setSowChart] = useState(false);
 
+  const keys = ["id", "sname", "cname", "marks"]
+
+  let fakeDuckDbData;
+  if (props.search && props.search.length > 0) {
+    fakeDuckDbData = props.SearchApiData
+    console.log("innnnnnn");
+    
+  } else {
+    fakeDuckDbData = props.fakeDuckDB
+    console.log("outtttttttt");
+    
+  }
+  console.log(props.searchData+"    finaaaaaaalll");
+  
+
   const generateChartData = () => {
 
     if (!props.fullMarks || !props.attendedStd || props.fullMarks.length === 0 || props.attendedStd.length === 0) {
@@ -63,6 +78,40 @@ function FakeDuckDBTable(props) {
     }
   }, [props.fullMarks, props.attendedStd]);
 
+  async function load(params) {
+    const fakeData = await memoryStdCourseFakeData();
+    let arraystdData = Array.isArray(fakeData.resulstd) ? fakeData.resulstd : JSON.parse(fakeData.resulstd)
+    let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
+    let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
+   if (props.search && props.search.length > 0) {
+    
+     props.setFakeDuckDB(arraystdData.filter((item) =>
+      keys.some((key) => String(item[key]).toLowerCase().includes(props.search)
+      )
+    )
+  );
+
+   } else {
+    
+      props.setFakeDuckDB(arraystdData);
+   }
+   
+    props.setFullMarks(arrayFullMaraks);
+    props.setattendedStd(arrayAttendedStd);
+  }
+  useEffect(()=>{
+  //  props.setFakeDuckDB(
+  //     props.fakeDuckDB.filter((item) =>
+  //       keys.some((key) => item[key]?.toString().toLowerCase().includes(props.search)
+  //       )
+  //     )
+      
+  //   );  
+
+  load()
+    
+  },[props.search])
+
   return (
     <div className="container">
       <div className="row">
@@ -95,23 +144,7 @@ function FakeDuckDBTable(props) {
 
         {/* Table Column */}
         <div className="col-8 d-flex align-items-center justify-content-center flex-column">
-          <Button
-            variant="success"
-            size="lg"
-            onClick={async () => {
-
-              const fakeData = await memoryStdCourseFakeData();
-              let arraystdData = Array.isArray(fakeData.resulstd) ? fakeData.resulstd : JSON.parse(fakeData.resulstd)
-              let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
-              let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
-              props.setFakeDuckDB(arraystdData);
-              props.setFullMarks(arrayFullMaraks);
-              props.setattendedStd(arrayAttendedStd);
-              //fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB}
-            }}
-          >
-            Run DuckDB
-          </Button>
+    
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -125,11 +158,6 @@ function FakeDuckDBTable(props) {
             </thead>
             <tbody>
 
-
-              {/* {console.log(Array.isArray(props.fakeDuckDB) && props.fakeDuckDB.map((std)=>console.log(std)
-              )+"heeereee")
-              } */}
-              {/* { props.mainDuckDB.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))} */}
               {Array.isArray(props.fakeDuckDB) && props.fakeDuckDB.map((std, index) => (
 
 
