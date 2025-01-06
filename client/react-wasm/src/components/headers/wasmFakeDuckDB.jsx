@@ -56,7 +56,7 @@ function wasmFakeDuckDB(props) {
 
     const handleSearchChange = event => {
        props.setSearch(event.target.value)
-        console.log(props.search);
+        
         
     }
     const handleSearchSubmit = event =>{

@@ -50,7 +50,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-function studentHeader(props) {
+function apiServerHeader(props) {
 
     // const [search, setSearch] = useState("")
 
@@ -95,4 +95,4 @@ function studentHeader(props) {
 }
 
 
-export default studentHeader;
+export default apiServerHeader;

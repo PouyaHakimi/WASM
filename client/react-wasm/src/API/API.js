@@ -5,28 +5,28 @@ import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 const BACKENDURL = 'http://localhost:3001/api'
 
 //get student data from database
-async function getStudent() {
-    const URL = BACKENDURL + '/students';
+// async function getStudent() {
+//     const URL = BACKENDURL + '/students';
 
 
-    try {
-        const test = await fetch('http://localhost:3001/api/studentCourseMark')
-        console.log("api test" + test);
+//     try {
+//         const test = await fetch('http://localhost:3001/api/studentCourseMark')
+//         console.log("api test" + test);
 
-        const response = await fetch(URL);
-        console.log(response);
+//         const response = await fetch(URL);
+//         console.log(response);
 
-        return await response.json()//processeddata
+//         return await response.json()//processeddata
 
 
-    } catch (error) {
+//     } catch (error) {
 
-        console.log(error);
-        return { error: error };
+//         console.log(error);
+//         return { error: error };
 
-    }
+//     }
 
-}
+// }
 
 //fetch data for transfering to duckDB
 async function getDuckDBStd() {
@@ -82,13 +82,12 @@ async function getDuckDBMarks() {
 
 }
 
-async function getStudentCourseMark() {
+async function getStudentCourseMark({search}) {
 
     try {
-        const URL = BACKENDURL + '/studentCourseMark'
+        const URL = BACKENDURL + `/studentCourseMark?q=${search}`
         const response = (await fetch(URL)).json()
-        console.log(response);
-        
+        console.log(response +"in API");
         return response
     } catch (error) {
         console.error("Fetch Error" +error)
@@ -126,6 +125,29 @@ async function getAttendedStudents() {
 
 }
 
+async function getsearch({search}) {
+    console.log(search+"search******");
+    
+    try {
+        const URL = BACKENDURL + `/search?q=${search}`
+        const response = await fetch(URL); // Await the fetch call
+        const data = await response.json(); 
+        console.log(JSON.stringify(data) +"9999999999999");
+        
+        return data
+    } catch (error) {
+        console.error("Fetch Error" + error);
+        
+    }
+    
+}
+
+
+
+
+
+
+// ******************Insert Fetch API
 async function insertstd(table,records) {
 
     const URL = BACKENDURL+'/std'
@@ -201,8 +223,8 @@ async function insertMarks(table,records) {
 
 
 
-export { getStudent, getDuckDBStd, getDuckDBCourses, getDuckDBMarks,
-    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks};
+export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,
+    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch};
 
 
 

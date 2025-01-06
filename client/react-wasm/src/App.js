@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 // import useWasmData from './wasm/wasmProcessor.js';
 import StudentTable from './components/StudentTable.jsx';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getStudent, getDuckDBCourses, getDuckDBMarks } from './API/API.js';
+import { getStudentCourseMark, getDuckDBMarks, getsearch } from './API/API.js';
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import ApiServerLayout from './config/apiServerLayout.js';
 import DuckDB from './DuckDB.js';
@@ -15,6 +15,8 @@ import { mainDataDuckDB } from './DuckDB.js';
 import StudentCourseMarkTable from './components/StudentCourseMarkTable.jsx';
 import ApiDuckDBLayout from './config/apiDuckDBLayout.js';
 import FakeDockDbLayout from './config/fakeDuckDbLayout.js';
+import DashboardLayoutBasic from './config/MainLayout.js';
+
 
 function App() {
 
@@ -23,40 +25,45 @@ function App() {
   const [stdDuckDB, setStdDuckDB] = useState([])
   const [chartData, setChartData] = useState(null)
   const [fakeDuckDB, setFakeDuckDB] = useState([])
-  const [marksDuckDB,setMarksDuckDB] = useState([])
-  const [mainDuckDB,setMainDuckDB] = useState([])
-  const [fullMarks,setFullMarks] = useState([])
-  const [attendedStd,setattendedStd] = useState([])
-  const [stdCourseMark,setStdCourseMark] =useState([])
+  const [marksDuckDB, setMarksDuckDB] = useState([])
+  const [mainDuckDB, setMainDuckDB] = useState([])
+  const [fullMarks, setFullMarks] = useState([])
+  const [attendedStd, setattendedStd] = useState([])
+  const [stdCourseMark, setStdCourseMark] = useState([])
   const [search, setSearch] = useState("")
-  const [searchData ,setSearchData] =useState([])
+  const [searchData, setSearchData] = useState([])
+  const [SearchApiData,setSearchApiData] =useState([])
+  console.log(searchData +"In Apppppppppp");
+  
 
-  searchData.map((s)=>console.log(JSON.stringify(s)+"aaappppp"))
- 
 
   useEffect(() => {
     const loadData = async () => {
 
       try {
         //optimize way to invoke several data function
-       // const [students,courses,marks,maiDataDuckDB]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDataDuckDB()]);
-       const students = await getStudent();
-      //const coursetest = await getDuckDBCourses();
+        // const [students,courses,marks,maiDataDuckDB]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDataDuckDB()]);
+       // const students = await getStudent();
+        //const stdcourseMarks = await getStudentCourseMark();
       
-      //console.log(result + '    test mainData in app');
-      setStudents(students);
+        //const coursetest = await getDuckDBCourses();
 
-      //to test all page
-     // setStdDuckDB(students)
-      //  setCourseDuckDB(courses)
-      //  setMarksDuckDB(marks)
-      //  setMainDuckDB(maiDataDuckDB)
+        //console.log(result + '    test mainData in app');
+       // setStudents(students);
+        //setStdCourseMark(stdcourseMarks[0])
+       
+
+        //to test all page
+        // setStdDuckDB(students)
+        //  setCourseDuckDB(courses)
+        //  setMarksDuckDB(marks)
+        //  setMainDuckDB(maiDataDuckDB)
       } catch (error) {
 
         console.error("Loading Data Error:" + error)
-        
+
       }
-      
+
 
     }
 
@@ -65,51 +72,59 @@ function App() {
 
   }, [])
 
-  const keys = ["id","sname","cname","marks"]
+  const keys = ["id", "sname", "cname", "marks"]
 
-  useEffect(()=>{
+  useEffect(() => {
+
+    // setFakeDuckDB(fakeDuckDB.filter(item=>
+    //   keys.some(key =>item[key].toString().toLowerCase().includes(search))
+    // ));
+    // setSearchData(
+    //   fakeDuckDB.filter((item) =>
+    //     keys.some((key) => String(item[key]).toLowerCase().includes(search)
+    //     )
+    //   )
+      
+    // );
+    const loadData = async () => {
+     
+        const studentCourseMarkData = await getStudentCourseMark({search});
+        setStdCourseMark(studentCourseMarkData);
+    }
     
-    setSearchData(
-      stdCourseMark.filter((item) =>
-          keys.some((key) =>
-              String(item[key]).toLowerCase().includes(search)
-          )
-      )
-  );
-
-stdCourseMark.filter(std => std.sname.includes("pouya"))
-
-  },[search])
+    loadData()
+  }, [search])
 
 
   return (
 
     <BrowserRouter>
       <Routes>
-        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} setSearchData={setSearchData}/>}>
+        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} setSearchData={setSearchData} />}>
           <Route index element={
             <>
+              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} searchData={searchData} setSearchData={setSearchData} search={search} SearchApiData={SearchApiData} setSearchApiData={setSearchApiData}/>
 
               {/* <StudentTable students={students} /> */}
-              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} searchData={searchData} setSearchData={setSearchData} search={search}/>
+              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} searchData={searchData} setSearchData={setSearchData} search={search} SearchApiData={SearchApiData} setSearchApiData={setSearchApiData}/>
 
             </>} />
         </Route>
-        <Route path='/duckdbfaker' element={<FakeDockDbLayout />}>
+        <Route path='/duckdbfaker' element={<FakeDockDbLayout search={search} setSearch={setSearch} setSearchData={setSearchData} />}>
           <Route index element={
             <>
               {/* <StudentTable students={students} chartData={chartData} setChartData={setChartData} /> */}
-              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
+              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} searchData={searchData} setSearchData={setSearchData} />
             </>
 
           } />
 
         </Route>
-        <Route path='/all' element={<ApiDuckDBLayout />}>
+        <Route path='/all' element={<ApiDuckDBLayout search={search} setSearch={setSearch} setSearchData={setSearchData} />}>
           <Route index element={
             <>
-        
-              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}/>
+
+              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search}/>
             </>
 
           } />
