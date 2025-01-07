@@ -7,25 +7,95 @@ const { Op } = require("sequelize");
 // here we should do export here to pass data as an callback function not an object
 exports.getAllStudents = async (req, res) => {
 
-  const {q} = req.query
-  const keys = ["id", "sname","age"]
 
   const sqlQuery = "select * from student"
   try {
     const std = await sequelize.query(sqlQuery,{type:sequelize.QueryTypes.SELECT})//await Students.findAll();
 
-    let filteredStd = std.filter(item => 
-      keys.some(key => item[key]?.toString().toLowerCase().includes(q.toLowerCase()))
-    )
-     console.log(filteredStd + "??????????????????");
-    
-    res.status(200).json(filteredStd);
+    res.status(200).json(std);
 
   } catch (error) {
     console.error("Error fetching students:", error.message);
     res.status(500).json({ error: 'Failed to fetch students' })
   }
 }
+
+
+exports.getFiteredStd= async(req,res)=>{
+
+  
+  const {q} = req.query
+  const keys = ["id","sname","cname","marks"]
+  
+
+  const stdCourseMarkQuery = ` SELECT r.* ,s.id, s.sname, c.cname , r.marks
+            FROM marks r
+            JOIN Student s ON r.sid = s.id
+            JOIN Courses c ON r.cid = c.cid
+            ORDER BY s.sname; 
+                      `
+  const stdCourseMark = await sequelize.query(stdCourseMarkQuery,{type:sequelize.QueryTypes.SELECT})
+
+  let filteredResults= stdCourseMark.filter(item => 
+    keys.some(key =>item[key]?.toString().includes(q.toLowerCase())))
+   
+    let sid = [...new Set(filteredResults.map(item =>item.sid))]
+    let cid = [...new Set(filteredResults.map(item => item.cid))]
+    
+     const sqlSid =sid.join(',')
+     const sqlCid = cid.join(',')
+
+     if (cid.length === 0 || sid.length === 0) {
+      console.log("No data to query");
+      return res.status(200).json([]); // Return empty result
+  } 
+
+  const stdsqlQuery = `select distinct s.id,s.sname,s.age 
+  from marks m
+  JOIN student s ON m.sid = s.id
+  where m.cid IN (${sqlCid}) and m.sid IN (${sqlSid})`
+
+  const std = await sequelize.query(stdsqlQuery,{type:sequelize.QueryTypes.SELECT})
+
+  
+  const courseSqlQuery = `select DISTINCT c.cid,c.cname,c.credits
+   from marks m
+   JOIN courses c ON m.cid=c.cid
+   where m.cid IN (${sqlCid}) and m.sid IN (${sqlSid})
+   `
+   const course = await sequelize.query(courseSqlQuery,{type:sequelize.QueryTypes.SELECT})
+   
+
+  const marksSqlQuery = `
+  SELECT distinct *
+  FROM marks m
+  where m.cid IN (${sqlCid}) and m.sid IN (${sqlSid})
+`;
+
+ const marks = await sequelize.query(marksSqlQuery,{type:sequelize.QueryTypes.SELECT})
+ 
+
+  try {
+    
+   //await Students.findAll();
+  
+    res.status(200).json({
+      students: std,
+      courses: course,
+      marks: marks,
+    });
+
+  } catch (error) {
+    console.error("Error fetching students:", error.message);
+    res.status(500).json({ error: 'Failed to fetch students' })
+  }
+
+
+}
+
+
+
+
 
 exports.getStudentCourseMark = async (req, res) => {
   const keys = ["id","sname","cname","marks"]

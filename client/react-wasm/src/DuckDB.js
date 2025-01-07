@@ -1,5 +1,5 @@
 
-import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks } from "./API/API";
+import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { faker, Faker,it } from '@faker-js/faker';
 
@@ -82,11 +82,17 @@ export async function mainDataDuckDB({search}) {
 
     try {
 
-        const studentData = await getDuckDBStd({search});
-        console.log(JSON.stringify(studentData) +"@@@@@@@DuckDBBBB");
+        const filteredData = await getFilteredStdCourseMark({search})
+        console.log(JSON.stringify(filteredData) +"@@@@@@@DuckDBBBB");
+        //const studentData = await getDuckDBStd({search});
+        //console.log(JSON.stringify(filteredData.marks) +"@@@@@@@DuckDBBBB");
         
-        const courseData = await getDuckDBCourses({search});
-        const markData = await getDuckDBMarks({search});        
+        // const courseData = await getDuckDBCourses({search});
+        // const markData = await getDuckDBMarks({search}); 
+        
+        const studentData =filteredData.students
+        const courseData = filteredData.courses
+        const markData = filteredData.marks
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
