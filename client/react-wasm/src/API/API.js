@@ -81,8 +81,27 @@ async function getDuckDBMarks({search}) {
 
     }
 
+}
+
+async function getFilteredStdCourseMark({search}) {
+    
+    
+    const URL = BACKENDURL + `/filterStd?q=${search}`
+    try {
+
+        const response = await fetch(URL)
+        const result = response.json();
+        console.log("in APIIIII)))   " + result);
+        
+        return result
+
+    } catch (error) {
+        console.error("Fetch Error" + error)
+
+    }
 
 }
+
 
 async function getStudentCourseMark({search}) {
 
@@ -225,7 +244,7 @@ async function insertMarks(table,records) {
 
 
 
-export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,
+export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark,
     getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch};
 
 

@@ -6,7 +6,7 @@ const studentController = require('../controller/student-controller');
 //get data
 
 router.get('/students',studentController.getAllStudents);
-//router.get('/dockDB',studentController.getAllStudents)
+router.get('/filterStd',studentController.getFiteredStd)
 router.get('/studentCourseMark',studentController.getStudentCourseMark)
 router.get('/search',studentController.getSearchData)
 router.get('/attended',studentController.getCourseAttendedStudents)
