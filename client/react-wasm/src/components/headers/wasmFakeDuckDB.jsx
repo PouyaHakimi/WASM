@@ -67,7 +67,7 @@ function wasmFakeDuckDB(props) {
     }
     const handleClose = () => {
         props.setSearch("")
-        props.setSearchData([])
+        // props.setSearchData([])
     }
    
     return <header className="header">

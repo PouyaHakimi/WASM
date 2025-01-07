@@ -29,14 +29,16 @@ const BACKENDURL = 'http://localhost:3001/api'
 // }
 
 //fetch data for transfering to duckDB
-async function getDuckDBStd() {
+async function getDuckDBStd({search}) {
 
-    const URL = BACKENDURL + "/dockDB"
+    const URL = BACKENDURL + `/students?q=${search}`
 
     try {
 
         const response = await fetch(URL)
         const result = await response.json()
+        console.log(result + "APIIIIII@@@@@@");
+        
         return result
 
 
@@ -47,9 +49,9 @@ async function getDuckDBStd() {
 }
 
 //fetch data for transfering to duckDB
-async function getDuckDBCourses(params) {
+async function getDuckDBCourses({search}) {
 
-    const URL = BACKENDURL + '/courses'
+    const URL = BACKENDURL + `/courses?q=${search}`
     try {
 
         const response = await fetch(URL)
@@ -65,9 +67,9 @@ async function getDuckDBCourses(params) {
 }
 
 //fetch data for transfering to duckDB
-async function getDuckDBMarks() {
+async function getDuckDBMarks({search}) {
 
-    const URL = BACKENDURL + '/marks'
+    const URL = BACKENDURL + `/marks?q=${search}`
     try {
 
         const response = await fetch(URL)

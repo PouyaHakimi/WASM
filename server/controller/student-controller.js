@@ -1,19 +1,25 @@
 const { json } = require('sequelize');
 const sequelize = require('../db');
 const Students = require('../models/student-model');
-
+const { Op } = require("sequelize");
 
 
 // here we should do export here to pass data as an callback function not an object
 exports.getAllStudents = async (req, res) => {
+
+  const {q} = req.query
+  const keys = ["id", "sname","age"]
+
+  const sqlQuery = "select * from student"
   try {
-    const users = await Students.findAll();
+    const std = await sequelize.query(sqlQuery,{type:sequelize.QueryTypes.SELECT})//await Students.findAll();
 
-    // Log the plain data to the terminal
-    const plainUsers = users.map(user => user.get({ plain: true }));
-    console.log("Retrieved students:", plainUsers);
-
-    res.status(200).json(users);
+    let filteredStd = std.filter(item => 
+      keys.some(key => item[key]?.toString().toLowerCase().includes(q.toLowerCase()))
+    )
+     console.log(filteredStd + "??????????????????");
+    
+    res.status(200).json(filteredStd);
 
   } catch (error) {
     console.error("Error fetching students:", error.message);

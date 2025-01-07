@@ -6,7 +6,7 @@ function apiServerLayout(props) {
 
     return (
         <>
-            <h1> <ApiServerHeader search={props.search} setSearch={props.setSearch} setSearchData={props.setSearchData}/></h1>
+            <h1> <ApiServerHeader search={props.search} setSearch={props.setSearch} /></h1>
 
             {/* <footer><Footer/></footer> */}
             <Outlet />
