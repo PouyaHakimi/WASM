@@ -40,10 +40,9 @@ export async function memoryStudentData() {
 
 }
 
-export async function memoryStdCourseData() {
+export async function memoryStdCourseData({search}) {
 
-    const mainData = await mainDataDuckDB()
-  
+    const mainData = await mainDataDuckDB({search})
 
     const module = await createMainModule() // wraper Module that has created by makin import creatModule functional the name can be even asghar
 
@@ -52,10 +51,7 @@ export async function memoryStdCourseData() {
     mainData.dataArray.map(
         (student, index) => {
 
-
-
             const snamePtr = module._malloc(module.lengthBytesUTF8(student.sname) + 1)
-
             const cnamePtr = module._malloc(module.lengthBytesUTF8(student.cname) + 1)
             module.stringToUTF8(student.sname, snamePtr, module.lengthBytesUTF8(student.sname) + 1)
             module.stringToUTF8(student.cname, cnamePtr, module.lengthBytesUTF8(student.cname) + 1)
@@ -88,9 +84,9 @@ export async function memoryStdCourseData() {
 
 }
 
-export async function memoryStdMarkData() {
+export async function memoryStdMarkData({search}) {
 
-    const mainData = await mainDataDuckDB()
+    const mainData = await mainDataDuckDB({search})
    
     const module = await createMainModule();
 

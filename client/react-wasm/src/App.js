@@ -31,9 +31,8 @@ function App() {
   const [attendedStd, setattendedStd] = useState([])
   const [stdCourseMark, setStdCourseMark] = useState([])
   const [search, setSearch] = useState("")
-  const [searchData, setSearchData] = useState([])
-  const [SearchApiData,setSearchApiData] =useState([])
-  console.log(searchData +"In Apppppppppp");
+ 
+
   
 
 
@@ -100,27 +99,27 @@ function App() {
 
     <BrowserRouter>
       <Routes>
-        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} setSearchData={setSearchData} />}>
+        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} />}>
           <Route index element={
             <>
-              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} searchData={searchData} setSearchData={setSearchData} search={search} SearchApiData={SearchApiData} setSearchApiData={setSearchApiData}/>
+              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} />
 
               {/* <StudentTable students={students} /> */}
-              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} searchData={searchData} setSearchData={setSearchData} search={search} SearchApiData={SearchApiData} setSearchApiData={setSearchApiData}/>
+              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} />
 
             </>} />
         </Route>
-        <Route path='/duckdbfaker' element={<FakeDockDbLayout search={search} setSearch={setSearch} setSearchData={setSearchData} />}>
+        <Route path='/duckdbfaker' element={<FakeDockDbLayout search={search} setSearch={setSearch} />}>
           <Route index element={
             <>
               {/* <StudentTable students={students} chartData={chartData} setChartData={setChartData} /> */}
-              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} searchData={searchData} setSearchData={setSearchData} />
+              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} />
             </>
 
           } />
 
         </Route>
-        <Route path='/all' element={<ApiDuckDBLayout search={search} setSearch={setSearch} setSearchData={setSearchData} />}>
+        <Route path='/all' element={<ApiDuckDBLayout search={search} setSearch={setSearch}  />}>
           <Route index element={
             <>
 

@@ -6,7 +6,7 @@ function fakeDockDbLayout(props) {
 
     return (
         <>
-            <h1> <WasmFakeDuckDB search={props.search} setSearch={props.setSearch} setSearchData={props.setSearchData}/></h1>
+            <h1> <WasmFakeDuckDB search={props.search} setSearch={props.setSearch}/></h1>
 
             {/* <footer><Footer/></footer> */}
             <Outlet />

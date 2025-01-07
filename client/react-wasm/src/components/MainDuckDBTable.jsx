@@ -5,9 +5,13 @@ import BarChart from './BarChart';
 import { getDuckDBCourses } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
+import { el } from '@faker-js/faker';
+
+
+
 function MainDuckDBTable(props) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
-
+  
 
 
   const [showChart, setSowChart] = useState(false);
@@ -64,6 +68,27 @@ function MainDuckDBTable(props) {
     }
 }, [props.fullMarks, props.attendedStd]);
 
+async function load() {
+  const mainData = await memoryStdCourseData({search: props.search});
+  if(props.search && props.search.length > 0)
+  {
+    console.log("iiiinnnnnn");
+    
+    props.setMainDuckDB(mainData);
+  }else{
+    console.log("oooouuutttt");
+    
+    props.setMainDuckDB(mainData) 
+  }
+ 
+
+}
+
+useEffect(()=>{
+  load()
+
+},[props.search])
+
   return (
     <div className="container">
       <div className="row">
@@ -79,8 +104,8 @@ function MainDuckDBTable(props) {
 
                 async () => {
                   // console.log("full Markssssss"+props.fullMarks[0]);
-                  const mainData2 = await mainDataDuckDB();
-                  const stdMarkData = await memoryStdMarkData()
+                  
+                  const stdMarkData = await memoryStdMarkData({search: props.search})
                   props.setFullMarks(stdMarkData.resultFm);
                   props.setattendedStd(stdMarkData.resultAt);
                   handleGenerateChart()
@@ -96,7 +121,7 @@ function MainDuckDBTable(props) {
 
         {/* Table Column */}
         <div className="col-8 d-flex align-items-center justify-content-center flex-column">
-          <Button
+          {/* <Button
             variant="success"
             size="lg"
             onClick={async () => {
@@ -107,7 +132,7 @@ function MainDuckDBTable(props) {
             }}
           >
             Run DuckDB
-          </Button>
+          </Button> */}
           <Table striped bordered hover>
             <thead>
               <tr>

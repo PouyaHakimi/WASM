@@ -78,13 +78,15 @@ export async function studentDuckDB(props) {
 
 //*********************create and join all tables in DuckDB******** 
 
-export async function mainDataDuckDB(params) {
+export async function mainDataDuckDB({search}) {
 
     try {
 
-        const studentData = await getDuckDBStd();
-        const courseData = await getDuckDBCourses();
-        const markData = await getDuckDBMarks();        
+        const studentData = await getDuckDBStd({search});
+        console.log(JSON.stringify(studentData) +"@@@@@@@DuckDBBBB");
+        
+        const courseData = await getDuckDBCourses({search});
+        const markData = await getDuckDBMarks({search});        
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
@@ -222,6 +224,7 @@ export async function mainDataDuckDB(params) {
     } catch (error) {
 
         console.error("error of fetching in BrowserDB", error)
+        return { dataArray: [], fullMarksArray: [], allAttendedArray: [] };
 
     }
 
@@ -408,7 +411,7 @@ export async function fakeDataDuckDB(params) {
     } catch (error) {
 
         console.error("error of fetching in BrowserDB", error)
-
+        return { dataArray: [], fullMarksArray: [], allAttendedArray: [] };
     }
 
 }

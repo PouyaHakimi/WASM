@@ -13,17 +13,6 @@ function FakeDuckDBTable(props) {
 
   const keys = ["id", "sname", "cname", "marks"]
 
-  let fakeDuckDbData;
-  if (props.search && props.search.length > 0) {
-    fakeDuckDbData = props.SearchApiData
-    console.log("innnnnnn");
-    
-  } else {
-    fakeDuckDbData = props.fakeDuckDB
-    console.log("outtttttttt");
-    
-  }
-  console.log(props.searchData+"    finaaaaaaalll");
   
 
   const generateChartData = () => {
@@ -32,18 +21,7 @@ function FakeDuckDBTable(props) {
       console.error("Data is not available yet for generating chart.");
       return;
     }
-
-    // let fullMarks1 = Array.isArray(props.fullMarks)
-    //   ? props.fullMarks
-    //   : JSON.parse(props.fullMarks);
-
-    // let attendedStd1 = Array.isArray(props.attendedStd)
-    //   ? props.attendedStd
-    //   : JSON.parse(props.attendedStd);
-
     const labels = Array.isArray(props.fullMarks) ? props.fullMarks.map((data) => data.course_name) : [] // course names
-
-
     const data = Array.isArray(props.fullMarks) ? props.fullMarks.map((data) => data.student_count) : []
     const attendedData = Array.isArray(props.attendedStd) ? props.attendedStd.map((data) => data.attended_students) : []
 
