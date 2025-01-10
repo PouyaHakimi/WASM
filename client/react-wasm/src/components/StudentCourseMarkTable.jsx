@@ -10,7 +10,7 @@ import { insertstd, insertCourse, insertMarks ,getsearch} from '../API/API';
 
 
 
-function StudentCourseMarkTable(props,{setStdCourseMark}) {
+function StudentCourseMarkTable(props) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [showChart, setSowChart] = useState(false);
     
@@ -48,8 +48,8 @@ function StudentCourseMarkTable(props,{setStdCourseMark}) {
         : JSON.parse(props.attendedStd);
 
 
-      attendedStd1.map((data) => console.log(data.course_name)
-      )
+      // attendedStd1.map((data) => console.log(data.course_name)
+      // )
 
       const labels = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.course_name) : [] // course names
 
@@ -162,8 +162,8 @@ function StudentCourseMarkTable(props,{setStdCourseMark}) {
                 </tr>
               </thead>
               <tbody>
-                {console.log(JSON.stringify( props.stdCourseMark) +"tesssssstttt++++")
-                }
+                {/* {console.log(JSON.stringify( props.stdCourseMark) +"tesssssstttt++++")
+                } */}
                 { Array.isArray(props.stdCourseMark)&&props.stdCourseMark.map((std, index) => (
 
                   <tr key={std.key}>

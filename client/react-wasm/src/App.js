@@ -31,7 +31,11 @@ function App() {
   const [attendedStd, setattendedStd] = useState([])
   const [stdCourseMark, setStdCourseMark] = useState([])
   const [search, setSearch] = useState("")
- 
+  const [fakeFullMarks,setFakeFullMarks] =useState([])
+console.log(fullMarks+"full++++++");
+console.log(attendedStd +"att+++++++");
+
+
 
   
 
@@ -102,10 +106,12 @@ function App() {
         <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} />}>
           <Route index element={
             <>
-              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} />
-
+              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search}
+               stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} 
+               mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks}/>
+            
               {/* <StudentTable students={students} /> */}
-              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} />
+              {/* <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} /> */}
 
             </>} />
         </Route>
@@ -113,7 +119,7 @@ function App() {
           <Route index element={
             <>
               {/* <StudentTable students={students} chartData={chartData} setChartData={setChartData} /> */}
-              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} />
+              {/* <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} /> */}
             </>
 
           } />
@@ -123,7 +129,7 @@ function App() {
           <Route index element={
             <>
 
-              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search}/>
+              {/* <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search}/> */}
             </>
 
           } />

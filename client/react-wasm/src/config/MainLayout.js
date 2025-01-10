@@ -10,25 +10,70 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
 import Grid from '@mui/material/Grid2';
 import StudentCourseMarkTable from '../components/StudentCourseMarkTable';
-
-
-
+import MainDuckDBTable from '../components/MainDuckDBTable';
+import FakeDuckDBTable from '../components/FakeDuckDBTable';
+import ApiServerReport from '../components/reports/ApiServerReport';
+import WasmApiDuckDBReport from '../components/reports/WasmApiDuckDBReport';
+import WasmFakeDuckDBReport from '../components/reports/WasmFakeDuckDbReport';
 
 const NAVIGATION = [
+
     {
         kind: 'header',
-        title: 'Main items',
+        title: 'Student Data',
     },
     {
-        segment: 'dashboard',
-        title: 'Dashboard',
-        icon: <DashboardIcon />,
+        segment: 'API-Server-Data',
+        title: 'API-Server Data',
+        icon: <LayersIcon />,
+        children: [
+            {
+                segment: 'API-Server',
+                title: 'API-Server',
+                icon: <DescriptionIcon />,
+            },
+            {
+                segment: 'Report',
+                title: 'Report',
+                icon: <BarChartIcon />,
+            },
+        ],
+    }, {
+        segment: 'WASM-API-DuckDB',
+        title: 'WASM-API-DuckDB Data',
+        icon: <LayersIcon />,
+        children: [
+            {
+                segment: 'WASM-API-DuckDB',
+                title: 'WASM-API-DuckDB',
+                icon: <DescriptionIcon />,
+            },
+            {
+                segment: 'Report',
+                title: 'Report',
+                icon: <BarChartIcon />,
+            },
+        ],
+    }, {
+        segment: 'WASM-Fake-DuckDB',
+        title: 'WASM-Fake-DuckDB Data',
+        icon: <LayersIcon />,
+        children: [
+            {
+                segment: 'WASM-Fake-DuckDB',
+                title: 'WASM-Fake-DuckDB',
+                icon: <DescriptionIcon />,
+            },
+            {
+                segment: 'Report',
+                title: 'Report',
+                icon: <BarChartIcon />,
+            },
+        ],
     },
-    {
-        segment: 'orders',
-        title: 'Orders',
-        icon: <ShoppingCartIcon />,
-    },
+
+
+
     {
         kind: 'divider',
     },
@@ -54,23 +99,19 @@ const NAVIGATION = [
         ],
     },
     {
-        segment: 'integrations',
-        title: 'Integrations',
-        icon: <LayersIcon />,
+        kind: 'header',
+        title: 'Student Data',
+    }, {
+        segment: 'API-Server',
+        title: 'API-Server',
+        icon: <DescriptionIcon />,
     },
+
     {
-      kind: 'divider',
+        kind: 'divider',
     },
-    {
-      kind: 'header',
-      title: 'Student Data',
-    },
-    {
-      segment: 'API-Server',
-      title: 'API Server Data',
-      icon: <DescriptionIcon />,
-    },
-  ];
+
+];
 
 
 const demoTheme = extendTheme({
@@ -87,19 +128,19 @@ const demoTheme = extendTheme({
     },
 });
 
-function useDemoRouter(initialPath) {
-    const [pathname, setPathname] = React.useState(initialPath);
+function useDemoRouter() {
+    const [pathname, setPathname] = React.useState();
 
-    const router = React.useMemo(() => {
-        return {
-            pathname,
-            searchParams: new URLSearchParams(),
-            navigate: (path) => setPathname(String(path)),
-        };
-    }, [pathname]);
+    const router = React.useMemo(() => ({
+        pathname,
+        searchParams: new URLSearchParams(),
+        navigate: (path) => setPathname(String(path)),
+    }), [pathname]);
 
     return router;
 }
+
+
 
 const Skeleton = styled('div')(({ theme, height }) => ({
     backgroundColor: theme.palette.action.hover,
@@ -109,44 +150,95 @@ const Skeleton = styled('div')(({ theme, height }) => ({
 }));
 
 export default function DashboardLayoutBasic(props) {
-    const { window } = props;
-
-    const router = useDemoRouter('/dashboard');
-
-    // Remove this const when copying and pasting into your project.
-    const demoWindow = window ? window() : undefined;
+    const router = useDemoRouter();
 
     return (
-        <AppProvider
-            navigation={NAVIGATION}
-            router={router}
-            theme={demoTheme}
-            window={demoWindow}
-        >
+        <AppProvider navigation={NAVIGATION} router={router} theme={demoTheme}>
             <DashboardLayout>
                 <PageContainer>
-                    {/* <StudentCourseMarkTable stdCourseMark={props.stdCourseMark} setStdCourseMark={props.setStdCourseMark} fullMarks={props.fullMarks} setFullMarks={props.setFullMarks} attendedStd={props.attendedStd} setattendedStd={props.setattendedStd} searchData={props.searchData} setSearchData={props.setSearchData} search={props.search} /> */}
-                    {router.pathname === '/dashboard' && (
-            <div>
-              <h2>Welcome to the Dashboard</h2>
-              {/* Add any default content for the dashboard here */}
-            </div>
-          )}
-          {router.pathname === '/API-Server' && (
-            <StudentCourseMarkTable
-              stdCourseMark={props.stdCourseMark}
-              setStdCourseMark={props.setStdCourseMark}
-              fullMarks={props.fullMarks}
-              setFullMarks={props.setFullMarks}
-              attendedStd={props.attendedStd}
-              setattendedStd={props.setattendedStd}
-              searchData={props.searchData}
-              setSearchData={props.setSearchData}
-              search={props.search}
-              SearchApiData={props.SearchApiData} 
-              setSearchApiData={props.setSearchApiData}
-            />
-          )}
+
+
+                    {router.pathname === '/API-Server-Data' && <div>API-Server Data Overview</div>}
+                    {router.pathname === '/API-Server-Data/API-Server' && (
+                        <StudentCourseMarkTable
+                            stdCourseMark={props.stdCourseMark}
+                            setStdCourseMark={props.setStdCourseMark}
+                            fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd}
+                            searchData={props.searchData}
+                            setSearchData={props.setSearchData}
+                            search={props.search}
+                            SearchApiData={props.SearchApiData}
+                            setSearchApiData={props.setSearchApiData}
+                        />
+                    )}
+
+
+                    {router.pathname === '/API-Server-Data' && <div>API-Server Data Overview</div>}
+                    {router.pathname === '/API-Server-Data/Report' && (
+
+                        <ApiServerReport fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd} />
+                    )}
+                    {router.pathname === '/WASM-API-DuckDB' && <div>WASM-API-DuckDB Report Page</div>}
+
+                    {router.pathname === '/WASM-API-DuckDB/WASM-API-DuckDB' && (
+                        <MainDuckDBTable
+                            stdDuckDB={props.stdDuckDB}
+                            setStdDuckDB={props.setStdDuckDB}
+                            chartData={props.chartData}
+                            mainDuckDB={props.mainDuckDB}
+                            setMainDuckDB={props.setMainDuckDB}
+                            fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd}
+                            search={props.search} />
+
+                    )}
+                    {router.pathname === '/WASM-API-DuckDB' && <div>WASM-API-DuckDB Data Overview</div>}
+                    {router.pathname === '/WASM-API-DuckDB/Report' && (
+                        <WasmApiDuckDBReport fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd}
+                            search={props.search} />
+
+                    )}
+
+                    {router.pathname === '/WASM-Fake-DuckDB' && <div>WASM-Fake-DuckDB Report Page</div>}
+
+                    {router.pathname === '/WASM-Fake-DuckDB/WASM-Fake-DuckDB' && (
+                        <FakeDuckDBTable
+                            stdDuckDB={props.stdDuckDB}
+                            setStdDuckDB={props.setStdDuckDB}
+                            chartData={props.chartData}
+                            setChartData={props.setChartData}
+                            fakeDuckDB={props.fakeDuckDB}
+                            setFakeDuckDB={props.setFakeDuckDB}
+                            fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd}
+                            search={props.search} />
+
+                    )}
+
+                    {router.pathname === '/WASM-Fake-DuckDB' && <div>WASM-Fake-DuckDB Data Overview</div>}
+                    {router.pathname === '/WASM-Fake-DuckDB/Report' && (
+                        <WasmFakeDuckDBReport fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd}
+                            search={props.search} />
+
+                    )}
+
+
                 </PageContainer>
             </DashboardLayout>
         </AppProvider>
