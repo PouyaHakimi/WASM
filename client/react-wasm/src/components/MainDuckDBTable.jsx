@@ -72,13 +72,12 @@ async function load() {
   const mainData = await memoryStdCourseData({search: props.search});
   if(props.search && props.search.length > 0)
   {
-    console.log("iiiinnnnnn");
     
     props.setMainDuckDB(mainData);
   }else{
-    console.log("oooouuutttt");
     
     props.setMainDuckDB(mainData) 
+    
   }
  
 
