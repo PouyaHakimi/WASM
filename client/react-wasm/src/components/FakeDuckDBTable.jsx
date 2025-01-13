@@ -93,8 +93,8 @@ function FakeDuckDBTable(props) {
       setMaxSpeed(speed2)
     }
 
-    props.setFullMarks(arrayFullMaraks);
-    props.setattendedStd(arrayAttendedStd);
+    // props.setFullMarks(arrayFullMaraks);
+    // props.setattendedStd(arrayAttendedStd);
   }
   useEffect(() => {
     //  props.setFakeDuckDB(
