@@ -245,7 +245,7 @@ export async function fakeDataDuckDB(params) {
         const markData = []//await getDuckDBMarks();        
 
         const customFaker = new Faker({ locale: [it] });
-        for(let i = 1 ; i<=10 ; i++){
+        for(let i = 1 ; i<=10000 ; i++){
             studentData.push({
                 id:i,
                 sname: customFaker.person.fullName().replace(/'/g, "''"),
@@ -263,14 +263,14 @@ export async function fakeDataDuckDB(params) {
             })
 
         }
-        for(let i = 1 ; i<=10 ; i++){
-            const sid = faker.number.int({ min: 1, max: 10 });
+        for(let i = 1 ; i<=10000 ; i++){
+            const sid = faker.number.int({ min: 1, max: 10000 });
             const cid = faker.number.int({ min: 1, max: 5 });
             markData.push({
                 id:i,
                 sid:sid,
                 cid:cid,
-                marks: faker.number.int({min:30, max:30})
+                marks: faker.number.int({min:17, max:30})
 
             })
         }

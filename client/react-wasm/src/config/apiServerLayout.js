@@ -1,12 +1,12 @@
 import { Outlet } from "react-router-dom"
-import ApiServerHeader from "../components/headers/apiServerHeader"
+import MainHeader from "../components/headers/mainHeader"
 import Footer from "../components/Footer"
 
 function apiServerLayout(props) {
 
     return (
         <>
-            <h1> <ApiServerHeader search={props.search} setSearch={props.setSearch} /></h1>
+            <h1> <MainHeader search={props.search} setSearch={props.setSearch} /></h1>
 
             {/* <footer><Footer/></footer> */}
             <Outlet />

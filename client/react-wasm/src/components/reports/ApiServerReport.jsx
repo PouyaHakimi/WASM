@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import BarChart from '../BarChart';
 import { getFulleMark, getAttendedStudents } from '../../API/API';
-
+import SpeedTest from "../GaugePointer";
 
 function ApiServerReport(props) {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+    const [speed, setSpeed] = useState()
+    const [maxSpeed, setMaxSpeed] = useState()
 
 
     const generateChartData = () => {
@@ -48,6 +50,9 @@ function ApiServerReport(props) {
 
     const handleGenerateChart = async () => {
         
+         //to test the speeed ********
+         const speed1 = performance.now()
+
 
         const dataFm = await getFulleMark()
         const dataAt = await getAttendedStudents()
@@ -59,6 +64,12 @@ function ApiServerReport(props) {
         props.setFullMarks(fullMarks);
         props.setattendedStd(attendedStd);
         generateChartData();
+
+        const speed2 = performance.now()
+        const speedResult = speed2 - speed1
+        setSpeed(speedResult)
+        setMaxSpeed(speed2)
+        console.log(speedResult);
     }
 
     useEffect(() => {
@@ -66,8 +77,13 @@ function ApiServerReport(props) {
         handleGenerateChart()
 
     }, [props.fullMarks, props.attendedStd]);
-    return <BarChart chartData={chartData} />
-
+    return (
+    <>
+    <div><BarChart chartData={chartData} /></div>
+    <div><SpeedTest speed={speed} maxSpeed={maxSpeed} /></div>
+    </>
+    
+    )
 }
 
 

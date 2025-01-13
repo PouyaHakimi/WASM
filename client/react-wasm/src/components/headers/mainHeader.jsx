@@ -50,18 +50,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-function apiServerHeader(props) {
+function mainHeader(props) {
 
     // const [search, setSearch] = useState("")
 
     const handleSearchChange = event => {
        props.setSearch(event.target.value)
-        console.log(props.search);
+       
         
     }
     const handleSearchSubmit = event =>{
         event.preventDefault(); // Prevents page reload
-        console.log("search query"+props.search);
+       
 
         
     }
@@ -71,7 +71,7 @@ function apiServerHeader(props) {
     }
    
     return <header className="header">
-        <h1> API Server </h1>
+        <h1> WASM Application</h1>
         <form className="search-bar " 
         onSubmit={handleSearchSubmit}
         >     
@@ -95,4 +95,4 @@ function apiServerHeader(props) {
 }
 
 
-export default apiServerHeader;
+export default mainHeader;

@@ -7,13 +7,14 @@ import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
 import { faker, it, Faker } from '@faker-js/faker';
 import { insertstd, insertCourse, insertMarks ,getsearch} from '../API/API';
+import SpeedTest from './GaugePointer';
 
 
 
 function StudentCourseMarkTable(props) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [showChart, setSowChart] = useState(false);
-    
+    console.log(props.speed+ "**********"+props.maxSpeed)
     // let stdCourseMarkData;
 
     // // if (props.search && props.search.length>0) {
@@ -92,7 +93,7 @@ function StudentCourseMarkTable(props) {
       <div className="container">
         <div className="row">
           {/* Chart Column */}
-          <div className="col-4">
+          <div className="col-12">
             <br />
             <br />
             <div className="card text-center">
@@ -124,7 +125,10 @@ function StudentCourseMarkTable(props) {
           </div>
 
           {/* Table Column */}
-          <div className="col-8 d-flex align-items-center justify-content-center flex-column">
+          
+          
+          <SpeedTest speed={props.speed} maxSpeed={props.maxSpeed} />
+          <div className="col-12 d-flex align-items-center justify-content-center flex-column">
             {/* <Button
               variant="success"
               size="lg"
