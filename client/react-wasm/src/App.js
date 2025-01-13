@@ -31,49 +31,12 @@ function App() {
   const [attendedStd, setattendedStd] = useState([])
   const [stdCourseMark, setStdCourseMark] = useState([])
   const [search, setSearch] = useState("")
-  const [fakeFullMarks,setFakeFullMarks] =useState([])
-console.log(fullMarks+"full++++++");
-console.log(attendedStd +"att+++++++");
+  const [fakeFullMarks, setFakeFullMarks] = useState([])
+  const [speed, setSpeed] = useState()
+  const [maxSpeed, setMaxSpeed] = useState()
+;
 
-
-
-  
-
-
-  useEffect(() => {
-    const loadData = async () => {
-
-      try {
-        //optimize way to invoke several data function
-        // const [students,courses,marks,maiDataDuckDB]=await Promise.all([getStudent(),getDuckDBCourses(),getDuckDBMarks(),mainDataDuckDB()]);
-       // const students = await getStudent();
-        //const stdcourseMarks = await getStudentCourseMark();
-      
-        //const coursetest = await getDuckDBCourses();
-
-        //console.log(result + '    test mainData in app');
-       // setStudents(students);
-        //setStdCourseMark(stdcourseMarks[0])
-       
-
-        //to test all page
-        // setStdDuckDB(students)
-        //  setCourseDuckDB(courses)
-        //  setMarksDuckDB(marks)
-        //  setMainDuckDB(maiDataDuckDB)
-      } catch (error) {
-
-        console.error("Loading Data Error:" + error)
-
-      }
-
-
-    }
-
-
-    loadData();
-
-  }, [])
+ 
 
   const keys = ["id", "sname", "cname", "marks"]
 
@@ -87,14 +50,23 @@ console.log(attendedStd +"att+++++++");
     //     keys.some((key) => String(item[key]).toLowerCase().includes(search)
     //     )
     //   )
-      
+
     // );
     const loadData = async () => {
-     
-        const studentCourseMarkData = await getStudentCourseMark({search});
-        setStdCourseMark(studentCourseMarkData);
+
+      const speed1 = performance.now()
+
+      const studentCourseMarkData = await getStudentCourseMark({ search });
+      setStdCourseMark(studentCourseMarkData);
+
+      const speed2 = performance.now()
+      const speedResult = speed2 - speed1
+      setSpeed(speedResult)
+      setMaxSpeed(speed2)
+      
+      
     }
-    
+
     loadData()
   }, [search])
 
@@ -103,33 +75,42 @@ console.log(attendedStd +"att+++++++");
 
     <BrowserRouter>
       <Routes>
-        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} />}>
+        <Route path='/main' >
           <Route index element={
             <>
-              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search}
-               stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} 
-               mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks}/>
-            
+              <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search}
+                stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} setSearch={setSearch}
+                mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks} maxSpeed={maxSpeed} speed={speed} />
+
               {/* <StudentTable students={students} /> */}
               {/* <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} /> */}
 
             </>} />
         </Route>
+        <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} />}>
+          <Route index element={
+            <>
+
+              <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} />
+
+            </>} />
+        </Route>
+
         <Route path='/duckdbfaker' element={<FakeDockDbLayout search={search} setSearch={setSearch} />}>
           <Route index element={
             <>
               {/* <StudentTable students={students} chartData={chartData} setChartData={setChartData} /> */}
-              {/* <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} /> */}
+              <FakeDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} />
             </>
 
           } />
 
         </Route>
-        <Route path='/all' element={<ApiDuckDBLayout search={search} setSearch={setSearch}  />}>
+        <Route path='/all' element={<ApiDuckDBLayout search={search} setSearch={setSearch} />}>
           <Route index element={
             <>
 
-              {/* <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search}/> */}
+              <MainDuckDBTable stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search} />
             </>
 
           } />

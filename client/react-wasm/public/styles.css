@@ -130,10 +130,11 @@
     display:flex;
     justify-content:flex-start;
     align-items:flex-start;
-    height: 50vh; /* Full viewport height */
-    width: 70vw; /* Full viewport width */
+    height: 20vh; /* Full viewport height */
+    width: 73vw; /* Full viewport width */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+   
   }
   

@@ -31,24 +31,30 @@ function GaugePointer() {
 }
 
 export default function speedTest(props) {
-  let speedValue =[30]  
+   
+  const maxSpeed = props.maxSpeed
+  let speedValue = props.speed
+  
+  
+  const displayValue =(speedValue/maxSpeed )*100//adjust the gauge pointer
+
   return (
     <div className="center-container">
     <GaugeContainer
-      width={200}
+      width={100}
       height={200}
       startAngle={-110}
       endAngle={110}
-      value={30}
+      value={displayValue}
     >
       <GaugeReferenceArc />
       <GaugeValueArc />
       <GaugePointer />
       <text
-        x="100" // Center horizontally (assuming width = 200)
-        y="180" // Position near the bottom (adjust as needed)
+        x="50" // Center horizontally (assuming width = 200)
+        y="150" // Position near the bottom (adjust as needed)
         textAnchor="middle" // Align text in the center
-        fontSize="16"
+        fontSize="12"
         fill="black"
       >
         {speedValue}

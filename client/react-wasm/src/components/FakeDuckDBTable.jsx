@@ -5,15 +5,18 @@ import BarChart from './BarChart';
 import { getDuckDBCourses } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
+import SpeedTest from './GaugePointer';
 
 
 function FakeDuckDBTable(props) {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const [showChart, setSowChart] = useState(false);
+  const [speed, setSpeed] = useState(null)
+  const [maxSpeed, setMaxSpeed] = useState(null)
 
   const keys = ["id", "sname", "cname", "marks"]
 
-  
+
 
   const generateChartData = () => {
 
@@ -56,45 +59,61 @@ function FakeDuckDBTable(props) {
     }
   }, [props.fullMarks, props.attendedStd]);
 
-  async function load(params) {
+  async function load() {
+
+    //speed Teesst
+
+    const speed1 = performance.now()
     const fakeData = await memoryStdCourseFakeData();
     let arraystdData = Array.isArray(fakeData.resulstd) ? fakeData.resulstd : JSON.parse(fakeData.resulstd)
     let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
     let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
-   if (props.search && props.search.length > 0) {
-    
-     props.setFakeDuckDB(arraystdData.filter((item) =>
-      keys.some((key) => String(item[key]).toLowerCase().includes(props.search)
-      )
-    )
-  );
+    if (props.search && props.search.length > 0) {
 
-   } else {
-    
+      props.setFakeDuckDB(arraystdData.filter((item) =>
+        keys.some((key) => String(item[key]).toLowerCase().includes(props.search)
+        )
+      )
+      );
+
+     
+      const speed2 = performance.now()
+      const speedResult = speed2 - speed1
+      setSpeed(speedResult)
+      setMaxSpeed(speed2)
+
+    } else {
+
       props.setFakeDuckDB(arraystdData);
-   }
-   
+
+    
+      const speed2 = performance.now()
+      const speedResult = speed2 - speed1
+      setSpeed(speedResult)
+      setMaxSpeed(speed2)
+    }
+
     props.setFullMarks(arrayFullMaraks);
     props.setattendedStd(arrayAttendedStd);
   }
-  useEffect(()=>{
-  //  props.setFakeDuckDB(
-  //     props.fakeDuckDB.filter((item) =>
-  //       keys.some((key) => item[key]?.toString().toLowerCase().includes(props.search)
-  //       )
-  //     )
-      
-  //   );  
+  useEffect(() => {
+    //  props.setFakeDuckDB(
+    //     props.fakeDuckDB.filter((item) =>
+    //       keys.some((key) => item[key]?.toString().toLowerCase().includes(props.search)
+    //       )
+    //     )
 
-  load()
-    
-  },[props.search])
+    //   );  
+
+    load()
+
+  }, [props.search])
 
   return (
     <div className="container">
       <div className="row">
         {/* Chart Column */}
-        <div className="col-4">
+        <div className="col-12">
           <br />
           <br />
           <div className="card text-center">
@@ -121,8 +140,9 @@ function FakeDuckDBTable(props) {
         </div>
 
         {/* Table Column */}
-        <div className="col-8 d-flex align-items-center justify-content-center flex-column">
-    
+        <div className='col-12'> <SpeedTest speed={speed} maxSpeed={maxSpeed}/></div>
+        <div className="col-12 d-flex align-items-center justify-content-center flex-column">
+
           <Table striped bordered hover>
             <thead>
               <tr>

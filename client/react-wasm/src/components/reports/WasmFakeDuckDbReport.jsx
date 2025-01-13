@@ -10,7 +10,9 @@ function WasmFakeDuckDBReport(props) {
 
      const [chartData, setChartData] = useState({ labels: [], datasets: [] });
      const [hasGenerated , setHasGenerated] = useState(false)
-     let counter = 0
+     const [speed,setSpeed] = useState()
+     const [maxSpeed,setMaxSpeed] = useState()
+   
     
         const generateChartData = () => {
     
@@ -41,18 +43,27 @@ function WasmFakeDuckDBReport(props) {
         const handleGenerateChart = useCallback( async () => {
            
             // to measure the performance******************
+          
+            const speed1 = performance.now()
+        
+            
             const fakeData = await memoryStdCourseFakeData();
-            console.log(JSON.stringify(fakeData) +"heeereeeee");
+            
             
             let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
             let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
             props.setFullMarks(arrayFullMaraks);
             props.setattendedStd(arrayAttendedStd);
-            
             generateChartData();
-          console.log("********************");
+
+            const speed2 = performance.now()
+            const speedResult = speed2 -speed1
+            setSpeed(speedResult)
+            setMaxSpeed(speed2)
+            console.log(speedResult);
+            
+            
           
-            //till here **********************************
         },[])
     
         useEffect(() => {
@@ -70,7 +81,7 @@ function WasmFakeDuckDBReport(props) {
         return (<>
        
        <div><BarChart chartData={chartData} /></div>
-       <div><SpeedTest/></div> 
+       <div><SpeedTest speed={speed} maxSpeed={maxSpeed}/></div> 
        </>
     )
  }
