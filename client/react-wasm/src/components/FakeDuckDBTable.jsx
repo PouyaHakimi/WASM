@@ -70,11 +70,25 @@ function FakeDuckDBTable(props) {
     let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
     if (props.search && props.search.length > 0) {
 
-      props.setFakeDuckDB(arraystdData.filter((item) =>
-        keys.some((key) => String(item[key]).toLowerCase().includes(props.search)
+      let filterResult = arraystdData.filter(item =>
+        keys.some(key =>
+          item[key]?.toString().toLowerCase().includes(props.search.toLowerCase()) || // Full match with spaces
+          item[key]
+            ?.toString()
+            .toLowerCase()
+            .split(" ")
+            .some(word => word.includes(props.search.toLowerCase())) // Partial match within words
         )
       )
-      );
+  
+      
+      props.setFakeDuckDB(filterResult);
+      // let filteredResults = result.filter(item =>
+      //   keys.some(key =>
+      //     item[key]?.toString().toLowerCase().includes(q.toLowerCase()) // Full match with spaces
+          
+      //   )
+      // );
 
      
       const speed2 = performance.now()
@@ -93,18 +107,10 @@ function FakeDuckDBTable(props) {
       setMaxSpeed(speed2)
     }
 
-    // props.setFullMarks(arrayFullMaraks);
-    // props.setattendedStd(arrayAttendedStd);
+  
   }
   useEffect(() => {
-    //  props.setFakeDuckDB(
-    //     props.fakeDuckDB.filter((item) =>
-    //       keys.some((key) => item[key]?.toString().toLowerCase().includes(props.search)
-    //       )
-    //     )
-
-    //   );  
-
+   
     load()
 
   }, [props.search])
@@ -123,11 +129,18 @@ function FakeDuckDBTable(props) {
               <Button className="btn btn-success mt-3" onClick={
 
                 async () => {
-                  // console.log("full Markssssss"+props.fullMarks[0]);
-                  // const mainData2 = await mainDataDuckDB();
-                  // const stdMarkData = await memoryStdDataFaker()
-                  // props.setFullMarks(stdMarkData.resultFm);
-                  // props.setattendedStd(stdMarkData.resultAt);
+                 
+                  const fakeData = await memoryStdCourseFakeData();
+
+                  console.log("Fetched data:", fakeData);
+                  if (!fakeData || !fakeData.resultFm || !fakeData.resultAt) {
+                    throw new Error("Incomplete or invalid data received");
+                  }
+              
+                  let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
+                  let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
+                  props.setFullMarks(arrayFullMaraks);
+                  props.setattendedStd(arrayAttendedStd);
                   handleGenerateChart()
 
                 }

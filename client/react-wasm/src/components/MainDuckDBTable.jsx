@@ -72,7 +72,7 @@ function MainDuckDBTable(props) {
     const speed1 = performance.now()
 
     const mainData = await memoryStdCourseData({ search: props.search });
-    // if (props.search && props.search.length > 0) {
+   
 
       props.setMainDuckDB(mainData);
       const speed2 = performance.now()
@@ -80,16 +80,7 @@ function MainDuckDBTable(props) {
       setSpeed(speedResult)
       setMaxSpeed(speed2)
      
-    // } else {
-    //   setSpeed(null)
-    //   setMaxSpeed(null)
-    //   props.setMainDuckDB(mainData)
-    //   const speed2 = performance.now()
-    //   const speedResult = speed2 - speed1
-    //   setSpeed(speedResult)
-    //   setMaxSpeed(speed2)
-
-    // }
+    
 
 
   }
@@ -119,6 +110,7 @@ function MainDuckDBTable(props) {
                   const stdMarkData = await memoryStdMarkData({ search: props.search })
                   props.setFullMarks(stdMarkData.resultFm);
                   props.setattendedStd(stdMarkData.resultAt);
+                  
                   handleGenerateChart()
 
                 }

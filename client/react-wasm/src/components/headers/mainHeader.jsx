@@ -55,6 +55,7 @@ function mainHeader(props) {
     // const [search, setSearch] = useState("")
 
     const handleSearchChange = event => {
+        
        props.setSearch(event.target.value)
        
         

@@ -35,40 +35,7 @@ function App() {
   const [speed, setSpeed] = useState()
   const [maxSpeed, setMaxSpeed] = useState()
 ;
-
- 
-
-  const keys = ["id", "sname", "cname", "marks"]
-
-  useEffect(() => {
-
-    // setFakeDuckDB(fakeDuckDB.filter(item=>
-    //   keys.some(key =>item[key].toString().toLowerCase().includes(search))
-    // ));
-    // setSearchData(
-    //   fakeDuckDB.filter((item) =>
-    //     keys.some((key) => String(item[key]).toLowerCase().includes(search)
-    //     )
-    //   )
-
-    // );
-    const loadData = async () => {
-
-      const speed1 = performance.now()
-
-      const studentCourseMarkData = await getStudentCourseMark({ search });
-      setStdCourseMark(studentCourseMarkData);
-
-      const speed2 = performance.now()
-      const speedResult = speed2 - speed1
-      setSpeed(speedResult)
-      setMaxSpeed(speed2)
-      
-      
-    }
-
-    loadData()
-  }, [search])
+  
 
 
   return (
@@ -79,12 +46,10 @@ function App() {
           <Route index element={
             <>
               <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search}
-                stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} setSearch={setSearch}
+                stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} setSearch={setSearch} 
                 mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks} maxSpeed={maxSpeed} speed={speed} />
 
-              {/* <StudentTable students={students} /> */}
-              {/* <StudentCourseMarkTable stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd}  search={search} /> */}
-
+           
             </>} />
         </Route>
         <Route path='/student' element={<ApiServerLayout search={search} setSearch={setSearch} />}>
