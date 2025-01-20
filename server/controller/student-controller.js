@@ -25,6 +25,8 @@ exports.getFiteredStd= async(req,res)=>{
 
   
   const {q} = req.query
+  console.log(q + "))))))");
+  
   const keys = ["id","sname","cname","marks"]
   
 
@@ -37,7 +39,8 @@ exports.getFiteredStd= async(req,res)=>{
   const stdCourseMark = await sequelize.query(stdCourseMarkQuery,{type:sequelize.QueryTypes.SELECT})
 
   let filteredResults= stdCourseMark.filter(item => 
-    keys.some(key =>item[key]?.toString().includes(q.toLowerCase())))
+    keys.some(key =>item[key]?.toString().toLowerCase().includes(q.toLowerCase())))
+   
    
     let sid = [...new Set(filteredResults.map(item =>item.sid))]
     let cid = [...new Set(filteredResults.map(item => item.cid))]
@@ -110,10 +113,16 @@ exports.getStudentCourseMark = async (req, res) => {
 
 
    const result = await sequelize.query(sqlQuery, { type: sequelize.QueryTypes.SELECT }) 
-   let filteredResults= result.filter(item => 
-   keys.some(key =>item[key]?.toString().includes(q.toLowerCase())))
- 
-       
+
+  let filteredResults = result.filter(item =>
+    keys.some(key =>
+      item[key]?.toString().toLowerCase().includes(q.toLowerCase()) // Full match with spaces
+      
+    )
+  );
+  
+    
+           
     res.status(200).json(filteredResults)
 
 

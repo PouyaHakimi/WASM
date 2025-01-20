@@ -124,12 +124,12 @@ function useDemoRouter() {
 
 
 
-const Skeleton = styled('div')(({ theme, height }) => ({
-    backgroundColor: theme.palette.action.hover,
-    borderRadius: theme.shape.borderRadius,
-    height,
-    content: '" "',
-}));
+// const Skeleton = styled('div')(({ theme, height }) => ({
+//     backgroundColor: theme.palette.action.hover,
+//     borderRadius: theme.shape.borderRadius,
+//     height,
+//     content: '" "',
+// }));
 
 export default function DashboardLayoutBasic(props) {
  
@@ -139,6 +139,8 @@ export default function DashboardLayoutBasic(props) {
     return (
         
         <AppProvider navigation={NAVIGATION} router={router} theme={demoTheme}>
+
+            {/* search && Header */}
             <MainHeader search={props.search} setSearch={props.setSearch}/>
             
             <DashboardLayout>

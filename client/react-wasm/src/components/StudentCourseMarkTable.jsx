@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { memoryStdDataFaker, memoryStdCourseFakeData } from '../wasm/memoryData';
 import BarChart from './BarChart';
-import { getDuckDBCourses, getStudentCourseMark, getFulleMark, getAttendedStudents } from '../API/API';
+import { getFulleMark, getAttendedStudents,getStudentCourseMark } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
 import { faker, it, Faker } from '@faker-js/faker';
@@ -11,34 +11,18 @@ import SpeedTest from './GaugePointer';
 
 
 
-function StudentCourseMarkTable(props) {
+function StudentCourseMarkTable({search,...props}) {
+
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [showChart, setSowChart] = useState(false);
-    console.log(props.speed+ "**********"+props.maxSpeed)
-    // let stdCourseMarkData;
-
-    // // if (props.search && props.search.length>0) {
-    // //   // Use searchData for rendering
-    // //   //stdCourseMarkData = props.SearchApiData;
-    // //   stdCourseMarkData = Array.isArray( props.SearchApiData) ?  props.SearchApiData : [];
-
-    // //   console.log(stdCourseMarkData+"inssiiiideeeee");
-      
-    // // } else {
-    // //   // Default to stdCourseMark if no searchData
-    // //   stdCourseMarkData = props.stdCourseMark;
-    // //   console.log("ooooouuuutttt");
-      
-    // // }
-    // console.log(Array.isArray(stdCourseMarkData)  );
-    // console.log(JSON.stringify(stdCourseMarkData, null, 2)+"^^^^^^^");
+     const [speed, setSpeed] = useState(null)
+     const [maxSpeed, setMaxSpeed] = useState(null)
+    
+ 
 
     const generateChartData = () => {
 
-      // if (!props.fullMarks || !props.attendedStd || props.fullMarks.length === 0 || props.attendedStd.length === 0) {
-      //   console.error("Data is not available yet for generating chart.");
-      //   return;
-      // }
+      
 
       let fullMarks1 = Array.isArray(props.fullMarks)
         ? props.fullMarks
@@ -49,9 +33,7 @@ function StudentCourseMarkTable(props) {
         : JSON.parse(props.attendedStd);
 
 
-      // attendedStd1.map((data) => console.log(data.course_name)
-      // )
-
+    
       const labels = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.course_name) : [] // course names
 
 
@@ -88,6 +70,31 @@ function StudentCourseMarkTable(props) {
         generateChartData();
       }
     }, [props.fullMarks, props.attendedStd]);
+
+    useEffect(() => {
+
+   
+      const loadData = async () => {
+  
+        const speed1 = performance.now()
+     
+  
+        const studentCourseMarkData = await getStudentCourseMark( {search} );
+
+        
+        
+        props.setStdCourseMark(studentCourseMarkData);
+  
+        const speed2 = performance.now()
+        const speedResult = speed2 - speed1
+        setSpeed(speedResult)
+        setMaxSpeed(speed2)
+        
+        
+      }
+  
+      loadData()
+    }, [search])
 
     return (
       <div className="container">
@@ -127,33 +134,21 @@ function StudentCourseMarkTable(props) {
           {/* Table Column */}
           
           
-          <SpeedTest speed={props.speed} maxSpeed={props.maxSpeed} />
+          <SpeedTest speed={speed} maxSpeed={maxSpeed} />
           <div className="col-12 d-flex align-items-center justify-content-center flex-column">
-            {/* <Button
+            <Button
               variant="success"
               size="lg"
               onClick={async () => {
 
-               // const studentCourseMarkData = await getStudentCourseMark();
-                //insertFakeData()
+             
+                insertFakeData()
 
-                // const searchData = await getsearch(props.search)
-                // console.log(searchData[0]+"********");
                 
-
-              //  props.setSearchApiData(searchData[0])
-
-
-
-                //props.setStdCourseMark(studentCourseMarkData[0]);
-
-                //   props.setFullMarks(arrayFullMaraks);
-                //   props.setattendedStd(arrayAttendedStd);
-                //fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB}
               }}
             >
-              Exams Result
-            </Button> */}
+              Insert Fake Data 
+            </Button>
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -194,7 +189,7 @@ function StudentCourseMarkTable(props) {
       let courses = []
       let marks = []
       const customFaker = new Faker({ locale: [it] });
-      for (let i = 1; i <= 1000; i++) {
+      for (let i = 1001; i <= 1100; i++) {
         students.push({
           id: i,
           sname: customFaker.person.fullName().replace(/'/g, "''"),
@@ -210,10 +205,10 @@ function StudentCourseMarkTable(props) {
 
         })
       }
-      for (let i = 1; i <= 1000; i++) {
+      for (let i = 1001; i <= 1100; i++) {
         marks.push({
           id: i,
-          sid: faker.number.int({ min: 1, max: 1000 }),
+          sid: faker.number.int({ min: 1001, max: 1100 }),
           cid: faker.number.int({ min: 1, max: 10 }),
           marks: faker.number.int({ min: 17, max: 30 })
         })

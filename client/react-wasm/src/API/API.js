@@ -89,8 +89,9 @@ async function getFilteredStdCourseMark({search}) {
     const URL = BACKENDURL + `/filterStd?q=${search}`
     try {
 
+        await new Promise((resolve) => setTimeout(resolve, 500));
         const response = await fetch(URL)
-        const result = response.json();
+        const result = await response.json();
         console.log("in APIIIII)))   " + result);
         
         return result
