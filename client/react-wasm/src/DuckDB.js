@@ -244,7 +244,7 @@ export async function fakeDataDuckDB(params) {
         const courseData = []//await getDuckDBCourses();
         const markData = []//await getDuckDBMarks();        
 
-        const dataRangeMax =155500
+        const dataRangeMax =200000
         const dataRangeMin =1
         const customFaker = new Faker({ locale: [it] });
         for(let i = dataRangeMin ; i<=dataRangeMax ; i++){

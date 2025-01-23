@@ -1,6 +1,6 @@
 import {fakeDataDuckDB, mainDataDuckDB, studentDuckDB } from "../DuckDB";
 import createModule from "../wasm/student2";
-import createMainModule from "./mainstudents2"
+import createMainModule from "./mainstudents3"
 
 export async function memoryStudentData() {
 
