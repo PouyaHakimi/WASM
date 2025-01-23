@@ -11,7 +11,12 @@ const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
-
+// Increase timeout for requests
+app.use((req, res, next) => {
+    req.setTimeout(60 * 60 * 1000); // 10 minutes
+    res.setTimeout(60 * 60 * 1000); // 10 minutes
+    next();
+  });
 const corsOption = {
     origin: 'http://localhost:3000',
     optionsSuccessStatus: 200,
