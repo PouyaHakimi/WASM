@@ -10,7 +10,7 @@ import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom
 import ApiServerLayout from './config/apiServerLayout.js';
 import DuckDB from './DuckDB.js';
 import FakeDuckDBTable from './components/FakeDuckDBTable.jsx';
-import MainDuckDBTable from './components/MainDuckDBTable.jsx';
+import MainDuckDBTable from './components/ApiDuckDBTable.jsx';
 import { mainDataDuckDB } from './DuckDB.js';
 import StudentCourseMarkTable from './components/StudentCourseMarkTable.jsx';
 import ApiDuckDBLayout from './config/apiDuckDBLayout.js';

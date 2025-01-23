@@ -83,7 +83,7 @@ export async function mainDataDuckDB({search}) {
     try {
 
         const filteredData = await getFilteredStdCourseMark({search})
-        console.log(JSON.stringify(filteredData) +"@@@@@@@DuckDBBBB");
+     
      
         
         const studentData =filteredData.students
@@ -244,8 +244,10 @@ export async function fakeDataDuckDB(params) {
         const courseData = []//await getDuckDBCourses();
         const markData = []//await getDuckDBMarks();        
 
+        const dataRangeMax =155500
+        const dataRangeMin =1
         const customFaker = new Faker({ locale: [it] });
-        for(let i = 1 ; i<=1000 ; i++){
+        for(let i = dataRangeMin ; i<=dataRangeMax ; i++){
             studentData.push({
                 id:i,
                 sname: customFaker.person.fullName().replace(/'/g, "''"),
@@ -263,8 +265,8 @@ export async function fakeDataDuckDB(params) {
             })
 
         }
-        for(let i = 1 ; i<=1000 ; i++){
-            const sid = faker.number.int({ min: 1, max: 1000 });
+        for(let i = dataRangeMin ; i<=dataRangeMax ; i++){
+            const sid = faker.number.int({ min: dataRangeMin, max: dataRangeMax });
             const cid = faker.number.int({ min: 1, max: 5 });
             markData.push({
                 id:i,

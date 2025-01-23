@@ -10,7 +10,7 @@ import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
 import Grid from '@mui/material/Grid2';
 import StudentCourseMarkTable from '../components/StudentCourseMarkTable';
-import MainDuckDBTable from '../components/MainDuckDBTable';
+import MainDuckDBTable from '../components/ApiDuckDBTable';
 import FakeDuckDBTable from '../components/FakeDuckDBTable';
 import ApiServerReport from '../components/reports/ApiServerReport';
 import WasmApiDuckDBReport from '../components/reports/WasmApiDuckDBReport';

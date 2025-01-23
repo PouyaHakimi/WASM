@@ -25,7 +25,7 @@ exports.getFiteredStd= async(req,res)=>{
 
   
   const {q} = req.query
-  console.log(q + "))))))");
+  
   
   const keys = ["id","sname","cname","marks"]
   

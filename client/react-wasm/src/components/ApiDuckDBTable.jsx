@@ -7,6 +7,7 @@ import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
 import { el } from '@faker-js/faker';
 import SpeedTest from './GaugePointer';
+import PaginationRecords from './pagination';
 
 
 function MainDuckDBTable(props) {
@@ -14,6 +15,13 @@ function MainDuckDBTable(props) {
   const [showChart, setSowChart] = useState(false);
   const [speed, setSpeed] = useState(null)
   const [maxSpeed, setMaxSpeed] = useState(null)
+  const [visibleData, setVisibleData] = useState([]);
+  const [startIndex, setStartIndex] = useState();
+
+
+
+  const pageSize = 100
+
 
   const generateChartData = () => {
 
@@ -72,15 +80,15 @@ function MainDuckDBTable(props) {
     const speed1 = performance.now()
 
     const mainData = await memoryStdCourseData({ search: props.search });
-   
+    const initData = mainData.slice(0, pageSize)
+    setVisibleData(initData)
+    props.setMainDuckDB(mainData);
+    const speed2 = performance.now()
+    const speedResult = speed2 - speed1
+    setSpeed(speedResult)
+    setMaxSpeed(speed2)
 
-      props.setMainDuckDB(mainData);
-      const speed2 = performance.now()
-      const speedResult = speed2 - speed1
-      setSpeed(speedResult)
-      setMaxSpeed(speed2)
-     
-    
+
 
 
   }
@@ -100,7 +108,7 @@ function MainDuckDBTable(props) {
           <div className="card text-center">
             <div className="card-header">Bar Chart</div>
             <div className="card-body">
-              
+
               {showChart && <BarChart chartData={chartData} />}
               <Button className="btn btn-success mt-3" onClick={
 
@@ -110,7 +118,7 @@ function MainDuckDBTable(props) {
                   const stdMarkData = await memoryStdMarkData({ search: props.search })
                   props.setFullMarks(stdMarkData.resultFm);
                   props.setattendedStd(stdMarkData.resultAt);
-                  
+
                   handleGenerateChart()
 
                 }
@@ -123,22 +131,11 @@ function MainDuckDBTable(props) {
         </div>
 
         {/* Table Column */}
-        <div className='col-12' ><SpeedTest speed={speed} maxSpeed={maxSpeed}/></div> 
+        <div className='col-12' ><SpeedTest speed={speed} maxSpeed={maxSpeed} /></div>
         <div className="col-12 d-flex align-items-center justify-content-center flex-column">
-          {/* <Button
-            variant="success"
-            size="lg"
-            onClick={async () => {
-             
-              const mainData = await memoryStdCourseData();
-              props.setMainDuckDB(mainData);
 
-            }}
-          >
-            Run DuckDB
-          </Button> */}
-         
-          
+
+
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -153,15 +150,12 @@ function MainDuckDBTable(props) {
             <tbody>
 
 
-              {/* {console.log(JSON.stringify(props.mainDuckDB)+"heeereee")
-              } */}
-              {/* { props.mainDuckDB.map((std) => (console.log(JSON.stringify(std)+"teeesssttt")))} */}
-              {Array.isArray(props.mainDuckDB) && props.mainDuckDB.map((std, index) => (
+              {Array.isArray(visibleData) && visibleData.map((std, index) => (
 
 
 
                 <tr key={std.key}>
-                  <td>{index + 1}</td>
+                  <td>{startIndex ? startIndex + index + 1 : index + 1}</td>
                   <td>{std.id}</td>
                   <td>{std.sname}</td>
                   <td>{std.cname}</td>
@@ -171,15 +165,18 @@ function MainDuckDBTable(props) {
               ))}
             </tbody>
           </Table>
+
+          <PaginationRecords
+            data={props.mainDuckDB}
+            setVisibleData={setVisibleData}
+            setStartIndex={setStartIndex}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-// MainDuckDBTable.defaultProps = {
-//   fullMarks: '[]',
-//   attendedStd: '[]',
-// };
+
 export default MainDuckDBTable;
 

@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import { faker, it, Faker } from '@faker-js/faker';
 import { insertstd, insertCourse, insertMarks ,getsearch} from '../API/API';
 import SpeedTest from './GaugePointer';
-
+import PaginationRecords from './pagination';
 
 
 function StudentCourseMarkTable({search,...props}) {
@@ -17,7 +17,12 @@ function StudentCourseMarkTable({search,...props}) {
     const [showChart, setSowChart] = useState(false);
      const [speed, setSpeed] = useState(null)
      const [maxSpeed, setMaxSpeed] = useState(null)
+    const [visibleData, setVisibleData] = useState([]);
+    const [startIndex, setStartIndex] = useState();
     
+      
+    
+      const pageSize = 100
  
 
     const generateChartData = () => {
@@ -75,27 +80,31 @@ function StudentCourseMarkTable({search,...props}) {
 
    
       const loadData = async () => {
-  
-        const speed1 = performance.now()
-     
-  
+       try{ 
+        
+        const speed1 = performance.now() // give us time in ms
         const studentCourseMarkData = await getStudentCourseMark( {search} );
 
-        
-        
         props.setStdCourseMark(studentCourseMarkData);
-  
+        const initialData = studentCourseMarkData.slice(0,pageSize)
+        setVisibleData(initialData)
+        
         const speed2 = performance.now()
         const speedResult = speed2 - speed1
         setSpeed(speedResult)
         setMaxSpeed(speed2)
-        
+      } catch (error) {
+        console.error("Error during data fetch:", error);
+    } 
+       
+       
         
       }
   
       loadData()
     }, [search])
 
+   
     return (
       <div className="container">
         <div className="row">
@@ -136,12 +145,13 @@ function StudentCourseMarkTable({search,...props}) {
           
           <SpeedTest speed={speed} maxSpeed={maxSpeed} />
           <div className="col-12 d-flex align-items-center justify-content-center flex-column">
+            
             <Button
               variant="success"
               size="lg"
               onClick={async () => {
 
-             
+                
                 insertFakeData()
 
                 
@@ -149,6 +159,8 @@ function StudentCourseMarkTable({search,...props}) {
             >
               Insert Fake Data 
             </Button>
+            <br/>
+            
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -161,12 +173,11 @@ function StudentCourseMarkTable({search,...props}) {
                 </tr>
               </thead>
               <tbody>
-                {/* {console.log(JSON.stringify( props.stdCourseMark) +"tesssssstttt++++")
-                } */}
-                { Array.isArray(props.stdCourseMark)&&props.stdCourseMark.map((std, index) => (
+               
+                { Array.isArray(visibleData)&&visibleData.map((std, index) => (
 
                   <tr key={std.key}>
-                    <td>{index + 1}</td>
+                    <td>{startIndex?startIndex+index + 1 :index+1}</td>
                     <td>{std.id}</td>
                     <td>{std.sname}</td>
                     <td>{std.cname}</td>
@@ -176,6 +187,12 @@ function StudentCourseMarkTable({search,...props}) {
                 ))}
               </tbody>
             </Table>
+            
+            <PaginationRecords
+            data={props.stdCourseMark}
+            setVisibleData={setVisibleData}
+            setStartIndex={setStartIndex}
+          />
           </div>
         </div>
       </div>
@@ -185,11 +202,13 @@ function StudentCourseMarkTable({search,...props}) {
   const insertFakeData = async () => {
     try {
 
+      const datarangeMin = 465000
+      const datarangeMax = 620000
       let students = []
       let courses = []
       let marks = []
       const customFaker = new Faker({ locale: [it] });
-      for (let i = 1001; i <= 1100; i++) {
+      for (let i = datarangeMin; i <= datarangeMax; i++) {
         students.push({
           id: i,
           sname: customFaker.person.fullName().replace(/'/g, "''"),
@@ -205,10 +224,10 @@ function StudentCourseMarkTable({search,...props}) {
 
         })
       }
-      for (let i = 1001; i <= 1100; i++) {
+      for (let i = datarangeMin; i <= datarangeMax; i++) {
         marks.push({
           id: i,
-          sid: faker.number.int({ min: 1001, max: 1100 }),
+          sid: faker.number.int({ min: datarangeMin, max: datarangeMax }),
           cid: faker.number.int({ min: 1, max: 10 }),
           marks: faker.number.int({ min: 17, max: 30 })
         })

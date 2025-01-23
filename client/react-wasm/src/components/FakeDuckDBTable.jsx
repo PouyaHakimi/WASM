@@ -6,6 +6,7 @@ import { getDuckDBCourses } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
 import SpeedTest from './GaugePointer';
+import PaginationRecords from './pagination';
 
 
 function FakeDuckDBTable(props) {
@@ -13,10 +14,12 @@ function FakeDuckDBTable(props) {
   const [showChart, setSowChart] = useState(false);
   const [speed, setSpeed] = useState(null)
   const [maxSpeed, setMaxSpeed] = useState(null)
+  const [visibleData, setVisibleData] = useState([]);
+  const [startIndex, setStartIndex] = useState();
 
   const keys = ["id", "sname", "cname", "marks"]
 
-
+  const pageSize = 100
 
   const generateChartData = () => {
 
@@ -66,54 +69,48 @@ function FakeDuckDBTable(props) {
     const speed1 = performance.now()
     const fakeData = await memoryStdCourseFakeData();
     let arraystdData = Array.isArray(fakeData.resulstd) ? fakeData.resulstd : JSON.parse(fakeData.resulstd)
-    let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
-    let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
+
     if (props.search && props.search.length > 0) {
 
       let filterResult = arraystdData.filter(item =>
         keys.some(key =>
-          item[key]?.toString().toLowerCase().includes(props.search.toLowerCase()) || // Full match with spaces
-          item[key]
-            ?.toString()
-            .toLowerCase()
-            .split(" ")
-            .some(word => word.includes(props.search.toLowerCase())) // Partial match within words
+          item[key]?.toString().toLowerCase().includes(props.search.toLowerCase())  // Partial match within words
         )
       )
-  
-      
-      props.setFakeDuckDB(filterResult);
-      // let filteredResults = result.filter(item =>
-      //   keys.some(key =>
-      //     item[key]?.toString().toLowerCase().includes(q.toLowerCase()) // Full match with spaces
-          
-      //   )
-      // );
 
-     
+      const initialData = filterResult.slice(0,pageSize)
+      setVisibleData(initialData)  // pagination initialization
+      props.setFakeDuckDB(filterResult);
+
+
+
       const speed2 = performance.now()
       const speedResult = speed2 - speed1
       setSpeed(speedResult)
       setMaxSpeed(speed2)
 
     } else {
-
+      const initialData = arraystdData.slice(0, pageSize)
+      setVisibleData(initialData)
       props.setFakeDuckDB(arraystdData);
 
-    
+
       const speed2 = performance.now()
       const speedResult = speed2 - speed1
       setSpeed(speedResult)
       setMaxSpeed(speed2)
     }
 
-  
+
   }
   useEffect(() => {
-   
+
     load()
 
+
   }, [props.search])
+
+
 
   return (
     <div className="container">
@@ -129,14 +126,14 @@ function FakeDuckDBTable(props) {
               <Button className="btn btn-success mt-3" onClick={
 
                 async () => {
-                 
+
                   const fakeData = await memoryStdCourseFakeData();
 
                   console.log("Fetched data:", fakeData);
                   if (!fakeData || !fakeData.resultFm || !fakeData.resultAt) {
                     throw new Error("Incomplete or invalid data received");
                   }
-              
+
                   let arrayFullMaraks = Array.isArray(fakeData.resultFm) ? fakeData.resultFm : JSON.parse(fakeData.resultFm)
                   let arrayAttendedStd = Array.isArray(fakeData.resultAt) ? fakeData.resultAt : JSON.parse(fakeData.resultAt)
                   props.setFullMarks(arrayFullMaraks);
@@ -153,7 +150,7 @@ function FakeDuckDBTable(props) {
         </div>
 
         {/* Table Column */}
-        <div className='col-12'> <SpeedTest speed={speed} maxSpeed={maxSpeed}/></div>
+        <div className='col-12'> <SpeedTest speed={speed} maxSpeed={maxSpeed} /></div>
         <div className="col-12 d-flex align-items-center justify-content-center flex-column">
 
           <Table striped bordered hover>
@@ -169,13 +166,13 @@ function FakeDuckDBTable(props) {
             </thead>
             <tbody>
 
-              {Array.isArray(props.fakeDuckDB) && props.fakeDuckDB.map((std, index) => (
+              {Array.isArray(visibleData) && visibleData.map((std, index) => (
 
 
 
 
                 <tr key={std.key}>
-                  <td>{index + 1}</td>
+                  <td>{startIndex + index + 1}</td>
                   <td>{std.id}</td>
                   <td>{std.sname}</td>
                   <td>{std.cname}</td>
@@ -185,15 +182,18 @@ function FakeDuckDBTable(props) {
               ))}
             </tbody>
           </Table>
+
+          <PaginationRecords
+            data={props.fakeDuckDB}
+            setVisibleData={setVisibleData}
+            setStartIndex={setStartIndex}
+          />
         </div>
       </div>
     </div>
   );
 }
 
-// MainDuckDBTable.defaultProps = {
-//   fullMarks: '[]',
-//   attendedStd: '[]',
-// };
+
 export default FakeDuckDBTable;
 
