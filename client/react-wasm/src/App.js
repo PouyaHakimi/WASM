@@ -1,17 +1,11 @@
 // import logo from './logo.svg';
 import './App.css';
-import React, { useEffect, useState } from 'react';
-// import MyPlot from './components/plotly.js';
-// import useWasmData from './wasm/wasmProcessor.js';
-import StudentTable from './components/StudentTable.jsx';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getStudentCourseMark, getDuckDBMarks, getsearch } from './API/API.js';
 import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import ApiServerLayout from './config/apiServerLayout.js';
-import DuckDB from './DuckDB.js';
 import FakeDuckDBTable from './components/FakeDuckDBTable.jsx';
 import MainDuckDBTable from './components/ApiDuckDBTable.jsx';
-import { mainDataDuckDB } from './DuckDB.js';
 import StudentCourseMarkTable from './components/StudentCourseMarkTable.jsx';
 import ApiDuckDBLayout from './config/apiDuckDBLayout.js';
 import FakeDockDbLayout from './config/fakeDuckDbLayout.js';
@@ -20,12 +14,10 @@ import DashboardLayoutBasic from './config/MainLayout.js';
 
 function App() {
 
-  //const { inputArr, outputArr, loading } = useWasmData();
-  const [students, setStudents] = useState([])
+
   const [stdDuckDB, setStdDuckDB] = useState([])
   const [chartData, setChartData] = useState(null)
   const [fakeDuckDB, setFakeDuckDB] = useState([])
-  const [marksDuckDB, setMarksDuckDB] = useState([])
   const [mainDuckDB, setMainDuckDB] = useState([])
   const [fullMarks, setFullMarks] = useState([])
   const [attendedStd, setattendedStd] = useState([])
@@ -34,6 +26,7 @@ function App() {
   const [fakeFullMarks, setFakeFullMarks] = useState([])
   const [speed, setSpeed] = useState()
   const [maxSpeed, setMaxSpeed] = useState()
+  const [query, setQuery] = useState("");
 ;
   
 
@@ -47,7 +40,7 @@ function App() {
             <>
               <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search}
                 stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} setSearch={setSearch} 
-                mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks} maxSpeed={maxSpeed} speed={speed} />
+                mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks} maxSpeed={maxSpeed} speed={speed} query={query} setQuery={setQuery}/>
 
            
             </>} />

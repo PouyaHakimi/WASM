@@ -245,8 +245,24 @@ async function insertMarks(table,records) {
 
 
 
+async function getAllData({query}) {
+
+    try {
+        const URL = BACKENDURL + `/all?q=${query}`
+        const response = (await fetch(URL)).json()
+        console.log(response +"in API");
+        return response
+    } catch (error) {
+        console.error("Fetch Error" +error)
+    }
+
+
+}
+
+
+
 export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark,
-    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch};
+    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch,getAllData};
 
 
 

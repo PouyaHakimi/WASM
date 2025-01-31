@@ -27,11 +27,13 @@
     "react-plotly.js": "^2.6.0",
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
+    "react-window": "^1.8.11",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": "NODE_OPTIONS='--max-old-space-size=8192' react-app-rewired start",
+    "dev": "nodemon --ignore 'data/data.json' --exec 'node --max-old-space-size=8192 server.js'",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
   },
