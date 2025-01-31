@@ -18,6 +18,7 @@ import WasmFakeDuckDBReport from '../components/reports/WasmFakeDuckDbReport';
 import MainHeader from '../components/headers/mainHeader';
 import SpeedTest from '../components/GaugePointer';
 import { useState } from 'react';
+import QueryResult from '../components/queryResult';
 
 
 const NAVIGATION = [
@@ -75,7 +76,23 @@ const NAVIGATION = [
             },
         ],
     },
-
+    {
+        segment: 'WASM-DuckDB-Json',
+        title: 'WASM-DuckDB-Json',
+        icon: <LayersIcon />,
+        children: [
+            {
+                segment: 'WASM-DuckDB-Json',
+                title: 'WASM-DuckDB-Json',
+                icon: <DescriptionIcon />,
+            },
+            {
+                segment: 'Report',
+                title: 'Report',
+                icon: <BarChartIcon />,
+            },
+        ],
+    },
 
 
     {
@@ -89,9 +106,9 @@ const NAVIGATION = [
         segment: 'reports',
         title: 'Reports',
         icon: <BarChartIcon />,
-       
+
     },
-    
+
 
 ];
 
@@ -132,24 +149,24 @@ function useDemoRouter() {
 // }));
 
 export default function DashboardLayoutBasic(props) {
- 
+
 
     const router = useDemoRouter();
 
     return (
-        
+
         <AppProvider navigation={NAVIGATION} router={router} theme={demoTheme}>
 
             {/* search && Header */}
-            <MainHeader search={props.search} setSearch={props.setSearch}/>
-            
+            <MainHeader search={props.search} setSearch={props.setSearch} />
+
             <DashboardLayout>
                 <PageContainer>
 
-                
+
                     {router.pathname === '/API-Server-Data' && <div>API-Server Data Overview</div>}
                     {router.pathname === '/API-Server-Data/API-Server' && (
-                        
+
                         <StudentCourseMarkTable
                             stdCourseMark={props.stdCourseMark}
                             setStdCourseMark={props.setStdCourseMark}
@@ -160,10 +177,10 @@ export default function DashboardLayoutBasic(props) {
                             searchData={props.searchData}
                             setSearchData={props.setSearchData}
                             search={props.search}
-                        
-                            maxSpeed={props.maxSpeed} 
-                            speed={props.speed}/>
-                        
+
+                            maxSpeed={props.maxSpeed}
+                            speed={props.speed} />
+
                     )}
 
 
@@ -190,7 +207,7 @@ export default function DashboardLayoutBasic(props) {
                             setattendedStd={props.setattendedStd}
                             search={props.search}
                             setSpeed={props.setSpeed}
-                            setMaxSpeed={props.setMaxSpeed}/>
+                            setMaxSpeed={props.setMaxSpeed} />
 
                     )}
                     {router.pathname === '/WASM-API-DuckDB' && <div>WASM-API-DuckDB Data Overview</div>}
@@ -229,6 +246,23 @@ export default function DashboardLayoutBasic(props) {
                             setattendedStd={props.setattendedStd}
                             search={props.search} />
 
+                    )}
+
+                    {router.pathname === '/WASM-DuckDB-Json' && <div>API-Server Data Overview</div>}
+                    {router.pathname === '/WASM-DuckDB-Json/WASM-DuckDB-Json' && (
+
+                        <QueryResult query={props.query} setQuery={props.setQuery}/>
+
+                    )}
+
+
+                    {router.pathname === '/WASM-DuckDB-Json' && <div>API-Server Data Overview</div>}
+                    {router.pathname === '/WASM-DuckDB-Json/Report' && (
+
+                        <ApiServerReport fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd} />
                     )}
 
 

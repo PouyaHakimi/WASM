@@ -3,6 +3,7 @@ const sequelize = require('./db');
 const studentRoutes = require('./routes/student-route');
 const courseRoutes = require('./routes/course-route');
 const marksRoutes = require('./routes/marks-route')
+const dataRouters = require('./routes/data-route')
 const cors = require('cors');
 
 
@@ -13,8 +14,8 @@ const PORT = 3001;
 
 // Increase timeout for requests
 app.use((req, res, next) => {
-    req.setTimeout(60 * 60 * 1000); // 10 minutes
-    res.setTimeout(60 * 60 * 1000); // 10 minutes
+    req.setTimeout(60 * 60 * 1000); // 60 minutes
+    res.setTimeout(60 * 60 * 1000); // 60 minutes
     next();
   });
 const corsOption = {
@@ -33,6 +34,7 @@ app.use(express.json({ limit: '100mb' }));
 app.use('/api/', studentRoutes);
 app.use('/api/', courseRoutes);
 app.use('/api/', marksRoutes);
+app.use('/api/', dataRouters)
 
 //connect to db and start server
 

@@ -2,7 +2,8 @@ const { json } = require('sequelize');
 const sequelize = require('../db');
 const Students = require('../models/student-model');
 const { Op } = require("sequelize");
-
+const fs = require('fs');
+const path = require('path');
 
 // here we should do export here to pass data as an callback function not an object
 exports.getAllStudents = async (req, res) => {
@@ -23,6 +24,7 @@ exports.getAllStudents = async (req, res) => {
 
 exports.getFiteredStd= async(req,res)=>{
 
+  
   
   const {q} = req.query
   
@@ -101,8 +103,11 @@ exports.getFiteredStd= async(req,res)=>{
 
 
 exports.getStudentCourseMark = async (req, res) => {
+  console.log("))))))))))))))))))))))))");
+  
   const keys = ["id","sname","cname","marks"]
   const {q} = req.query
+  const filePath = path.join(__dirname, '..', 'data', 'data.json');
   try {
     const sqlQuery = ` SELECT s.id, s.sname, c.cname , r.marks
             FROM marks r
@@ -120,11 +125,40 @@ exports.getStudentCourseMark = async (req, res) => {
       
     )
   );
-  
-    
-           
-    res.status(200).json(filteredResults)
+  const writeStream = fs.createWriteStream(filePath, { encoding: 'utf-8' });
 
+  writeStream.on("finish", () => {
+    console.log("✅ Data successfully written to JSON.");
+    res.status(200).json(filteredResults);
+  });
+
+  writeStream.on("error", (err) => {
+    console.error("❌ Error writing to file:", err);
+    res.status(500).json({ error: "Error writing data" });
+  });
+
+  // ✅ Confirm write stream opened
+  console.log("🟢 Write stream opened");
+
+  // ✅ Start writing JSON data
+  writeStream.write("[\n");
+
+  filteredResults.forEach((item, index) => {
+    const jsonItem = JSON.stringify(item);
+    writeStream.write(jsonItem + (index < filteredResults.length - 1 ? ",\n" : ""));
+  });
+
+  writeStream.write("\n]"); // End JSON array
+  console.log("🟡 Finished writing, closing stream...");
+
+  // ✅ Close the write stream properly
+  writeStream.end(() => {
+    console.log("🟢 writeStream.end() callback executed.");
+  });
+  
+  //res.status(200).json(filteredResults)
+   
+  
 
   } catch (error) {
     console.error("Error fetching Data")

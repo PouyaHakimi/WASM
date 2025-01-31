@@ -3,6 +3,7 @@ import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { faker, Faker,it } from '@faker-js/faker';
 
+// import fs from 'fs/promises';
 
 
 export async function studentDuckDB(props) {
@@ -235,7 +236,7 @@ export async function mainDataDuckDB({search}) {
 
 
 //*********************create and join all tables in fake DuckDB******** 
-export async function fakeDataDuckDB(params) {
+export async function fakeDataDuckDB() {
 
     try {
 
@@ -244,8 +245,9 @@ export async function fakeDataDuckDB(params) {
         const courseData = []//await getDuckDBCourses();
         const markData = []//await getDuckDBMarks();        
 
-        const dataRangeMax =200000
         const dataRangeMin =1
+        const dataRangeMax =2000000
+        
         const customFaker = new Faker({ locale: [it] });
         for(let i = dataRangeMin ; i<=dataRangeMax ; i++){
             studentData.push({
@@ -419,5 +421,59 @@ export async function fakeDataDuckDB(params) {
     }
 
 }
+
+//******************DuckDb JSON File */
+
+
+// Load DuckDB-WASM asynchronously
+// async function initDuckDB() {
+//     const JSDELIVR_BUNDLES = await duckdb.selectBundle();
+//     const bundle = await duckdb.instantiateBundle(JSDELIVR_BUNDLES);
+
+//     const db = new duckdb.Database(bundle);
+//     const conn = await db.connect();
+
+//     return { db, conn };
+// }
+
+// export async function duckDBJsonFile({search}) {
+
+        
+//     const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+//     const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+
+//     const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+
+//     const logger = new duckdb.ConsoleLogger();
+
+
+//     const db = new duckdb.AsyncDuckDB(logger, worker);
+    
+
+//     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+//     console.log("DuckDB initialized successfully!");
+
+
+//     const c = await db.connect()
+//     const filteredData = await getFilteredStdCourseMark({ search });
+
+//     const studentData = filteredData.students;
+//     const courseData = filteredData.courses;
+//     const markData = filteredData.marks;
+
+//     // Convert to JSON
+//     const jsonData = JSON.stringify({ students: studentData, courses: courseData, marks: markData }, null, 2);
+
+//     // Save JSON to a file
+//     const jsonBlob = new Blob([jsonData], { type: "application/json" });
+//     const jsonUrl = URL.createObjectURL(jsonBlob);
+//     downloadFile(jsonUrl, "data.json");
+
+    
+    
+// }
 
 
