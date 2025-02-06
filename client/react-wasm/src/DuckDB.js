@@ -1,17 +1,47 @@
 
-import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark } from "./API/API";
+import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark, getJsonData, getAllJsonData,writeJsonFile } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { faker, Faker,it } from '@faker-js/faker';
 
-// import fs from 'fs/promises';
 
 
-export async function studentDuckDB(props) {
 
+export async function jsonDataDuckDB({query}) {
+    let std 
+    let crs
+    let mrk
 
     try {
 
-        const studentData = await getDuckDBStd();
+       //  await writeJsonFile()   
+
+
+         await fetch('/students.json')  // Path to JSON file in the `public` folder
+        .then(response => response.json())
+        .then(data => {
+          std=(data);  // Store the fetched data in the state
+        })
+        .catch(error => console.error('Error loading JSON:', error));
+        console.log("PPPP"+JSON.stringify(std));
+
+        await fetch('/marks.json')  // Path to JSON file in the `public` folder
+        .then(response => response.json())
+        .then(data => {
+          mrk=(data);  // Store the fetched data in the state
+        })
+        .catch(error => console.error('Error loading JSON:', error));
+        console.log("PPPP"+JSON.stringify(mrk));
+     
+        await fetch('/courses.json')  // Path to JSON file in the `public` folder
+        .then(response => response.json())
+        .then(data => {
+          crs=(data);  // Store the fetched data in the state
+        })
+        .catch(error => console.error('Error loading JSON:', error));
+        console.log("PPPP"+JSON.stringify(crs));
+     
+     
+        
         
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
@@ -34,40 +64,36 @@ export async function studentDuckDB(props) {
         const c = await db.connect()
 
         console.log("Database connection established");
+        
 
-        await c.query(`
-            CREATE TABLE students (
-                id INTEGER,
-                sname TEXT,
-                age INTEGER
-            );
-        `);
-        console.log("Table created");
+       let jsonQuery;
 
-        for (const row of studentData) {
-
-
-            await c.query(`
-                INSERT INTO students (id, sname, age)
-                VALUES (${row.id}, '${row.sname}', ${row.age});
-            `);
-        }
-        console.log("Data inserted into student table");
-
-        const result = c.query(`select * from students`)
-
-
-
-        const table = await result;  // Await the Promise to resolve it
-
-
-
+       if (!query) {
+           jsonQuery = `
+              WITH students AS (SELECT * FROM read_json_auto('${std}')),
+              marks AS (SELECT * FROM read_json_auto('${mrk}')),
+             courses AS (SELECT * FROM read_json_auto('${crs}'))
+             SELECT c.cname AS courseName, COUNT(DISTINCT s.id) AS fullMark
+             FROM marks m
+             JOIN students s ON s.id = m.sid 
+             JOIN courses c ON c.cid = m.cid
+             WHERE m.marks = 18
+             GROUP BY c.cid, c.cname;
+           `;
+       } else {
+           jsonQuery = query  // Use double quotes for paths;  // Use provided query
+       }
+       
+       
+    
+       const result = c.query(`${jsonQuery}`)
+        
+       console.log(result);
+       
         await c.close()
 
-        // convert data from arrow format retrieved from query to standard array of js
-        const dataArray = table.toArray()
-        
-        return dataArray
+    
+        return []//result
 
     } catch (error) {
 

@@ -107,7 +107,7 @@ exports.getStudentCourseMark = async (req, res) => {
   
   const keys = ["id","sname","cname","marks"]
   const {q} = req.query
-  const filePath = path.join(__dirname, '..', 'data', 'data.json');
+  // const filePath = path.join(__dirname, '..', 'data', 'data.json');
   try {
     const sqlQuery = ` SELECT s.id, s.sname, c.cname , r.marks
             FROM marks r
@@ -125,38 +125,38 @@ exports.getStudentCourseMark = async (req, res) => {
       
     )
   );
-  const writeStream = fs.createWriteStream(filePath, { encoding: 'utf-8' });
+  // const writeStream = fs.createWriteStream(filePath, { encoding: 'utf-8' });
 
-  writeStream.on("finish", () => {
-    console.log("✅ Data successfully written to JSON.");
-    res.status(200).json(filteredResults);
-  });
+  // writeStream.on("finish", () => {
+  //   console.log("✅ Data successfully written to JSON.");
+  //   res.status(200).json(filteredResults);
+  // });
 
-  writeStream.on("error", (err) => {
-    console.error("❌ Error writing to file:", err);
-    res.status(500).json({ error: "Error writing data" });
-  });
+  // writeStream.on("error", (err) => {
+  //   console.error("❌ Error writing to file:", err);
+  //   res.status(500).json({ error: "Error writing data" });
+  // });
 
-  // ✅ Confirm write stream opened
-  console.log("🟢 Write stream opened");
+  // // ✅ Confirm write stream opened
+  // console.log("🟢 Write stream opened");
 
-  // ✅ Start writing JSON data
-  writeStream.write("[\n");
+  // // ✅ Start writing JSON data
+  // writeStream.write("[\n");
 
-  filteredResults.forEach((item, index) => {
-    const jsonItem = JSON.stringify(item);
-    writeStream.write(jsonItem + (index < filteredResults.length - 1 ? ",\n" : ""));
-  });
+  // filteredResults.forEach((item, index) => {
+  //   const jsonItem = JSON.stringify(item);
+  //   writeStream.write(jsonItem + (index < filteredResults.length - 1 ? ",\n" : ""));
+  // });
 
-  writeStream.write("\n]"); // End JSON array
-  console.log("🟡 Finished writing, closing stream...");
+  // writeStream.write("\n]"); // End JSON array
+  // console.log("🟡 Finished writing, closing stream...");
 
-  // ✅ Close the write stream properly
-  writeStream.end(() => {
-    console.log("🟢 writeStream.end() callback executed.");
-  });
+  // // ✅ Close the write stream properly
+  // writeStream.end(() => {
+  //   console.log("🟢 writeStream.end() callback executed.");
+  // });
   
-  //res.status(200).json(filteredResults)
+  res.status(200).json(filteredResults)
    
   
 
