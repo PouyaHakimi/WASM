@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --ignore 'data/data.json' --exec 'node --max-old-space-size=8192' server.js",
+    "start": "nodemon --ignore 'data/students.json' --ignore 'data/marks.json' --ignore 'data/courses.json' --exec 'node --max-old-space-size=8192 server.js'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "duckdb": "^1.1.3",
     "express": "^4.21.1",
     "pg": "^8.13.1",
     "pg-hstore": "^2.3.4",

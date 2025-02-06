@@ -1,3 +1,4 @@
+import { da } from "@faker-js/faker";
 import createModule from "../wasm/student2";
 import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 
@@ -245,13 +246,19 @@ async function insertMarks(table,records) {
 
 
 
-async function getAllData({query}) {
-
+async function getJsonData({query}) {
+    console.log(query +"in API");
+    
     try {
-        const URL = BACKENDURL + `/all?q=${query}`
-        const response = (await fetch(URL)).json()
-        console.log(response +"in API");
-        return response
+        const URL = BACKENDURL + `/queryData?q=${query}`
+       // const response = (await fetch(URL)).json()
+       const response = await fetch(URL);
+        
+       // Wait for JSON parsing to complete
+       const data = await response.json();
+        
+       
+        return data
     } catch (error) {
         console.error("Fetch Error" +error)
     }
@@ -259,10 +266,30 @@ async function getAllData({query}) {
 
 }
 
+async function writeJsonFile() {
+    
+    
+    const URL = BACKENDURL + `/allQueryData`
+    try {
+
+        // await new Promise((resolve) => setTimeout(resolve, 500));
+        const response = await fetch(URL)
+        const result = await response.json();
+        console.log("in APIIIII)))   " + result);
+        
+        return result
+
+    } catch (error) {
+        console.error("Fetch Error" + error)
+
+    }
+
+}
 
 
-export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark,
-    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch,getAllData};
+
+export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark,writeJsonFile,
+    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch,getJsonData};
 
 
 

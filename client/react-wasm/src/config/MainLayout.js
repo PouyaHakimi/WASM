@@ -19,6 +19,7 @@ import MainHeader from '../components/headers/mainHeader';
 import SpeedTest from '../components/GaugePointer';
 import { useState } from 'react';
 import QueryResult from '../components/queryResult';
+import WasmQueryResult from '../components/wasmQueryResult';
 
 
 const NAVIGATION = [
@@ -67,6 +68,23 @@ const NAVIGATION = [
             {
                 segment: 'WASM-Fake-DuckDB',
                 title: 'WASM-Fake-DuckDB',
+                icon: <DescriptionIcon />,
+            },
+            {
+                segment: 'Report',
+                title: 'Report',
+                icon: <BarChartIcon />,
+            },
+        ],
+    },
+    {
+        segment: 'API-Json',
+        title: 'API-Json',
+        icon: <LayersIcon />,
+        children: [
+            {
+                segment: 'API-Json',
+                title: 'API-Json',
                 icon: <DescriptionIcon />,
             },
             {
@@ -179,7 +197,8 @@ export default function DashboardLayoutBasic(props) {
                             search={props.search}
 
                             maxSpeed={props.maxSpeed}
-                            speed={props.speed} />
+                            speed={props.speed}
+                            />
 
                     )}
 
@@ -251,7 +270,25 @@ export default function DashboardLayoutBasic(props) {
                     {router.pathname === '/WASM-DuckDB-Json' && <div>API-Server Data Overview</div>}
                     {router.pathname === '/WASM-DuckDB-Json/WASM-DuckDB-Json' && (
 
-                        <QueryResult query={props.query} setQuery={props.setQuery}/>
+                        <WasmQueryResult query={props.query} setQuery={props.setQuery} />
+
+                    )}
+
+
+                    {router.pathname === '/API-Json' && <div>API-Server Data Overview</div>}
+                    {router.pathname === '/API-Json/Report' && (
+
+                        <ApiServerReport fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd} />
+                    )}
+
+
+                    {router.pathname === '/API-Json' && <div>API-Server Data Overview</div>}
+                    {router.pathname === '/API-Json/API-Json' && (
+
+                        <QueryResult query={props.query} setQuery={props.setQuery} />
 
                     )}
 
@@ -262,7 +299,8 @@ export default function DashboardLayoutBasic(props) {
                         <ApiServerReport fullMarks={props.fullMarks}
                             setFullMarks={props.setFullMarks}
                             attendedStd={props.attendedStd}
-                            setattendedStd={props.setattendedStd} />
+                            setattendedStd={props.setattendedStd}
+                            />
                     )}
 
 

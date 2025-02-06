@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import { memoryStdDataFaker, memoryStdCourseFakeData } from '../wasm/memoryData';
 import BarChart from './BarChart';
-import { getFulleMark, getAttendedStudents, getStudentCourseMark } from '../API/API';
+import { getFulleMark, getAttendedStudents, getStudentCourseMark, writeJsonFile } from '../API/API';
 import { mainDataDuckDB } from '../DuckDB';
 import { useEffect } from 'react';
 import { faker, it, Faker } from '@faker-js/faker';
 import { insertstd, insertCourse, insertMarks, getsearch } from '../API/API';
 import SpeedTest from './GaugePointer';
 import PaginationRecords from './pagination';
-import stdCourseJsFile from '../data/stdCourseJsFile';
+
+
 
 
 function StudentCourseMarkTable({ search, ...props }) {

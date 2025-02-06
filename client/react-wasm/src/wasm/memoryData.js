@@ -1,10 +1,10 @@
-import {fakeDataDuckDB, mainDataDuckDB, studentDuckDB } from "../DuckDB";
+import {fakeDataDuckDB, mainDataDuckDB, jsonDataDuckDB } from "../DuckDB";
 import createModule from "../wasm/student2";
 import createMainModule from "./mainstudents3"
 
-export async function memoryStudentData() {
+export async function memoryJsonData({query}) {
 
-    const DuckData = await studentDuckDB()
+    const DuckData = await jsonDataDuckDB({query})
 
     const module = await createModule() // wraper Module that has created by makin import creatModule functional the name can be even asghar
 

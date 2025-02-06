@@ -18,6 +18,7 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",
     "path": "^0.12.7",
+    "path-browserify": "^1.0.1",
     "plotly.js": "^2.35.2",
     "react": "^18.3.1",
     "react-app-rewired": "^2.2.1",
@@ -32,7 +33,7 @@
   },
   "scripts": {
     "start": "NODE_OPTIONS='--max-old-space-size=8192' react-app-rewired start",
-    "dev": "nodemon --ignore 'data/data.json' --exec 'node --max-old-space-size=8192 server.js'",
+    "dev": "nodemon --ignore 'data/students.json' --ignore 'data/marks.json' --ignore 'data/courses.json' --exec 'node --max-old-space-size=8192 server.js'",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
@@ -54,5 +55,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.7",
+    "@babel/preset-env": "^7.26.7",
+    "babel-loader": "^9.2.1"
   }
 }
