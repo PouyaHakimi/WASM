@@ -77,17 +77,14 @@ TablePaginationActions.propTypes = {
   rowsPerPage: PropTypes.number.isRequired,
 };
 
-function createData(name, calories, fat) {
-  return { name, calories, fat };
-}
 
-const rows = [
-
-].sort((a, b) => (a.calories < b.calories ? -1 : 1));
 
 export default function CustomPaginationActionsTable(props) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+
+
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -106,21 +103,23 @@ export default function CustomPaginationActionsTable(props) {
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
         <TableBody>
-          {console.log(rowsPerPage)}
           
-          {(rowsPerPage > 0
+          
+          {
+        
+          (rowsPerPage > 0
             ?  props.queryResult.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             :  props.queryResult
           ).map((row) => (
-            <TableRow key={row.id}>
+            <TableRow key={Math.random()}>
               <TableCell component="th" scope="row">
-                {row.id} {row.cid}
+                {row.id}  {row.sname} {row.age}    
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-               {row.sname} {row.cname} 
+              {row.cid} {row.cname}  {row.credits}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
-                {row.age} {row.marks} {row.count}
+              {row.sid} {row.marks}
               </TableCell>
                 
             </TableRow>

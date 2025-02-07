@@ -5,43 +5,31 @@ import { faker, Faker,it } from '@faker-js/faker';
 
 
 
-
 export async function jsonDataDuckDB({query}) {
     let std 
     let crs
     let mrk
+     
 
     try {
 
-       //  await writeJsonFile()   
 
+        // await writeJsonFile()   
 
-         await fetch('/students.json')  // Path to JSON file in the `public` folder
-        .then(response => response.json())
-        .then(data => {
-          std=(data);  // Store the fetched data in the state
-        })
-        .catch(error => console.error('Error loading JSON:', error));
-        console.log("PPPP"+JSON.stringify(std));
+     
+        const std = await fetch('../students.json').then(response => response.json());
+        const mrk = await fetch('../marks.json').then(response => response.json());
+        const crs = await fetch('../courses.json').then(response => response.json());
 
-        await fetch('/marks.json')  // Path to JSON file in the `public` folder
-        .then(response => response.json())
-        .then(data => {
-          mrk=(data);  // Store the fetched data in the state
-        })
-        .catch(error => console.error('Error loading JSON:', error));
-        console.log("PPPP"+JSON.stringify(mrk));
-     
-        await fetch('/courses.json')  // Path to JSON file in the `public` folder
-        .then(response => response.json())
-        .then(data => {
-          crs=(data);  // Store the fetched data in the state
-        })
-        .catch(error => console.error('Error loading JSON:', error));
-        console.log("PPPP"+JSON.stringify(crs));
-     
-     
-        
+        // console.log("Students:", std);
+        // console.log("Marks:", mrk);
+        // console.log("Courses:", crs);
+
+        query = query.replace(/studentsData/g, 'students.json')
+                 .replace(/marksData/g, 'marks.json')
+                 .replace(/coursesData/g, 'courses.json');
+      
+
         
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 
@@ -65,19 +53,22 @@ export async function jsonDataDuckDB({query}) {
 
         console.log("Database connection established");
         
+        await db.registerFileText('students.json', JSON.stringify(std));
+        await db.registerFileText('marks.json', JSON.stringify(mrk));
+        await db.registerFileText('courses.json', JSON.stringify(crs));
 
        let jsonQuery;
 
        if (!query) {
            jsonQuery = `
-              WITH students AS (SELECT * FROM read_json_auto('${std}')),
-              marks AS (SELECT * FROM read_json_auto('${mrk}')),
-             courses AS (SELECT * FROM read_json_auto('${crs}'))
+              WITH students AS (SELECT * FROM read_json_auto('students.json')),
+              marks AS (SELECT * FROM read_json_auto('marks.json')),
+             courses AS (SELECT * FROM read_json_auto('courses.json'))
              SELECT c.cname AS courseName, COUNT(DISTINCT s.id) AS fullMark
              FROM marks m
              JOIN students s ON s.id = m.sid 
              JOIN courses c ON c.cid = m.cid
-             WHERE m.marks = 18
+             WHERE m.marks = 30
              GROUP BY c.cid, c.cname;
            `;
        } else {
@@ -86,18 +77,34 @@ export async function jsonDataDuckDB({query}) {
        
        
     
-       const result = c.query(`${jsonQuery}`)
+      const result = await c.query(`${jsonQuery}`)
+       
+    
         
-       console.log(result);
+    
+       const resultArray = result.toArray()
+
+
+      const convertedBigInt = resultArray.map(row => 
+        Object.fromEntries(
+          Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+        )
+      );
+      
        
         await c.close()
 
-    
-        return []//result
+       console.log(resultArray +"in duckDB");
+       console.log(Array.isArray(resultArray) +"in duckDB");
+       console.log(typeof resultArray +"in duckDB");
+
+       
+        return convertedBigInt
 
     } catch (error) {
 
         console.error("error of fetching in BrowserDB", error)
+        return {error:true, message:error.message}
 
     }
 }

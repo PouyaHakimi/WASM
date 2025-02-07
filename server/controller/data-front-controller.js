@@ -7,14 +7,19 @@ exports.getFrontJsonDataController = async (req, res) => {
 
     const { q } = req.query
 
-    const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'students.json');
-    const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'marks.json');
-    const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'courses.json');
-  
+    // const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'students.json');
+    // const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'marks.json');
+    // const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'courses.json');
 
-    // const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'students.json');
-    // const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'marks.json');
-    // const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'courses.json');
+    
+    
+    // console.log(stdPathFront +"paaaatttthhhh");
+    
+
+    const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'students.json');
+    const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'marks.json');
+    const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'courses.json');
+
     const stdQuery = `select * from student`
     const crsQuery = `select * from courses`
     const mrkQuery = `select * from marks`

@@ -10,6 +10,10 @@ import { getJsonData } from '../API/API';
 import { jsonDataDuckDB } from '../DuckDB';
 import CustomPaginationActionsTable from './customTable';
 import SpeedTest from './GaugePointer';
+import AlertTitle from '@mui/material/AlertTitle';
+import Alert from '@mui/material/Alert';
+
+
 
 function renderRow({ index, style, data }) {
     const rowData = data[index] || {};  // Get row data, avoid undefined errors
@@ -27,7 +31,10 @@ function QueryResult({ query, setQuery}) {
     const [queryResult, setQueryResult] = useState([]);  // Store API response data
       const [speed, setSpeed] = useState(null)
       const [maxSpeed, setMaxSpeed] = useState(null)
-    
+      const [alert,setAlert]=useState(null)
+      const[message,setMessage] =useState(false)
+        console.log(queryResult.length+"length+++++");
+        
     const handleChange = (event) => {
         setQuery(event.target.value);
     };
@@ -37,6 +44,14 @@ function QueryResult({ query, setQuery}) {
 
         const speed1 = performance.now() // give us time in ms
         const data = await getJsonData({ query });
+        if(data.error){
+            setAlert(data.message)
+            setMessage(true)
+        }else{
+            setAlert("")
+            setMessage(true)
+        }
+        
         setQueryResult(data || []); 
         
         const speed2 = performance.now()
@@ -44,6 +59,7 @@ function QueryResult({ query, setQuery}) {
         setSpeed(speedResult)
         setMaxSpeed(speed2)
         
+
         
         // if (data) {
         //     setQueryResult(data || []);  
@@ -71,19 +87,28 @@ function QueryResult({ query, setQuery}) {
                 />
             </Box>
             <br />
-            <Button variant="contained" color="success" onClick={handleClick}>
+            <Button variant="contained" color="success" onClick={()=>{handleClick();}}>
                 Submit
             </Button>
-           
+            <br/>
+            <br />
+          {message && (alert ? ( <Alert severity="error">
+               <AlertTitle>Error</AlertTitle>
+                     {alert}
+             </Alert>):
+             <Alert severity="success">
+                  <AlertTitle>Success</AlertTitle>
+                        Your query works successfuly!
+                </Alert>)}
             <SpeedTest speed={speed} maxSpeed={maxSpeed} />
             <br />
             <Box sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
                 <FixedSizeList
                     height={400}
-                    width={500}
-                    itemSize={46}
+                    width={1000}
+                    itemSize={15}
                     itemCount={queryResult.length}  // Dynamic based on result length
-                    overscanCount={5}
+                    overscanCount={1000}
                     itemData={queryResult}  // Pass data to row renderer
                 >
                     {renderRow}
@@ -91,7 +116,8 @@ function QueryResult({ query, setQuery}) {
             </Box>
             <br/>
             <br/>
-            <CustomPaginationActionsTable queryResult={queryResult}/>
+            
+           {!alert  && <CustomPaginationActionsTable queryResult={queryResult}/>}
             {/* <text>{JSON.stringify(queryResult)}</text> */}
         </div>
     );

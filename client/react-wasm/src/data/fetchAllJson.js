@@ -3,10 +3,10 @@ const db = new duckdb.Database(':memory:')
 
 
 async function fetchAllJson(studentPath,markPath,coursePath,query) {
-    console.log(query+">>>>>>");
-    console.log(studentPath);
-    console.log(coursePath);
-    console.log(markPath);
+    // console.log(query+">>>>>>");
+    // console.log(studentPath);
+    // console.log(coursePath);
+    // console.log(markPath);
     try {
         
     const connection = db.connect()

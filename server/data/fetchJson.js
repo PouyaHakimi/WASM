@@ -3,10 +3,7 @@ const db = new duckdb.Database(':memory:')
 
 
 async function fetchJson(studentPath,markPath,coursePath,query) {
-    console.log(query+">>>>>>");
-    console.log(studentPath);
-    console.log(coursePath);
-    console.log(markPath);
+    
     try {
         
     const connection = db.connect()
@@ -22,7 +19,7 @@ async function fetchJson(studentPath,markPath,coursePath,query) {
              FROM marks m
              JOIN students s ON s.id = m.sid 
              JOIN courses c ON c.cid = m.cid
-             WHERE m.marks = 18
+             WHERE m.marks = 30
              GROUP BY c.cid, c.cname;
            `;
        } else {
@@ -32,8 +29,9 @@ async function fetchJson(studentPath,markPath,coursePath,query) {
     const result = await new Promise((resolve, reject) => {
         connection.all(jsonQuery, (err, rows) => {
             if (err) {
-                console.error(err);
-                reject(err);
+               console.error(err);
+               reject({ error: true, message: err.message });
+                
             } else {
                 // Convert BigInt values to regular numbers
                 const formattedRows = rows.map(row => {
@@ -55,9 +53,9 @@ async function fetchJson(studentPath,markPath,coursePath,query) {
 
 } catch (error) {
     console.error("Error querying JSON with DuckDB:" + error); 
-    return error     
+    return { error: true, message: error.message }
 }
-
+ 
 }
 
 

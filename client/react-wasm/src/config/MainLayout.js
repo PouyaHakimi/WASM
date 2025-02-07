@@ -146,7 +146,7 @@ const demoTheme = extendTheme({
 });
 
 function useDemoRouter() {
-    const [pathname, setPathname] = React.useState();
+    const [pathname, setPathname] = React.useState('/');
 
     const router = React.useMemo(() => ({
         pathname,

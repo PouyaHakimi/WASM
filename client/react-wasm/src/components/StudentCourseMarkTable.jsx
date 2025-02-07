@@ -204,8 +204,8 @@ function StudentCourseMarkTable({ search, ...props }) {
 const insertFakeData = async () => {
   try {
 
-    const datarangeMin = 1
-    const datarangeMax = 2000000
+    const datarangeMin = 3000001
+    const datarangeMax = 4000000
     let students = []
     let courses = []
     let marks = []
