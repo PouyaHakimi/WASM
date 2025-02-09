@@ -16,9 +16,12 @@ exports.writeJsonDataController = async (req, res) => {
      console.log(stdPathFront2 +"paaaatttthhhh");
     
 
-    const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'students.json');
-    const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'marks.json');
-    const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'courses.json');
+    const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'data','students.json');
+    const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'data','marks.json');
+    const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'data','courses.json');
+        
+    console.log(stdPathFront);
+    
 
     const stdQuery = `select * from student`
     const crsQuery = `select * from courses`

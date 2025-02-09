@@ -7,9 +7,6 @@ import { fetchJsonData } from "./data/fetchAllJson";
 
 
 export async function jsonDataDuckDB({query}) {
-
- let data = await readStreamJsonFile () 
- console.log(JSON.stringify(data.students) +"induckdddddbbbbbbbb");
  
    
  const studentsJsonPath = process.env.REACT_APP_STUDENTS_JSON; 
