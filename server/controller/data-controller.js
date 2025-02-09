@@ -1,6 +1,6 @@
 const sequelize = require('../db');
 const path = require('path');
-const fetchQueryData = require('../data/fetchJson')
+const fetchQueryData = require('../data/fetchQueryJson')
 const writeJosnFile = require(`../data/writeJsonFile`)
 
 

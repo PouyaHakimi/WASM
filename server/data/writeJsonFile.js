@@ -8,7 +8,7 @@ function writeJsonFile(filePath, data) {
 
     return new Promise((resolve, rejects) => {
         const wrireStream = fs.createWriteStream(filePath)
-
+        
         wrireStream.on('finish', () => {
             console.log("Data has Wrriten IN JSON file Successfully!");
             resolve()
@@ -30,5 +30,7 @@ function writeJsonFile(filePath, data) {
         wrireStream.end()
 
     })
+
+    
 }
 module.exports = writeJsonFile

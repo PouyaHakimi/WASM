@@ -1,8 +1,11 @@
 const express= require('express');
 const router = express.Router();
 const dataController = require('../controller/data-controller')
-const fronDataController = require('../controller/data-front-controller')
+const writeDataController = require('../controller/write-data-controller');
+const { getStreamDataController } = require('../controller/streamData-controller');
+
 
 router.get('/queryData',dataController.getJsonDataController)
-router.get('/allQueryData',fronDataController.getFrontJsonDataController)
+router.get('/writeJsonData',writeDataController.writeJsonDataController)
+router.get('/streamData' , getStreamDataController)
 module.exports = router

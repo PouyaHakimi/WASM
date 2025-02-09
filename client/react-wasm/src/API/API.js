@@ -30,7 +30,7 @@ const BACKENDURL = 'http://localhost:3001/api'
 // }
 
 //fetch data for transfering to duckDB
-async function getDuckDBStd({search}) {
+async function getDuckDBStd({ search }) {
 
     const URL = BACKENDURL + `/students?q=${search}`
 
@@ -39,7 +39,7 @@ async function getDuckDBStd({search}) {
         const response = await fetch(URL)
         const result = await response.json()
         console.log(result + "APIIIIII@@@@@@");
-        
+
         return result
 
 
@@ -50,7 +50,7 @@ async function getDuckDBStd({search}) {
 }
 
 //fetch data for transfering to duckDB
-async function getDuckDBCourses({search}) {
+async function getDuckDBCourses({ search }) {
 
     const URL = BACKENDURL + `/courses?q=${search}`
     try {
@@ -68,7 +68,7 @@ async function getDuckDBCourses({search}) {
 }
 
 //fetch data for transfering to duckDB
-async function getDuckDBMarks({search}) {
+async function getDuckDBMarks({ search }) {
 
     const URL = BACKENDURL + `/marks?q=${search}`
     try {
@@ -84,9 +84,9 @@ async function getDuckDBMarks({search}) {
 
 }
 
-async function getFilteredStdCourseMark({search}) {
-    
-    
+async function getFilteredStdCourseMark({ search }) {
+
+
     const URL = BACKENDURL + `/filterStd?q=${search}`
     try {
 
@@ -94,7 +94,7 @@ async function getFilteredStdCourseMark({search}) {
         const response = await fetch(URL)
         const result = await response.json();
         console.log("in APIIIII)))   " + result);
-        
+
         return result
 
     } catch (error) {
@@ -105,15 +105,15 @@ async function getFilteredStdCourseMark({search}) {
 }
 
 
-async function getStudentCourseMark({search}) {
+async function getStudentCourseMark({ search }) {
 
     try {
         const URL = BACKENDURL + `/studentCourseMark?q=${search}`
         const response = (await fetch(URL)).json()
-        console.log(response +"in API");
+        console.log(response + "in API");
         return response
     } catch (error) {
-        console.error("Fetch Error" +error)
+        console.error("Fetch Error" + error)
     }
 
 
@@ -124,10 +124,10 @@ async function getFulleMark() {
     try {
         const URL = BACKENDURL + '/fullmark'
         const response = (await fetch(URL)).json()
-        
+
         return response
     } catch (error) {
-        console.error("Fetch Error" +error)
+        console.error("Fetch Error" + error)
     }
 
 
@@ -139,30 +139,30 @@ async function getAttendedStudents() {
         const URL = BACKENDURL + '/attended'
         const response = (await fetch(URL)).json()
         console.log(response);
-        
+
         return response
     } catch (error) {
-        console.error("Fetch Error" +error)
+        console.error("Fetch Error" + error)
     }
 
 
 }
 
-async function getsearch({search}) {
-    console.log(search+"search******");
-    
+async function getsearch({ search }) {
+    console.log(search + "search******");
+
     try {
         const URL = BACKENDURL + `/search?q=${search}`
         const response = await fetch(URL); // Await the fetch call
-        const data = await response.json(); 
-        console.log(JSON.stringify(data) +"9999999999999");
-        
+        const data = await response.json();
+        console.log(JSON.stringify(data) + "9999999999999");
+
         return data
     } catch (error) {
         console.error("Fetch Error" + error);
-        
+
     }
-    
+
 }
 
 
@@ -171,49 +171,49 @@ async function getsearch({search}) {
 
 
 // ******************Insert Fetch API
-async function insertstd(table,records) {
+async function insertstd(table, records) {
 
-    const URL = BACKENDURL+'/std'
-    const response = await fetch(URL,{
-        method:'post',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({table,records})
+    const URL = BACKENDURL + '/std'
+    const response = await fetch(URL, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table, records })
     })
 
     const result = await response.json()
-    
-   
+
+
     if (response.ok) {
-        console.log(`data successfully inserted in ${table}`,result);
+        console.log(`data successfully inserted in ${table}`, result);
         return result
-        
-        
+
+
     } else {
 
         console.error('Error inserting data:', result);
         throw new Error(result.error || 'Failed to insert data');
-        
+
     }
-    
+
 }
 
 
 
-async function insertCourse(table,records) {
-        
+async function insertCourse(table, records) {
+
     const URL = BACKENDURL + '/courses'
-    const response = await fetch(URL ,{
-        method:'post',
-        headers: {'Content-Type':'application/json'},
-        body:JSON.stringify({table,records})
+    const response = await fetch(URL, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table, records })
     })
 
     const result = await response.json()
 
     if (response.ok) {
-        console.log(`data inserted successfully in ${table}`,result);
+        console.log(`data inserted successfully in ${table}`, result);
         return result
-        
+
     } else {
         console.error('Error inserting data:', result);
         throw new Error(result.error || 'Failed to insert data');
@@ -221,23 +221,23 @@ async function insertCourse(table,records) {
 }
 
 
-async function insertMarks(table,records) {
-    
+async function insertMarks(table, records) {
 
-    
+
+
     const URL = BACKENDURL + '/marks'
-    const response = await fetch(URL ,{
-        method:'post',
-        headers: {'Content-Type':'application/json'},
-        body:JSON.stringify({table,records})
+    const response = await fetch(URL, {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table, records })
     })
 
     const result = await response.json()
 
     if (response.ok) {
-        console.log(`data inserted successfully in ${table}`,result);
+        console.log(`data inserted successfully in ${table}`, result);
         return result
-        
+
     } else {
         console.error('Error inserting data:', result);
         throw new Error(result.error || 'Failed to insert data');
@@ -246,37 +246,37 @@ async function insertMarks(table,records) {
 
 
 
-async function getJsonData({query}) {
-    console.log(query +"in API");
-    
+async function getQueryJsonData({ query }) {
+    console.log(query + "in API");
+
     try {
         const URL = BACKENDURL + `/queryData?q=${query}`
-       // const response = (await fetch(URL)).json()
-       const response = await fetch(URL);
-        
-       // Wait for JSON parsing to complete
-       const data = await response.json();
-        
-       
+        // const response = (await fetch(URL)).json()
+        const response = await fetch(URL);
+
+        // Wait for JSON parsing to complete
+        const data = await response.json();
+
+
         return data
     } catch (error) {
-        console.error("Fetch Error" +error)
+        console.error("Fetch Error" + error)
     }
 
 
 }
 
 async function writeJsonFile() {
-    
-    
-    const URL = BACKENDURL + `/allQueryData`
+
+
+    const URL = BACKENDURL + `/writeJsonData`
     try {
 
         // await new Promise((resolve) => setTimeout(resolve, 500));
         const response = await fetch(URL)
         const result = await response.json();
         console.log("in APIIIII)))   " + result);
-        
+
         return result
 
     } catch (error) {
@@ -287,9 +287,44 @@ async function writeJsonFile() {
 }
 
 
+async function readStreamJsonFile() {
 
-export { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark,writeJsonFile,
-    getStudentCourseMark,getFulleMark,getAttendedStudents,insertstd ,insertCourse,insertMarks,getsearch,getJsonData};
+
+    const URL = BACKENDURL + `/streamData`
+    try {
+
+        // await new Promise((resolve) => setTimeout(resolve, 500));
+        const response = await fetch(URL)
+        if (!response.body) throw new Error('ReadableStream not supported!');
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let result = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            result += decoder.decode(value, { stream: true });
+        }
+
+        const jsonData = JSON.parse(result);
+        console.log('Received JSON:', jsonData);
+        return jsonData
+
+    } catch (error) {
+        console.error("Fetch Error" + error)
+
+    }
+
+}
+
+
+
+export {
+    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile,
+    getStudentCourseMark, getFulleMark, getAttendedStudents, insertstd, insertCourse, insertMarks, getsearch, getQueryJsonData
+};
 
 
 

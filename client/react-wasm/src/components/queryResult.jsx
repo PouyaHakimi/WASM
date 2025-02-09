@@ -6,7 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { FixedSizeList } from 'react-window';
-import { getJsonData } from '../API/API';
+import { getQueryJsonData } from '../API/API';
 import { jsonDataDuckDB } from '../DuckDB';
 import CustomPaginationActionsTable from './customTable';
 import SpeedTest from './GaugePointer';
@@ -43,7 +43,7 @@ function QueryResult({ query, setQuery}) {
         console.log("Query submitted: " + query);
 
         const speed1 = performance.now() // give us time in ms
-        const data = await getJsonData({ query });
+        const data = await getQueryJsonData({ query });
         if(data.error){
             setAlert(data.message)
             setMessage(true)
@@ -127,83 +127,3 @@ export default QueryResult;
 
 
 
-
-
-
-// import React, { useState } from 'react';
-// import Button from '@mui/material/Button';
-// import Box from '@mui/material/Box';
-// import TextField from '@mui/material/TextField';
-// import ListItem from '@mui/material/ListItem';
-// import ListItemButton from '@mui/material/ListItemButton';
-// import ListItemText from '@mui/material/ListItemText';
-// import { FixedSizeList } from 'react-window';
-// import { getAllData, getJsonData } from '../API/API';
-// import { jsonDataDuckDB } from '../DuckDB';
-
-
-
-// function renderRow({index,style,data}) {
-//     // const { index, style } = props;
-//     const rowData = data[index] || {};
-
-//     return (
-//         <ListItem style={style} key={index} component="div" disablePadding>
-//             <ListItemButton>
-//                 <ListItemText primary={`Item ${index + 1}`} />
-//             </ListItemButton>
-//         </ListItem>
-//     );
-// }
-// function queryResult({ query, setQuery }) {
-
-//     const [queryResult, setQueryResult] = useState([]); 
-
-//     const handleChamge = (event) => {
-//         setQuery(event.target.value);
-//     }
-
-//     const handleClick = async() => {
-//         console.log("query submited" + query);
-       
-//         const data =  await getJsonData({query})
-       
-//         setQueryResult(data || [])
-//     }
-
-
-//     return (<div>
-
-//         <Box sx={{ width: 500, maxWidth: '100%' }}>
-//             <TextField fullWidth label="Insert Your SQL Query"
-//                 id="fullWidth"
-//                 value={query}
-//                 onChange={handleChamge}
-//             />
-//         </Box>
-//         <br />
-
-//         <Button variant="contained" color="success" onClick={handleClick}>
-//             Submit
-//         </Button>
-
-//         <br />
-//         <Box
-//             sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}
-//         >
-//             <FixedSizeList
-//                 height={400}
-//                 width={360}
-//                 itemSize={46}
-//                 itemCount={200}
-//                 overscanCount={5}
-//             >
-//                 {renderRow}
-//             </FixedSizeList>
-//         </Box>
-//     </div>
-//     )
-
-// }
-
-// export default queryResult

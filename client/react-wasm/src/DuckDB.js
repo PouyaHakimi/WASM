@@ -1,25 +1,67 @@
 
-import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark, getJsonData, getAllJsonData,writeJsonFile } from "./API/API";
+import { getDuckDBStd, getDuckDBCourses, getDuckDBMarks,getFilteredStdCourseMark, getAllJsonData,writeJsonFile, readStreamJsonFile } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { faker, Faker,it } from '@faker-js/faker';
+import { fetchJsonData } from "./data/fetchAllJson";
 
 
 
 export async function jsonDataDuckDB({query}) {
-    let std 
-    let crs
-    let mrk
-     
+
+ let data = await readStreamJsonFile () 
+ console.log(JSON.stringify(data.students) +"induckdddddbbbbbbbb");
+ 
+   
+ const studentsJsonPath = process.env.REACT_APP_STUDENTS_JSON; 
+ const marksJsonPath = process.env.REACT_APP_MARKS_JSON
+ const coursesJsonPath = process.env.REACT_APP_COURSES_JSON
+
+ console.log(studentsJsonPath);
+ console.log(marksJsonPath);
+ console.log(coursesJsonPath);
+ 
+// const std = await fetch(process.env.REACT_APP_STUDENTS_JSON).then(res => res.json());
+// const mrk = await fetch(process.env.REACT_APP_MARKS_JSON).then(res => res.json());
+// const crs = await fetch(process.env.REACT_APP_COURSES_JSON).then(res => res.json());
+
+
+
+ 
+
+
+//   const std = await fetchJsonData(studentsJsonPath)
+//   const mrk = await fetchJsonData(marksJsonPath)
+//   const crs = await fetchJsonData(coursesJsonPath)
+
+//   console.log(std);
+//   console.log(mrk);
+//   console.log(crs);
+  
+  
+  
+
 
     try {
 
 
         // await writeJsonFile()   
 
+        const [std, mrk, crs] = await Promise.all([
+            fetchJsonData(studentsJsonPath),
+            fetchJsonData(marksJsonPath),
+            fetchJsonData(coursesJsonPath)
+          ]);
+        
+        console.log("Fetched students:", std);
+        console.log("Fetched marks:", mrk);
+        console.log("Fetched courses:", crs);
+
      
-        const std = await fetch('../students.json').then(response => response.json());
-        const mrk = await fetch('../marks.json').then(response => response.json());
-        const crs = await fetch('../courses.json').then(response => response.json());
+        // const std = await fetch('/data/students.json').then(response => response.json());
+        // const mrk = await fetch('/data/marks.json').then(response => response.json());
+        // const crs = await fetch('/data/courses.json').then(response => response.json());
+
+
 
         // console.log("Students:", std);
         // console.log("Marks:", mrk);
@@ -109,6 +151,125 @@ export async function jsonDataDuckDB({query}) {
     }
 }
 
+
+
+export async function jsonStreamDataDuckDB({query}) {
+
+    
+      
+    // const studentsJsonPath = process.env.REACT_APP_STUDENTS_JSON; 
+    // const marksJsonPath = process.env.REACT_APP_MARKS_JSON
+    // const coursesJsonPath = process.env.REACT_APP_COURSES_JSON
+   
+    // console.log(studentsJsonPath);
+    // console.log(marksJsonPath);
+    // console.log(coursesJsonPath);
+     
+     
+       try {
+   
+
+    let data = await readStreamJsonFile () 
+    // console.log(JSON.stringify(data.students) +"induckdddddbbbbbbbb");
+    // console.log(JSON.stringify(data.marks) +"induckdddddbbbbbbbb");
+    // console.log(JSON.stringify(data.courses) +"induckdddddbbbbbbbb");
+   
+           
+   
+           query = query.replace(/studentsData/g, 'students')
+                    .replace(/marksData/g, 'marks')
+                    .replace(/coursesData/g, 'courses');
+         
+   
+           
+           const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+   
+           const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+   
+   
+           const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+   
+           const logger = new duckdb.ConsoleLogger();
+   
+   
+           const db = new duckdb.AsyncDuckDB(logger, worker);
+          
+   
+           await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+   
+           console.log("DuckDB initialized successfully!");
+   
+   
+           const c = await db.connect()
+   
+           console.log("Database connection established");
+           
+           await db.registerFileText('students', JSON.stringify(data.students));
+           await db.registerFileText('marks', JSON.stringify(data.marks));
+           await db.registerFileText('courses', JSON.stringify(data.courses));
+   
+          let jsonQuery;
+   
+          if (!query) {
+            //   jsonQuery = `
+            //      WITH students AS (SELECT * FROM read_json_auto('students')),
+            //      marks AS (SELECT * FROM read_json_auto('marks')),
+            //     courses AS (SELECT * FROM read_json_auto('courses'))
+            //     SELECT c.cname AS courseName, COUNT(DISTINCT s.id) AS fullMark
+            //     FROM marks m
+            //     JOIN students s ON s.id = m.sid 
+            //     JOIN courses c ON c.cid = m.cid
+            //     WHERE m.marks = 30
+            //     GROUP BY c.cid, c.cname;
+            //   `;
+            jsonQuery = `
+            WITH students AS(select * from read_json_auto (students)),
+            marks AS (select * from read_json_auto (marks)),
+            courses AS (select * from read_json_auto (courses))
+            SELECT s.id, s.sname, c.cname , r.marks
+            FROM marks r
+            JOIN Students s ON r.sid = s.id
+            JOIN Courses c ON r.cid = c.cid
+            ORDER BY s.sname;
+            `
+          } else {
+              jsonQuery = query  // Use double quotes for paths;  // Use provided query
+          }
+          
+          
+       
+         const result = await c.query(`${jsonQuery}`)
+          
+       
+           
+       
+          const resultArray = result.toArray()
+   
+   
+         const convertedBigInt = resultArray.map(row => 
+           Object.fromEntries(
+             Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+           )
+         );
+         
+          
+           await c.close()
+   
+          console.log("in duckDB" + JSON.stringify(convertedBigInt.map((item)=>item.cname)) );
+        //   console.log(Array.isArray(resultArray) +"in duckDB");
+        //   console.log(typeof resultArray +"in duckDB");
+   
+          
+           return convertedBigInt
+   
+       } catch (error) {
+   
+           console.error("error of fetching in BrowserDB", error)
+           return {error:true, message:error.message}
+   
+       }
+   }
+   
 
 //*********************create and join all tables in DuckDB******** 
 

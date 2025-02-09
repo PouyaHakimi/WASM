@@ -7,7 +7,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { FixedSizeList } from 'react-window';
 import { getJsonData, writeJsonFile } from '../API/API';
-import { jsonDataDuckDB } from '../DuckDB';
+import { jsonStreamDataDuckDB } from '../DuckDB';
 import CustomPaginationActionsTable from './customTable';
 import SpeedTest from './GaugePointer';
 import AlertTitle from '@mui/material/AlertTitle';
@@ -27,8 +27,8 @@ function renderRow({ index, style, data }) {
     );
 }
  
-function WasmQueryResult({ query, setQuery}) {
-    const [queryResult, setQueryResult] = useState([]);  // Store API response data
+function StreamWasmQueryResult({ query, setQuery}) {
+      const [queryResult, setQueryResult] = useState([]);  // Store API response data
       const [speed, setSpeed] = useState(null)
       const [maxSpeed, setMaxSpeed] = useState(null)
       const [alert,setAlert]=useState(null)
@@ -44,7 +44,7 @@ function WasmQueryResult({ query, setQuery}) {
         console.log("Query submitted: " + query);
 
         const speed1 = performance.now() // give us time in ms
-        const data = await jsonDataDuckDB({query})
+        const data = await jsonStreamDataDuckDB({query}) // to check the outcome
         console.log(Array.isArray(data) +"%%%%%");
 
         setQueryResult(data || []);
@@ -63,16 +63,6 @@ function WasmQueryResult({ query, setQuery}) {
         setSpeed(speedResult)
         setMaxSpeed(speed2)
         
-        
-        // if (data) {
-        //     setQueryResult(data || []);  
-        // } else {
-        //     // to check the speed and set the speed guage
-        //     const data = await jsonDataDuckDB({query})
-        //    setQueryResult(data || []);
-        // }
-        
-  // Ensure data is an array
     };
 
     return (
@@ -131,12 +121,12 @@ function WasmQueryResult({ query, setQuery}) {
             <br/>
             
            {!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>}
-            {/* <text>{JSON.stringify(queryResult)}</text> */}
+         
         </div>
     );
 }
 
-export default WasmQueryResult;
+export default StreamWasmQueryResult;
 
 
 

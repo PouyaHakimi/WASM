@@ -2,7 +2,7 @@ const duckdb = require('duckdb')
 const db = new duckdb.Database(':memory:')
 
 
-async function fetchJson(studentPath,markPath,coursePath,query) {
+async function fetchQueryJson(studentPath,markPath,coursePath,query) {
     
     try {
         
@@ -60,4 +60,4 @@ async function fetchJson(studentPath,markPath,coursePath,query) {
 
 
 
-module.exports = fetchJson
+module.exports = fetchQueryJson

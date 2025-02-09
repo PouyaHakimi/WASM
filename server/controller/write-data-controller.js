@@ -3,17 +3,17 @@ const path = require('path');
 const writeJosnFile = require(`../data/writeJsonFile`)
 
 
-exports.getFrontJsonDataController = async (req, res) => {
+exports.writeJsonDataController = async (req, res) => {
 
     const { q } = req.query
 
-    // const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'students.json');
+     const stdPathFront2 = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'students.json');
     // const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'marks.json');
     // const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'src', 'data', 'courses.json');
 
     
     
-    // console.log(stdPathFront +"paaaatttthhhh");
+     console.log(stdPathFront2 +"paaaatttthhhh");
     
 
     const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'students.json');
