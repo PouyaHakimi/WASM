@@ -2,3 +2,4 @@
 client/react-wasm/public/marks.json
 client/react-wasm/node_modules/.cache/
 client/react-wasm/public/courses.json
+server/node_modules/
