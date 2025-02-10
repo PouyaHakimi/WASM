@@ -1,1 +1,3 @@
 **/data/*.json
+client/react-wasm/public/marks.json
+client/react-wasm/node_modules/.cache/
