@@ -21,7 +21,8 @@ import { useState } from 'react';
 import QueryResult from '../components/queryResult';
 import WasmQueryResult from '../components/wasmQueryResult';
 import StreamWasmQueryResult from '../components/streamWasmQueryResult';
-
+import WasmJsonStreamReport from '../components/reports/WasmJsonStreamReport';
+import WasmJsonReport from '../components/reports/WasmJsonReport';
 
 const NAVIGATION = [
 
@@ -311,7 +312,7 @@ export default function DashboardLayoutBasic(props) {
                     {router.pathname === '/WASM-DuckDB-Json' && <div>API-Server Data Overview</div>}
                     {router.pathname === '/WASM-DuckDB-Json/Report' && (
 
-                        <ApiServerReport fullMarks={props.fullMarks}
+                        <WasmJsonReport fullMarks={props.fullMarks}
                             setFullMarks={props.setFullMarks}
                             attendedStd={props.attendedStd}
                             setattendedStd={props.setattendedStd}
@@ -327,7 +328,7 @@ export default function DashboardLayoutBasic(props) {
                     {router.pathname === '/WASM-Stream-DuckDB-Json' && <div>API-Server Data Overview</div>}
                     {router.pathname === '/WASM-Stream-DuckDB-Json/Report' && (
 
-                        <ApiServerReport fullMarks={props.fullMarks}
+                        <WasmJsonStreamReport fullMarks={props.fullMarks}
                             setFullMarks={props.setFullMarks}
                             attendedStd={props.attendedStd}
                             setattendedStd={props.setattendedStd}

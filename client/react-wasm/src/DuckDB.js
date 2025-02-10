@@ -13,31 +13,7 @@ export async function jsonDataDuckDB({query}) {
  const marksJsonPath = process.env.REACT_APP_MARKS_JSON
  const coursesJsonPath = process.env.REACT_APP_COURSES_JSON
 
- console.log(studentsJsonPath);
- console.log(marksJsonPath);
- console.log(coursesJsonPath);
  
-// const std = await fetch(process.env.REACT_APP_STUDENTS_JSON).then(res => res.json());
-// const mrk = await fetch(process.env.REACT_APP_MARKS_JSON).then(res => res.json());
-// const crs = await fetch(process.env.REACT_APP_COURSES_JSON).then(res => res.json());
-
-
-
- 
-
-
-//   const std = await fetchJsonData(studentsJsonPath)
-//   const mrk = await fetchJsonData(marksJsonPath)
-//   const crs = await fetchJsonData(coursesJsonPath)
-
-//   console.log(std);
-//   console.log(mrk);
-//   console.log(crs);
-  
-  
-  
-
-
     try {
 
 
@@ -48,25 +24,11 @@ export async function jsonDataDuckDB({query}) {
             fetchJsonData(marksJsonPath),
             fetchJsonData(coursesJsonPath)
           ]);
-        
-        console.log("Fetched students:", std);
-        console.log("Fetched marks:", mrk);
-        console.log("Fetched courses:", crs);
-
-     
-        // const std = await fetch('/data/students.json').then(response => response.json());
-        // const mrk = await fetch('/data/marks.json').then(response => response.json());
-        // const crs = await fetch('/data/courses.json').then(response => response.json());
 
 
-
-        // console.log("Students:", std);
-        // console.log("Marks:", mrk);
-        // console.log("Courses:", crs);
-
-        query = query.replace(/studentsData/g, 'students.json')
-                 .replace(/marksData/g, 'marks.json')
-                 .replace(/coursesData/g, 'courses.json');
+        query = query.replace(/studentsData/g, 'students')
+                 .replace(/marksData/g, 'marks')
+                 .replace(/coursesData/g, 'courses');
       
 
         
@@ -92,23 +54,22 @@ export async function jsonDataDuckDB({query}) {
 
         console.log("Database connection established");
         
-        await db.registerFileText('students.json', JSON.stringify(std));
-        await db.registerFileText('marks.json', JSON.stringify(mrk));
-        await db.registerFileText('courses.json', JSON.stringify(crs));
+        await db.registerFileText('students', JSON.stringify(std));
+        await db.registerFileText('marks', JSON.stringify(mrk));
+        await db.registerFileText('courses', JSON.stringify(crs));
 
        let jsonQuery;
 
        if (!query) {
            jsonQuery = `
-              WITH students AS (SELECT * FROM read_json_auto('students.json')),
-              marks AS (SELECT * FROM read_json_auto('marks.json')),
-             courses AS (SELECT * FROM read_json_auto('courses.json'))
-             SELECT c.cname AS courseName, COUNT(DISTINCT s.id) AS fullMark
-             FROM marks m
-             JOIN students s ON s.id = m.sid 
-             JOIN courses c ON c.cid = m.cid
-             WHERE m.marks = 30
-             GROUP BY c.cid, c.cname;
+            WITH students AS(select * from read_json_auto (students)),
+            marks AS (select * from read_json_auto (marks)),
+            courses AS (select * from read_json_auto (courses))
+            SELECT s.id, s.sname, c.cname , r.marks
+            FROM marks r
+            JOIN Students s ON r.sid = s.id
+            JOIN Courses c ON r.cid = c.cid
+            ORDER BY s.sname;
            `;
        } else {
            jsonQuery = query  // Use double quotes for paths;  // Use provided query
@@ -117,11 +78,7 @@ export async function jsonDataDuckDB({query}) {
        
     
       const result = await c.query(`${jsonQuery}`)
-       
-    
-        
-    
-       const resultArray = result.toArray()
+      const resultArray = result.toArray()
 
 
       const convertedBigInt = resultArray.map(row => 
@@ -149,29 +106,140 @@ export async function jsonDataDuckDB({query}) {
 }
 
 
+export async function jsonStdMarkDataDuckDB() {
+
+
+    const studentsJsonPath = process.env.REACT_APP_STUDENTS_JSON; 
+    const marksJsonPath = process.env.REACT_APP_MARKS_JSON
+    const coursesJsonPath = process.env.REACT_APP_COURSES_JSON
+   
+    
+    
+    try {
+   
+           // await writeJsonFile()   
+   
+           const [std, mrk, crs] = await Promise.all([
+               fetchJsonData(studentsJsonPath),
+               fetchJsonData(marksJsonPath),
+               fetchJsonData(coursesJsonPath)
+             ]);    
+   
+           
+           const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+   
+           const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+   
+   
+           const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+   
+           const logger = new duckdb.ConsoleLogger();
+   
+   
+           const db = new duckdb.AsyncDuckDB(logger, worker);
+          
+   
+           await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+   
+           console.log("DuckDB initialized successfully!");
+   
+   
+           const c = await db.connect()
+   
+           console.log("Database connection established");
+           
+           await db.registerFileText('students', JSON.stringify(std));
+           await db.registerFileText('marks', JSON.stringify(mrk));
+           await db.registerFileText('courses', JSON.stringify(crs));
+   
+          let jsonQuery;
+          let fullMarks;
+          let allAttended;
+   
+          
+            
+            jsonQuery = `
+                   WITH students AS(select * from read_json_auto (students)),
+                    marks AS (select * from read_json_auto (marks)),
+                    courses AS (select * from read_json_auto (courses))
+                    SELECT c.cname AS course_name, COUNT(*) AS student_count
+                    FROM marks m
+                    JOIN courses c ON m.cid = c.cid
+                    WHERE m.marks = 30
+                    GROUP BY c.cname
+                    ORDER BY c.cname;
+            `
+            fullMarks = await c.query(`${jsonQuery}`)
+   
+                    // Register JSON files as virtual tables instead of fully creating them
+                await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+                await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+                await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+   
+            allAttended = await c.query(`
+                     SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
+                    FROM marks m
+                    JOIN courses c ON m.cid = c.cid
+                    WHERE m.cid IN (
+                               SELECT DISTINCT cid
+                               FROM marks
+                               WHERE marks = 30
+                                    )
+                                GROUP BY c.cname
+                                 ORDER BY c.cname;
+                    `);
+   
+   
+                
+       
+          
+           const fullMarksArray  =  (fullMarks.toArray()).map(row => ({ ...row }));
+          const allAttendedArray = (allAttended.toArray()).map((row)=>({...row}))
+           
+          
+   
+   
+        
+   
+         const convertedBigIntFullMark = fullMarksArray.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(
+                    ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
+                )
+            )
+         )
+   
+         const convertedBigIntAttended = allAttendedArray.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(
+                    ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
+                )
+            )
+         )
+   
+       
+          
+           await c.close()
+   
+          
+           return{convertedBigIntFullMark,convertedBigIntAttended}
+   
+       } catch (error) {
+   
+           console.error("error of fetching in BrowserDB", error)
+           return {error:true, message:error.message}
+   
+       }
+   }
+   
 
 export async function jsonStreamDataDuckDB({query}) {
 
-    
-      
-    // const studentsJsonPath = process.env.REACT_APP_STUDENTS_JSON; 
-    // const marksJsonPath = process.env.REACT_APP_MARKS_JSON
-    // const coursesJsonPath = process.env.REACT_APP_COURSES_JSON
-   
-    // console.log(studentsJsonPath);
-    // console.log(marksJsonPath);
-    // console.log(coursesJsonPath);
-     
      
        try {
    
 
-    let data = await readStreamJsonFile () 
-    // console.log(JSON.stringify(data.students) +"induckdddddbbbbbbbb");
-    // console.log(JSON.stringify(data.marks) +"induckdddddbbbbbbbb");
-    // console.log(JSON.stringify(data.courses) +"induckdddddbbbbbbbb");
-   
-           
+          let data = await readStreamJsonFile ()       
    
            query = query.replace(/studentsData/g, 'students')
                     .replace(/marksData/g, 'marks')
@@ -206,19 +274,12 @@ export async function jsonStreamDataDuckDB({query}) {
            await db.registerFileText('courses', JSON.stringify(data.courses));
    
           let jsonQuery;
+          let result;
+          let fullMarks;
+          let allAttended;
    
           if (!query) {
-            //   jsonQuery = `
-            //      WITH students AS (SELECT * FROM read_json_auto('students')),
-            //      marks AS (SELECT * FROM read_json_auto('marks')),
-            //     courses AS (SELECT * FROM read_json_auto('courses'))
-            //     SELECT c.cname AS courseName, COUNT(DISTINCT s.id) AS fullMark
-            //     FROM marks m
-            //     JOIN students s ON s.id = m.sid 
-            //     JOIN courses c ON c.cid = m.cid
-            //     WHERE m.marks = 30
-            //     GROUP BY c.cid, c.cname;
-            //   `;
+            
             jsonQuery = `
             WITH students AS(select * from read_json_auto (students)),
             marks AS (select * from read_json_auto (marks)),
@@ -229,35 +290,84 @@ export async function jsonStreamDataDuckDB({query}) {
             JOIN Courses c ON r.cid = c.cid
             ORDER BY s.sname;
             `
+            result = await c.query(`${jsonQuery}`)
+
+                 fullMarks =await c.query(`
+                    WITH students AS(select * from read_json_auto (students)),
+                    marks AS (select * from read_json_auto (marks)),
+                    courses AS (select * from read_json_auto (courses))
+                    SELECT c.cname AS course_name, COUNT(*) AS student_count
+                    FROM marks m
+                    JOIN courses c ON m.cid = c.cid
+                    WHERE m.marks = 30
+                    GROUP BY c.cname
+                    ORDER BY c.cname;`)
+
+
+                    // Register JSON files as virtual tables instead of fully creating them
+                await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+                await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+                await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+
+                allAttended = await c.query(`
+                     SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
+                    FROM marks m
+                    JOIN courses c ON m.cid = c.cid
+                    WHERE m.cid IN (
+                               SELECT DISTINCT cid
+                               FROM marks
+                               WHERE marks = 30
+                                    )
+                                GROUP BY c.cname
+                                 ORDER BY c.cname;
+                    `);
+
+
           } else {
               jsonQuery = query  // Use double quotes for paths;  // Use provided query
+              result = await c.query(`${jsonQuery}`)
           }
           
-          
        
-         const result = await c.query(`${jsonQuery}`)
-          
-       
+          const resultArray =  result.toArray()
+           const fullMarksArray  =  (fullMarks.toArray()).map(row => ({ ...row }));
+          const allAttendedArray = (allAttended.toArray()).map((row)=>({...row}))
            
-       
-          const resultArray = result.toArray()
+          
    
    
-         const convertedBigInt = resultArray.map(row => 
+         const convertedBigIntResult = resultArray.map(row => 
            Object.fromEntries(
              Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
            )
          );
-         
+
+         const convertedBigIntFullMark = fullMarksArray.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(
+                    ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
+                )
+            )
+         )
+
+         const convertedBigIntAttended = allAttendedArray.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(
+                    ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
+                )
+            )
+         )
+
+       
           
            await c.close()
    
-          console.log("in duckDB" + JSON.stringify(convertedBigInt.map((item)=>item.cname)) );
+        //   console.log("in duckDB" + JSON.stringify(convertedBigInt.map((item)=>item.cname)) );
         //   console.log(Array.isArray(resultArray) +"in duckDB");
         //   console.log(typeof resultArray +"in duckDB");
    
           
-           return convertedBigInt
+           return{convertedBigIntResult,convertedBigIntFullMark,convertedBigIntAttended}
    
        } catch (error) {
    
@@ -267,6 +377,123 @@ export async function jsonStreamDataDuckDB({query}) {
        }
    }
    
+export async function jsonStreamStdMarkDataDuckDB() {
+
+     
+    try {
+
+
+       let data = await readStreamJsonFile ()       
+
+        
+        const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+        const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+
+        const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+
+        const logger = new duckdb.ConsoleLogger();
+
+
+        const db = new duckdb.AsyncDuckDB(logger, worker);
+       
+
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+        console.log("DuckDB initialized successfully!");
+
+
+        const c = await db.connect()
+
+        console.log("Database connection established");
+        
+        await db.registerFileText('students', JSON.stringify(data.students));
+        await db.registerFileText('marks', JSON.stringify(data.marks));
+        await db.registerFileText('courses', JSON.stringify(data.courses));
+
+       let jsonQuery;
+       let fullMarks;
+       let allAttended;
+
+       
+         
+         jsonQuery = `
+                WITH students AS(select * from read_json_auto (students)),
+                 marks AS (select * from read_json_auto (marks)),
+                 courses AS (select * from read_json_auto (courses))
+                 SELECT c.cname AS course_name, COUNT(*) AS student_count
+                 FROM marks m
+                 JOIN courses c ON m.cid = c.cid
+                 WHERE m.marks = 30
+                 GROUP BY c.cname
+                 ORDER BY c.cname;
+         `
+         fullMarks = await c.query(`${jsonQuery}`)
+
+                 // Register JSON files as virtual tables instead of fully creating them
+             await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+             await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+             await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+
+             allAttended = await c.query(`
+                  SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
+                 FROM marks m
+                 JOIN courses c ON m.cid = c.cid
+                 WHERE m.cid IN (
+                            SELECT DISTINCT cid
+                            FROM marks
+                            WHERE marks = 30
+                                 )
+                             GROUP BY c.cname
+                              ORDER BY c.cname;
+                 `);
+
+
+             
+    
+       
+        const fullMarksArray  =  (fullMarks.toArray()).map(row => ({ ...row }));
+       const allAttendedArray = (allAttended.toArray()).map((row)=>({...row}))
+        
+       
+
+
+     
+
+      const convertedBigIntFullMark = fullMarksArray.map(row =>
+         Object.fromEntries(
+             Object.entries(row).map(
+                 ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
+             )
+         )
+      )
+
+      const convertedBigIntAttended = allAttendedArray.map(row =>
+         Object.fromEntries(
+             Object.entries(row).map(
+                 ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
+             )
+         )
+      )
+
+    
+       
+        await c.close()
+
+       
+        return{convertedBigIntFullMark,convertedBigIntAttended}
+
+    } catch (error) {
+
+        console.error("error of fetching in BrowserDB", error)
+        return {error:true, message:error.message}
+
+    }
+}
+
+
+
 
 //*********************create and join all tables in DuckDB******** 
 

@@ -13,6 +13,7 @@ import SpeedTest from './GaugePointer';
 import AlertTitle from '@mui/material/AlertTitle';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
+import { memoryJsonStreamData } from '../wasm/memoryData';
 
 
 function renderRow({ index, style, data }) {
@@ -43,9 +44,12 @@ function StreamWasmQueryResult({ query, setQuery}) {
     const handleClick = async () => {
         console.log("Query submitted: " + query);
 
+        if (!query) {
+            
+        
         const speed1 = performance.now() // give us time in ms
-        const data = await jsonStreamDataDuckDB({query}) // to check the outcome
-        console.log(Array.isArray(data) +"%%%%%");
+        const data = await memoryJsonStreamData({query}) // to check the outcome
+        console.log("memoryyyy%%%%%"+Array.isArray(data) );
 
         setQueryResult(data || []);
         if(data.error){
@@ -62,6 +66,29 @@ function StreamWasmQueryResult({ query, setQuery}) {
         const speedResult = speed2 - speed1
         setSpeed(speedResult)
         setMaxSpeed(speed2)
+    }else{
+
+        const speed1 = performance.now() // give us time in ms
+        const dataDB = await jsonStreamDataDuckDB({query}) // to check the outcome
+        const data = dataDB.convertedBigIntResult
+        console.log("memoryyyyy%%%%%"+Array.isArray(data) );
+
+        setQueryResult(data || []);
+        if(data.error){
+            setAlert(data.message)
+            setMessage(true)
+        }else{
+            setAlert("")
+            setMessage(true)
+        }
+        
+        setQueryResult(data || []); 
+        
+        const speed2 = performance.now()
+        const speedResult = speed2 - speed1
+        setSpeed(speedResult)
+        setMaxSpeed(speed2)
+    }
         
     };
 

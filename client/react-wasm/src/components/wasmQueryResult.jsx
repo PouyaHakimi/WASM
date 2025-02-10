@@ -13,6 +13,7 @@ import SpeedTest from './GaugePointer';
 import AlertTitle from '@mui/material/AlertTitle';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
+import { memoryJsonData } from '../wasm/memoryData';
 
 
 function renderRow({ index, style, data }) {
@@ -44,7 +45,7 @@ function WasmQueryResult({ query, setQuery}) {
         console.log("Query submitted: " + query);
 
         const speed1 = performance.now() // give us time in ms
-        const data = await jsonDataDuckDB({query})
+        const data = await memoryJsonData({query})
         console.log(Array.isArray(data) +"%%%%%");
 
         setQueryResult(data || []);
