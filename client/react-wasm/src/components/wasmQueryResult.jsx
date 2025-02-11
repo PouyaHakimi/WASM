@@ -44,6 +44,8 @@ function WasmQueryResult({ query, setQuery}) {
     const handleClick = async () => {
         console.log("Query submitted: " + query);
 
+        if (!query) {
+            
         const speed1 = performance.now() // give us time in ms
         const data = await memoryJsonData({query})
         console.log(Array.isArray(data) +"%%%%%");
@@ -64,16 +66,30 @@ function WasmQueryResult({ query, setQuery}) {
         setSpeed(speedResult)
         setMaxSpeed(speed2)
         
+        } else {
+            
+        const speed1 = performance.now() // give us time in ms
+        const data = await jsonDataDuckDB({query})
+        console.log(Array.isArray(data) +"%%%%%");
+
+        setQueryResult(data || []);
+        if(data.error){
+            setAlert(data.message)
+            setMessage(true)
+        }else{
+            setAlert("")
+            setMessage(true)
+        }
         
-        // if (data) {
-        //     setQueryResult(data || []);  
-        // } else {
-        //     // to check the speed and set the speed guage
-        //     const data = await jsonDataDuckDB({query})
-        //    setQueryResult(data || []);
-        // }
+        setQueryResult(data || []); 
         
-  // Ensure data is an array
+        const speed2 = performance.now()
+        const speedResult = speed2 - speed1
+        setSpeed(speedResult)
+        setMaxSpeed(speed2)
+        
+        }
+
     };
 
     return (

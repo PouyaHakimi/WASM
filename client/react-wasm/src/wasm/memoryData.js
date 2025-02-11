@@ -53,6 +53,7 @@ export async function memoryJsonData({query}) {
 
 export async function memoryJsonStreamData({query}) {
    
+    
     const data = await jsonStreamDataDuckDB({query})
     
     const mainData = data.convertedBigIntResult 

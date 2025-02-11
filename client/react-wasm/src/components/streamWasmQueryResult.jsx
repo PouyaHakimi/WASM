@@ -71,8 +71,9 @@ function StreamWasmQueryResult({ query, setQuery}) {
         const speed1 = performance.now() // give us time in ms
         const dataDB = await jsonStreamDataDuckDB({query}) // to check the outcome
         const data = dataDB.convertedBigIntResult
-        console.log("memoryyyyy%%%%%"+Array.isArray(data) );
-
+        console.log("ooouuuuttttttt%%%%%"+Array.isArray(data) );
+        console.log("in resssuuult page******"+data);
+        
         setQueryResult(data || []);
         if(data.error){
             setAlert(data.message)

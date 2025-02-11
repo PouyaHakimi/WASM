@@ -58,13 +58,14 @@ export async function jsonDataDuckDB({query}) {
         await db.registerFileText('marks', JSON.stringify(mrk));
         await db.registerFileText('courses', JSON.stringify(crs));
 
+        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+
        let jsonQuery;
 
        if (!query) {
            jsonQuery = `
-            WITH students AS(select * from read_json_auto (students)),
-            marks AS (select * from read_json_auto (marks)),
-            courses AS (select * from read_json_auto (courses))
             SELECT s.id, s.sname, c.cname , r.marks
             FROM marks r
             JOIN Students s ON r.sid = s.id
@@ -155,13 +156,13 @@ export async function jsonStdMarkDataDuckDB() {
           let jsonQuery;
           let fullMarks;
           let allAttended;
-   
+          await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+          await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+          await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
           
             
             jsonQuery = `
-                   WITH students AS(select * from read_json_auto (students)),
-                    marks AS (select * from read_json_auto (marks)),
-                    courses AS (select * from read_json_auto (courses))
+                 
                     SELECT c.cname AS course_name, COUNT(*) AS student_count
                     FROM marks m
                     JOIN courses c ON m.cid = c.cid
@@ -172,9 +173,7 @@ export async function jsonStdMarkDataDuckDB() {
             fullMarks = await c.query(`${jsonQuery}`)
    
                     // Register JSON files as virtual tables instead of fully creating them
-                await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-                await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-                await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+                
    
             allAttended = await c.query(`
                      SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
@@ -272,18 +271,21 @@ export async function jsonStreamDataDuckDB({query}) {
            await db.registerFileText('students', JSON.stringify(data.students));
            await db.registerFileText('marks', JSON.stringify(data.marks));
            await db.registerFileText('courses', JSON.stringify(data.courses));
+
+           await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+           await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+           await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
    
           let jsonQuery;
           let result;
-          let fullMarks;
-          let allAttended;
+        
    
           if (!query) {
+
+          // Register JSON files as virtual tables instead of fully creating them
+        
             
             jsonQuery = `
-            WITH students AS(select * from read_json_auto (students)),
-            marks AS (select * from read_json_auto (marks)),
-            courses AS (select * from read_json_auto (courses))
             SELECT s.id, s.sname, c.cname , r.marks
             FROM marks r
             JOIN Students s ON r.sid = s.id
@@ -292,82 +294,31 @@ export async function jsonStreamDataDuckDB({query}) {
             `
             result = await c.query(`${jsonQuery}`)
 
-                 fullMarks =await c.query(`
-                    WITH students AS(select * from read_json_auto (students)),
-                    marks AS (select * from read_json_auto (marks)),
-                    courses AS (select * from read_json_auto (courses))
-                    SELECT c.cname AS course_name, COUNT(*) AS student_count
-                    FROM marks m
-                    JOIN courses c ON m.cid = c.cid
-                    WHERE m.marks = 30
-                    GROUP BY c.cname
-                    ORDER BY c.cname;`)
-
-
-                    // Register JSON files as virtual tables instead of fully creating them
-                await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-                await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-                await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
-
-                allAttended = await c.query(`
-                     SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
-                    FROM marks m
-                    JOIN courses c ON m.cid = c.cid
-                    WHERE m.cid IN (
-                               SELECT DISTINCT cid
-                               FROM marks
-                               WHERE marks = 30
-                                    )
-                                GROUP BY c.cname
-                                 ORDER BY c.cname;
-                    `);
-
 
           } else {
+
+             // Register JSON files as virtual tables instead of fully creating them
+           
               jsonQuery = query  // Use double quotes for paths;  // Use provided query
               result = await c.query(`${jsonQuery}`)
+            
+              
           }
           
-       
-          const resultArray =  result.toArray()
-           const fullMarksArray  =  (fullMarks.toArray()).map(row => ({ ...row }));
-          const allAttendedArray = (allAttended.toArray()).map((row)=>({...row}))
-           
-          
-   
-   
-         const convertedBigIntResult = resultArray.map(row => 
-           Object.fromEntries(
-             Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
-           )
-         );
 
-         const convertedBigIntFullMark = fullMarksArray.map(row =>
+        const resultArray =  result.toArray().map(row =>({...row}))
+        console.log("result++++++",resultArray);
+        const convertedBigIntResult = resultArray.map(row => 
             Object.fromEntries(
-                Object.entries(row).map(
-                    ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
-                )
+              Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
             )
-         )
-
-         const convertedBigIntAttended = allAttendedArray.map(row =>
-            Object.fromEntries(
-                Object.entries(row).map(
-                    ([key,value])=>[key,typeof value === 'bigint' ? Number(value) : value]
-                )
-            )
-         )
-
+          );
+          await c.close()
+          return {convertedBigIntResult}
        
-          
-           await c.close()
-   
-        //   console.log("in duckDB" + JSON.stringify(convertedBigInt.map((item)=>item.cname)) );
-        //   console.log(Array.isArray(resultArray) +"in duckDB");
-        //   console.log(typeof resultArray +"in duckDB");
+         
    
           
-           return{convertedBigIntResult,convertedBigIntFullMark,convertedBigIntAttended}
    
        } catch (error) {
    
@@ -412,6 +363,10 @@ export async function jsonStreamStdMarkDataDuckDB() {
         await db.registerFileText('marks', JSON.stringify(data.marks));
         await db.registerFileText('courses', JSON.stringify(data.courses));
 
+        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+
        let jsonQuery;
        let fullMarks;
        let allAttended;
@@ -419,9 +374,6 @@ export async function jsonStreamStdMarkDataDuckDB() {
        
          
          jsonQuery = `
-                WITH students AS(select * from read_json_auto (students)),
-                 marks AS (select * from read_json_auto (marks)),
-                 courses AS (select * from read_json_auto (courses))
                  SELECT c.cname AS course_name, COUNT(*) AS student_count
                  FROM marks m
                  JOIN courses c ON m.cid = c.cid
@@ -432,9 +384,7 @@ export async function jsonStreamStdMarkDataDuckDB() {
          fullMarks = await c.query(`${jsonQuery}`)
 
                  // Register JSON files as virtual tables instead of fully creating them
-             await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-             await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-             await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+      
 
              allAttended = await c.query(`
                   SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
