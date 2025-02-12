@@ -1,3 +1,5 @@
+
+
 export const fetchJsonData = async (jsonPath) => {
     try {
       const response = await fetch(jsonPath);

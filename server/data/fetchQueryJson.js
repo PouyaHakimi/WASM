@@ -8,23 +8,26 @@ async function fetchQueryJson(studentPath,markPath,coursePath,query) {
         
     const connection = db.connect()
    
+        
        let jsonQuery;
+       connection.all(`CREATE VIEW students AS SELECT * FROM read_json_auto('${studentPath}')`);
+       connection.all(`CREATE VIEW marks AS SELECT * FROM read_json_auto('${markPath}')`);
+       connection.all(`CREATE VIEW courses AS SELECT * FROM read_json_auto('${coursePath}')`);
 
        if (!query) {
            jsonQuery = `
-              WITH students AS (SELECT * FROM read_json_auto('${studentPath}')),
-              marks AS (SELECT * FROM read_json_auto('${markPath}')),
-             courses AS (SELECT * FROM read_json_auto('${coursePath}'))
-             SELECT c.cname AS courseName, COUNT(DISTINCT s.id) AS fullMark
-             FROM marks m
-             JOIN students s ON s.id = m.sid 
-             JOIN courses c ON c.cid = m.cid
-             WHERE m.marks = 30
-             GROUP BY c.cid, c.cname;
+            SELECT s.id, s.sname, c.cname , r.marks
+            FROM marks r
+            JOIN Students s ON r.sid = s.id
+            JOIN Courses c ON r.cid = c.cid
+            ORDER BY s.sname;
            `;
        } else {
            jsonQuery = query  // Use double quotes for paths;  // Use provided query
        }
+
+    
+        
 
     const result = await new Promise((resolve, reject) => {
         connection.all(jsonQuery, (err, rows) => {

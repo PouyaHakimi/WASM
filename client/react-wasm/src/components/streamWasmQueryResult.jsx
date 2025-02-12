@@ -49,7 +49,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
         
         const speed1 = performance.now() // give us time in ms
         const data = await memoryJsonStreamData({query}) // to check the outcome
-        console.log("memoryyyy%%%%%"+Array.isArray(data) );
+       
 
         setQueryResult(data || []);
         if(data.error){
@@ -69,10 +69,9 @@ function StreamWasmQueryResult({ query, setQuery}) {
     }else{
 
         const speed1 = performance.now() // give us time in ms
-        const dataDB = await jsonStreamDataDuckDB({query}) // to check the outcome
-        const data = dataDB.convertedBigIntResult
-        console.log("ooouuuuttttttt%%%%%"+Array.isArray(data) );
-        console.log("in resssuuult page******"+data);
+        // const dataDB = await jsonStreamDataDuckDB({query}) // to check the outcome
+        // const data = dataDB.convertedBigIntResult
+        const data = await memoryJsonStreamData({query})
         
         setQueryResult(data || []);
         if(data.error){

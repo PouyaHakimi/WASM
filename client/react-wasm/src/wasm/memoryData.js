@@ -1,5 +1,5 @@
 import { da } from "@faker-js/faker";
-import {fakeDataDuckDB, mainDataDuckDB, jsonDataDuckDB, jsonStreamDataDuckDB, jsonStreamStdMarkDataDuckDB ,jsonStdMarkDataDuckDB } from "../DuckDB";
+import {fakeDataDuckDB, mainDataDuckDB, jsonDataDuckDB, jsonStreamDataDuckDB, jsonStreamStdMarkDataDuckDB ,jsonStdMarkDataDuckDB, jsonFullMarkDataDuckDB, jsonAttendedStdDataDuckDB } from "../DuckDB";
 import createModule from "../wasm/student2";
 import createMainModule from "./mainstudents3"
 
@@ -218,6 +218,83 @@ export async function memoryJsonStdMarkData() {
 
 }
 
+
+export async function memoryFullMarkData({query}) {
+
+   
+    const mainData = await jsonFullMarkDataDuckDB({query})
+   
+    const module = await createMainModule();
+   
+    module._fullMark_init(mainData.length)
+
+    mainData.map((std, index) => {
+
+        const fmCnamePtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
+        module.stringToUTF8(std.course_name, fmCnamePtr, module.lengthBytesUTF8(std.course_name))
+        module._insert_fullMark(index, fmCnamePtr, Number(std.student_count))
+        module._free()
+    })
+
+    const proceedDataFm = mainData.map((_, index) => {
+        const fullMarkPtr = module._get_fullMark(index)
+       
+        const memoryDataFm = {
+            course_name: module.UTF8ToString(fullMarkPtr),
+            student_count: module.HEAP32[(fullMarkPtr + 52) / 4]
+
+        } 
+
+        return memoryDataFm
+
+
+    })
+   
+    //  console.log(proceedDataFm);
+     
+    // const resultFm = JSON.stringify(proceedDataFm)
+    // console.log(resultFm);
+    
+    
+    return proceedDataFm
+    
+
+}
+
+export async function memoryJsonAttendedStdData() {
+
+   
+    const mainData = await jsonAttendedStdDataDuckDB()
+   
+    const module = await createMainModule();
+   
+    module._attended_init(mainData.length)
+
+    mainData.map((std, index) => {
+        const allAttendedPtr = module._malloc(module.lengthBytesUTF8(std.course_name) + 1)
+        module.stringToUTF8(std.course_name, allAttendedPtr, module.lengthBytesUTF8(std.course_name) + 1)
+        module._insert_attended(index, allAttendedPtr, Number(std.attended_students))
+        module._free()
+
+    })
+
+    const proceedDataAt = mainData.map((_, index) => {
+        const AttendedPtr = module._get_attended(index)
+        const memoryDataAt = {
+            course_name: module.UTF8ToString(AttendedPtr),
+            attended_students: module.HEAP32[(AttendedPtr+52)/4]
+        }
+        
+        return memoryDataAt
+    })
+     
+    const resultAt = JSON.stringify(proceedDataAt)
+
+    
+    return resultAt
+    
+
+}
 
 /////////**************Memory Data DB */
 export async function memoryStdCourseData({search}) {

@@ -319,10 +319,39 @@ async function readStreamJsonFile() {
 
 }
 
+async function getJsonFulleMark() {
+
+    try {
+        const URL = BACKENDURL + '/jsonfullmark'
+        const response = (await fetch(URL)).json()
+        console.log("in APIIIII" +response);
+        
+        return response
+    } catch (error) {
+        console.error("Fetch Error" + error)
+    }
+
+
+}
+
+async function getJsonAttended() {
+
+    try {
+        const URL = BACKENDURL + '/jsonattended'
+        const response = (await fetch(URL)).json()
+        console.log("in APIIIII" +response);
+        
+        return response
+    } catch (error) {
+        console.error("Fetch Error" + error)
+    }
+
+
+}
 
 
 export {
-    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile,
+    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile,getJsonFulleMark,getJsonAttended,
     getStudentCourseMark, getFulleMark, getAttendedStudents, insertstd, insertCourse, insertMarks, getsearch, getQueryJsonData
 };
 

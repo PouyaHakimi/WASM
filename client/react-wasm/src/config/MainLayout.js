@@ -23,7 +23,7 @@ import WasmQueryResult from '../components/wasmQueryResult';
 import StreamWasmQueryResult from '../components/streamWasmQueryResult';
 import WasmJsonStreamReport from '../components/reports/WasmJsonStreamReport';
 import WasmJsonReport from '../components/reports/WasmJsonReport';
-
+import JsonApiReport from '../components/reports/JsonApiReort';
 const NAVIGATION = [
 
     {
@@ -289,10 +289,12 @@ export default function DashboardLayoutBasic(props) {
                     {router.pathname === '/API-Json' && <div>API-Server Data Overview</div>}
                     {router.pathname === '/API-Json/Report' && (
 
-                        <ApiServerReport fullMarks={props.fullMarks}
+                        <JsonApiReport fullMarks={props.fullMarks}
                             setFullMarks={props.setFullMarks}
                             attendedStd={props.attendedStd}
-                            setattendedStd={props.setattendedStd} />
+                            setattendedStd={props.setattendedStd} 
+                            query={props.query}
+                            setQuery={props.setQuery}/>
                     )}
 
 
