@@ -5,7 +5,7 @@ import { memoryJsonStreamStdMarkData } from '../../wasm/memoryData'
 import SpeedTest from "../GaugePointer";
 
 
-function WasmJsonStreamReport(props) {
+function WasmJsonStreamReport({query, ...props}) {
 
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [speed, setSpeed] = useState()
@@ -55,7 +55,7 @@ function WasmJsonStreamReport(props) {
             //to test the speeed ********
             const speed1 = performance.now()
     
-            const stdMarkData = await memoryJsonStreamStdMarkData()
+            const stdMarkData = await memoryJsonStreamStdMarkData({query})
             props.setFullMarks(stdMarkData.resultFm);
             props.setattendedStd(stdMarkData.resultAt);
             generateChartData();

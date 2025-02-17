@@ -113,13 +113,19 @@ export default function CustomPaginationActionsTable(props) {
           ).map((row) => (
             <TableRow key={Math.random()}>
               <TableCell component="th" scope="row">
-                {row.id}  {row.sname} {row.age}    
+                {row.id}  {row.sname} {row.age} 
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
               {row.cid} {row.cname}  {row.credits}
               </TableCell>
               <TableCell style={{ width: 160 }} align="right">
               {row.sid} {row.marks}
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+              {row.course_name}  
+              </TableCell>
+              <TableCell style={{ width: 160 }} align="right">
+               {row.students_Count} {row.student_count} 
               </TableCell>
                 
             </TableRow>

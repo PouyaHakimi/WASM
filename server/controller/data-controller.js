@@ -88,10 +88,12 @@ exports.getJsonCourseFullMarkCount = async (req, res) => {
 
 
         
-        connection.all(`CREATE VIEW students AS SELECT * FROM read_json_auto('${stdPath}')`);
-        connection.all(`CREATE VIEW marks AS SELECT * FROM read_json_auto('${mrkPath}')`);
-        connection.all(`CREATE VIEW courses AS SELECT * FROM read_json_auto('${crsPath}')`);
-
+        // connection.all(`CREATE VIEW students AS SELECT * FROM read_json_auto('${stdPath}')`);
+        // connection.all(`CREATE VIEW marks AS SELECT * FROM read_json_auto('${mrkPath}')`);
+        // connection.all(`CREATE VIEW courses AS SELECT * FROM read_json_auto('${crsPath}')`);
+        connection.all(`CREATE TABLE students AS SELECT * FROM read_json_auto('${stdPath}')`);
+        connection.all(`CREATE TABLE marks AS SELECT * FROM read_json_auto('${mrkPath}')`);
+        connection.all(`CREATE TABLE courses AS SELECT * FROM read_json_auto('${crsPath}')`);
 
         const FullMarkQuery = `SELECT c.cname AS course_name, COUNT(*) AS student_count
             FROM marks m

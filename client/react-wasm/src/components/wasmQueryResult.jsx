@@ -212,7 +212,7 @@ function WasmQueryResult({ query, setQuery }) {
             <br />
             <br />
 
-            {!complexQuery && (!alert && message && <CustomPaginationActionsTable queryResult={queryResult} />)}
+            { (!alert && message && <CustomPaginationActionsTable queryResult={queryResult} />)}
 
         </div>
     );

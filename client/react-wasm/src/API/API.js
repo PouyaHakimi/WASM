@@ -1,6 +1,7 @@
 import { da } from "@faker-js/faker";
 import createModule from "../wasm/student2";
 import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
+import { JSONParser } from "@streamparser/json-whatwg";
 
 
 const BACKENDURL = 'http://localhost:3001/api'
@@ -287,30 +288,238 @@ async function writeJsonFile() {
 }
 
 
+
+// async function readStreamJsonFile() {
+
+
+//     const URL = BACKENDURL + `/streamData`
+//     try {
+
+//         const response = await fetch(URL)
+
+//         if (!response.body) throw new Error('ReadableStream not supported!');
+
+//         const reader = response.body.getReader();
+//         const decoder = new TextDecoder();
+//         let result = '';
+
+//         while (true) {
+//             const { done, value } = await reader.read();
+//             if (done) break;
+
+//             result += decoder.decode(value, { stream: true });
+//         }
+
+//         const jsonData = JSON.parse(result);
+//         console.log('Received JSON:', jsonData);
+//         return jsonData
+
+//     } catch (error) {
+//         console.error("Fetch Error" + error)
+
+//     }
+
+// }
 async function readStreamJsonFile() {
+    const URL = BACKENDURL + `/streamData`;
 
 
-    const URL = BACKENDURL + `/streamData`
     try {
-
-        // await new Promise((resolve) => setTimeout(resolve, 500));
-        const response = await fetch(URL)
+        const response = await fetch(URL);
         if (!response.body) throw new Error('ReadableStream not supported!');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-        let result = '';
+        let partialJSON = '';  // Store incomplete JSON fragments
 
         while (true) {
             const { done, value } = await reader.read();
-            if (done) break;
+            if (done) break;  // End of stream
 
-            result += decoder.decode(value, { stream: true });
+            // Decode and accumulate chunks
+            partialJSON += decoder.decode(value, { stream: true });
+
+            try {
+                // Process valid JSON chunks line by line
+                let boundaryIndex;
+                while ((boundaryIndex = partialJSON.indexOf("\n")) !== -1) {
+                    const chunk = partialJSON.slice(0, boundaryIndex).trim(); // Get one JSON object
+                    partialJSON = partialJSON.slice(boundaryIndex + 1); // Remove processed chunk
+
+                    if (chunk) {
+                        try {
+                            const jsonChunk = JSON.parse(chunk);
+                            console.log('Processed JSON Chunk:', jsonChunk);
+                            // Process each chunk separately instead of storing everything
+                        } catch (parseError) {
+                            console.error('JSON Parse Error:', parseError);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing JSON chunk:', error);
+            }
         }
 
-        const jsonData = JSON.parse(result);
-        console.log('Received JSON:', jsonData);
-        return jsonData
+        return "Processing in progress"; // JSON is processed in chunks
+    } catch (error) {
+        console.error("Fetch Error: " + error);
+    }
+}
+
+
+
+// async function streamJSONToDuckDB(dbConnection) {
+
+//     console.log("stream to duckdb has startet");
+
+//     const URL = BACKENDURL + `/streamData`
+//     const response = await fetch(URL);
+//     if (!response.body) throw new Error('ReadableStream not supported!');
+
+//     const reader = response.body.getReader();
+//     const decoder = new TextDecoder();
+//     let buffer = '';
+
+//     while (true) {
+//         const { done, value } = await reader.read();
+//         if (done) break;  // End of stream
+
+//         buffer += decoder.decode(value, { stream: true });
+
+//         let boundaryIndex;
+//         while ((boundaryIndex = buffer.indexOf("\n")) !== -1) {
+//             const chunk = buffer.slice(0, boundaryIndex).trim(); // Extract one JSON object
+//             buffer = buffer.slice(boundaryIndex + 1); // Remove processed part
+
+//             if (chunk) {
+//                 try {
+//                     const jsonChunk = JSON.parse(chunk);
+//                     console.log('Processed JSON Chunk:', jsonChunk);
+
+//                     // Insert directly into DuckDB
+//                     await dbConnection.query(
+//                         `INSERT INTO json_data VALUES (?)`,
+//                         [JSON.stringify(jsonChunk)]
+//                     );
+
+//                 } catch (parseError) {
+//                     console.error('JSON Parse Error:', parseError);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+
+
+async function streamJSONToDuckDB(dbConnection) {
+    console.log("Stream to DuckDB has started...");
+
+    const URL = BACKENDURL + `/streamData`;
+
+    try {
+        const response = await fetch(URL);
+        if (!response.body) throw new Error('ReadableStream not supported!');
+
+        const jsonParser = new JSONParser({
+            emitPartialTokens: false,
+            emitPartialValues: false,
+            keepStack: false,
+            paths: ['$.*']  // Adjust paths based on your JSON structure
+        });
+
+        const reader = response.body.pipeThrough(jsonParser).getReader();
+
+        while (true) {
+            try {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                if (value?.value) {
+                    console.log("Processed JSON Chunk:", value.value);
+
+                    // ✅ Insert JSON chunk into DuckDB
+                    await dbConnection.query(
+                        `INSERT INTO json_data VALUES (?)`,
+                        [JSON.stringify(value.value)]
+                    );
+                }
+            } catch (readError) {
+                console.error("Stream Read Error:", readError);
+                break;
+            }
+        }
+
+        console.log("Streaming finished.");
+    } catch (error) {
+        console.error("Fetch Error:", error);
+    }
+}
+// async function allJsonFile() {
+
+//     const URL = BACKENDURL + 'allJsonData'
+   
+//     try {
+//         return await fetch(BACKENDURL + `/allJsonData?page=${1}&limit=${100}`)
+//                     .then(response => response.json())
+          
+            
+            
+//     } catch (error) {
+
+//         console.error("Fetch Error" + error)
+//     }
+   
+// }
+
+
+async function allJsonFile() {
+
+    let allStudents = []
+    let allMarks = []
+    let courses = null
+    let page = 1
+    const limit = 5000000
+
+    // const URL = BACKENDURL + `/allJsonData`
+    try {
+
+        // return await fetch(URL)
+        //     .then(response => response.json())
+
+        while (true) {
+
+            const response = await fetch(BACKENDURL + `/allJsonData?page=${page}&limit=${limit}`);
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+           
+            const data = await response.json();
+            console.log("APIIIII" + JSON.stringify(data.courses));
+
+            if (!data.students || !data.marks || !data.courses) {
+                throw new Error("Invalid API response format. Missing 'students' or 'marks'");
+            }
+            if (data.students.length === 0 && data.marks.length === 0) break;
+
+            allStudents = [...allStudents, ...data.students]
+            allMarks = [...allMarks, ...data.marks]
+            courses = data.courses
+
+            console.log(`Fetched Page ${page}: Students=${data.students.length}, Marks=${data.marks.length}`);
+            page++
+        }
+
+        console.log("All data loaded!", { students: allStudents.length, marks: allMarks.length, courses });
+
+        console.log("end of APIIIIII" + courses);
+
+        return { students: allStudents, marks: allMarks, courses: courses }
+
+
 
     } catch (error) {
         console.error("Fetch Error" + error)
@@ -324,8 +533,8 @@ async function getJsonFulleMark() {
     try {
         const URL = BACKENDURL + '/jsonfullmark'
         const response = (await fetch(URL)).json()
-        console.log("in APIIIII" +response);
-        
+        console.log("in APIIIII" + response);
+
         return response
     } catch (error) {
         console.error("Fetch Error" + error)
@@ -339,8 +548,8 @@ async function getJsonAttended() {
     try {
         const URL = BACKENDURL + '/jsonattended'
         const response = (await fetch(URL)).json()
-        console.log("in APIIIII" +response);
-        
+        console.log("in APIIIII" + response);
+
         return response
     } catch (error) {
         console.error("Fetch Error" + error)
@@ -351,8 +560,8 @@ async function getJsonAttended() {
 
 
 export {
-    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile,getJsonFulleMark,getJsonAttended,
-    getStudentCourseMark, getFulleMark, getAttendedStudents, insertstd, insertCourse, insertMarks, getsearch, getQueryJsonData
+    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile, getJsonFulleMark, getJsonAttended,
+    getStudentCourseMark, getFulleMark, getAttendedStudents, insertstd, insertCourse, insertMarks, getsearch, getQueryJsonData, allJsonFile, streamJSONToDuckDB
 };
 
 

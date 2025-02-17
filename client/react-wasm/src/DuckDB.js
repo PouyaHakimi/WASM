@@ -1,7 +1,7 @@
 
-import { getFilteredStdCourseMark, readStreamJsonFile } from "./API/API";
+import { allJsonFile, getFilteredStdCourseMark, getQueryJsonData, readStreamJsonFile, streamJSONToDuckDB } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
-import { faker, Faker, it } from '@faker-js/faker';
+import { faker, Faker, it, ro } from '@faker-js/faker';
 import { fetchJsonData } from "./data/fetchAllJson";
 
 
@@ -58,13 +58,13 @@ export async function jsonDataDuckDB({ query }) {
         await db.registerFileText('marks', JSON.stringify(mrk));
         await db.registerFileText('courses', JSON.stringify(crs));
 
-        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+        // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
 
-        // await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
-        // await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
-        // await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
 
         let jsonQuery;
 
@@ -74,7 +74,7 @@ export async function jsonDataDuckDB({ query }) {
             FROM marks r
             JOIN Students s ON r.sid = s.id
             JOIN Courses c ON r.cid = c.cid
-            ORDER BY s.sname;
+            
            `;
         } else {
             jsonQuery = query  // Use double quotes for paths;  // Use provided query
@@ -156,13 +156,13 @@ export async function jsonStdMarkDataDuckDB() {
         let jsonQuery;
         let fullMarks;
         let allAttended;
-        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+        // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
 
-        // await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
-        // await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
-        // await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
 
         jsonQuery = `
                  
@@ -279,7 +279,7 @@ export async function jsonFullMarkDataDuckDB({ query }) {
         await db.registerFileText('marks', JSON.stringify(mrk));
         await db.registerFileText('courses', JSON.stringify(crs));
 
-        
+
         let fullMarks;
 
         await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
@@ -302,7 +302,7 @@ export async function jsonFullMarkDataDuckDB({ query }) {
     `
             fullMarks = await c.query(`${jsonQuery}`)
         } else {
-            
+
             fullMarks = await c.query(`${query}`)
         }
 
@@ -318,8 +318,8 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 
         await c.close()
 
-        
-        
+
+
 
         return convertedBigIntFullMark
 
@@ -334,113 +334,284 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 }
 
 
-export async function jsonAttendedStdDataDuckDB() {
-
-
-    const studentsJsonPath = process.env.REACT_APP_STUDENTS_JSON;
-    const marksJsonPath = process.env.REACT_APP_MARKS_JSON
-    const coursesJsonPath = process.env.REACT_APP_COURSES_JSON
-
-    try {
-
-        // await writeJsonFile()   
-
-        const [std, mrk, crs] = await Promise.all([
-            fetchJsonData(studentsJsonPath),
-            fetchJsonData(marksJsonPath),
-            fetchJsonData(coursesJsonPath)
-        ]);
-
-
-        const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
-
-        const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
-
-
-        const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
-
-        const logger = new duckdb.ConsoleLogger();
-
-
-        const db = new duckdb.AsyncDuckDB(logger, worker);
-
-
-        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-
-        console.log("DuckDB initialized successfully!");
-
-
-        const c = await db.connect()
-
-        console.log("Database connection established");
-
-        await db.registerFileText('students', JSON.stringify(std));
-        await db.registerFileText('marks', JSON.stringify(mrk));
-        await db.registerFileText('courses', JSON.stringify(crs));
-
-        let jsonQuery;
-        let fullMarks;
-        let allAttended;
-        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
-
-        // await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
-        // await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
-        // await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
-
-
-        allAttended = await c.query(`
-                     SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
-                    FROM marks m
-                    JOIN courses c ON m.cid = c.cid
-                    WHERE m.cid IN (
-                               SELECT DISTINCT cid
-                               FROM marks
-                               WHERE marks = 30
-                                    )
-                                GROUP BY c.cname
-                                 ORDER BY c.cname;
-                    `);
-
-
-
-        const allAttendedArray = (allAttended.toArray()).map((row) => ({ ...row }))
-
-        const convertedBigIntAttended = allAttendedArray.map(row =>
-            Object.fromEntries(
-                Object.entries(row).map(
-                    ([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value]
-                )
-            )
-        )
-
-        await c.close()
-
-
-        return convertedBigIntAttended
-
-
-
-    } catch (error) {
-
-        console.error("error of fetching in BrowserDB", error)
-        return { error: true, message: error.message }
-
-    }
-}
 
 
 ///////******************* Json Stream   ***** */
 
 
+// export async function jsonStreamDataDuckDB({ query }) {
+
+
+//     function convertBigIntToNumber(data) {
+//         if (Array.isArray(data)) {
+//             return data.map(item => convertBigIntToNumber(item));
+//         } else if (typeof data === 'object' && data !== null) {
+//             const newObj = {};
+//             for (let key in data) {
+//                 newObj[key] = convertBigIntToNumber(data[key]);
+//             }
+//             return newObj;
+//         } else if (typeof data === 'bigint') {
+//             return Number(data);  // Convert BigInt to Number
+//         }
+//         return data;
+//     }
+
+//     // let students
+//     // let marks
+//     // let courses
+
+
+//     try {
+
+
+
+//         // try {
+
+//         //** worked for dataset smaller that 5,000,000 records */
+//         //let data = await readStreamJsonFile()
+
+//         //**changed method for dataset biger that 5,000,000 records */
+//         // let data = await getQueryJsonData({ query })
+//         // console.log("TTTTTTT" + JSON.stringify(data.students));
+//         // console.log("TTTTTTT" + JSON.stringify(data));
+
+//         query = query.replace(/studentsData/g, 'students')
+//             .replace(/marksData/g, 'marks')
+//             .replace(/coursesData/g, 'courses');
+
+
+
+//         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+//         const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+
+//         const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+
+//         const logger = new duckdb.ConsoleLogger();
+
+
+//         const db = new duckdb.AsyncDuckDB(logger, worker);
+
+
+//         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+//         console.log("DuckDB initialized successfully!");
+
+
+//         const c = await db.connect()
+
+//         console.log("Database connection established");
+
+
+//         // console.log("All Data Structure:", data.marks);
+
+
+//         // console.log("Students Structure:", data.students);
+//         // console.log("Marks Structure:", data.marks);
+//         // console.log("Courses Structure:", data.courses);
+//         // console.log("Marks Data Before Registering:", JSON.stringify(data.marks, null, 2));
+
+//         let students
+//         let marks
+//         let courses
+
+//         return await allJsonFile()
+//             .then(async data => {
+
+//                 console.log(data.students);
+//                 console.log(data.marks);
+//                 console.log(data.courses);
+
+
+
+//                 await db.registerFileText('students', JSON.stringify(convertBigIntToNumber(data.students)))
+//                 await db.registerFileText('marks', JSON.stringify(convertBigIntToNumber(data.marks)))
+//                 await db.registerFileText('courses', JSON.stringify(convertBigIntToNumber(data.courses)))
+
+//                 await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
+//                 await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
+//                 await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+
+//                 await c.query(`ALTER TABLE students ALTER COLUMN id SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE students ALTER COLUMN age SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE marks ALTER COLUMN id SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE marks ALTER COLUMN sid SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE marks ALTER COLUMN cid SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE marks ALTER COLUMN marks SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE courses ALTER COLUMN cid SET DATA TYPE INTEGER`);
+//                 await c.query(`ALTER TABLE courses ALTER COLUMN credits SET DATA TYPE INTEGER`);
+        
+
+
+//                 // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+//                 // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+//                 // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+
+
+
+//                 let marksData = await c.query("SELECT * FROM marks LIMIT 5");
+//                 let mrkdata = marksData.toArray().map(row => Object.assign({}, row));
+//                 console.log("Marks Table Sample Data:", mrkdata);
+
+//                 let stdData = await c.query("SELECT * FROM students LIMIT 5");
+//                 let stdArray = stdData.toArray().map(row => Object.assign({}, row));
+//                 console.log("Marks Table Sample Data:", stdArray);
+
+//                 let crsData = await c.query("SELECT * FROM courses LIMIT 5");
+//                 let crsArray = crsData.toArray().map(row => Object.assign({}, row));
+//                 console.log("course Table Sample Data:", crsArray);
+
+//                 // let jsonQuery;
+//                 // let result;
+
+//                 // let marksSchema = await c.query("DESCRIBE marks");
+//                 // let mrk = marksSchema.toArray().map(row => Object.assign({}, row));
+//                 // console.log("Marks Schema:", mrk);
+
+//                 // let studentsSchema = await c.query("DESCRIBE students");
+//                 // const std = studentsSchema.toArray().map(row => Object.assign({},row))
+//                 // console.log("Students Schema:", std);
+
+//                 // let coursesSchema = await c.query("DESCRIBE courses");
+//                 // const crs = coursesSchema.toArray().map(row => Object.assign({},row))
+//                 // console.log("course Schema:", crs);
+
+
+//                 const marksSchema = await c.query("PRAGMA table_info(marks)");
+//                 const studentsSchema = await c.query("PRAGMA table_info(students)");
+
+//                 const mrk = marksSchema.toArray().map(row => Object.assign({},row))
+//                 const std = studentsSchema.toArray().map(row => Object.assign({},row))
+//                 console.log("Marks Schema:", mrk);
+//                 console.log("Students Schema:", std);
+
+
+
+//                 // Register JSON files as virtual tables instead of fully creating them
+
+//                 // Default query if none provided
+//                 const baseQuery = query || `
+//         SELECT m.sid, s.id, s.sname, c.cname, m.marks
+//         FROM marks m
+//        LEFT JOIN students s ON m.sid = s.id
+//        LEFT JOIN courses c ON m.cid = c.cid
+
+//     `;
+//                 let x = await c.query(` SELECT DISTINCT sid FROM marks limit 5;
+// SELECT DISTINCT id FROM students limit 5;
+// SELECT DISTINCT cid FROM marks limit 5;
+// SELECT DISTINCT cid FROM courses limit 5;
+// `);
+//                 console.log("tttesssst", x);
+               
+//                     let rows = x.toArray().map(row =>
+//                         Object.fromEntries(
+//                             Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+//                         )
+//                     );
+                    
+//                     console.log(rows);
+                    
+
+// // Access the batches (actual data) from the query result
+// const batches = x.batches; // this should contain the data
+
+// // If you want to see the first batch data, you can log it:
+// console.log("First Batch Data:", batches[0]);
+
+// const batch = x.batches[0]; // Get the first batch
+// const data1 = batch.data; // Get the data of the first batch
+
+// // Access the children (columns) inside the data
+// const children = data1.children;
+
+// // Log the children structure to understand it better
+// console.log("Children Columns:", children);
+
+
+
+
+
+//                 let pageCounter
+//                 let page = pageCounter || 1
+//                 const limit = 1000000
+//                 let offset = (page - 1) * limit
+//                 let hasMoreData = true;
+
+//                 while (hasMoreData) {
+                    
+//                     const paginatedQuery = `${baseQuery} LIMIT ${limit} OFFSET ${offset}`;
+
+//                     let result = await c.query(paginatedQuery);
+//                     let rows = result.toArray().map(row =>
+//                         Object.fromEntries(
+//                             Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+//                         )
+//                     );
+//                     console.log(result);
+//                     console.log(rows);
+
+
+//                     if (rows.length === 0) {
+//                         hasMoreData = false
+//                         break;
+//                     } else {
+//                         console.log(`Processing ${rows.length} rows (offset: ${offset})`);
+//                         // 🔥 Process or send rows somewhere (e.g., WebSockets, IndexedDB)
+//                         page++;  // Increment the page number
+//                         offset = (page - 1) * limit; 
+//                         return rows
+//                     }
+                    
+//                 }
+
+//                 await c.close();
+
+
+
+
+
+
+
+
+
+//             })
+
+
+
+//     } catch (error) {
+
+//         console.error("error of fetching in BrowserDB", error)
+//         return { error: true, message: error.message }
+
+//     }
+// }
+
+
+
+
 export async function jsonStreamDataDuckDB({ query }) {
+
+    let students
+    let marks
+    let courses
 
 
     try {
 
+        await allJsonFile()
+            .then(async data => {
+                students = data.students
+                courses = data.courses
+                marks = data.marks
 
-        let data = await readStreamJsonFile()
+                console.log(students);
+                console.log(marks);
+                console.log(courses);
+           
+            })
 
         query = query.replace(/studentsData/g, 'students')
             .replace(/marksData/g, 'marks')
@@ -470,17 +641,17 @@ export async function jsonStreamDataDuckDB({ query }) {
 
         console.log("Database connection established");
 
-        await db.registerFileText('students', JSON.stringify(data.students));
-        await db.registerFileText('marks', JSON.stringify(data.marks));
-        await db.registerFileText('courses', JSON.stringify(data.courses));
+        await db.registerFileText('students', JSON.stringify(students));
+        await db.registerFileText('marks', JSON.stringify(marks));
+        await db.registerFileText('courses', JSON.stringify(courses));
 
-        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+        // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
 
-        // await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
-        // await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
-        // await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
 
         let jsonQuery;
         let result;
@@ -520,11 +691,10 @@ export async function jsonStreamDataDuckDB({ query }) {
             )
         );
         await c.close()
-        return { convertedBigIntResult }
-
-
-
-
+        console.log(convertedBigIntResult);
+        
+        return convertedBigIntResult 
+    // })
 
     } catch (error) {
 
@@ -534,13 +704,28 @@ export async function jsonStreamDataDuckDB({ query }) {
     }
 }
 
-export async function jsonStreamStdMarkDataDuckDB() {
+
+export async function jsonStreamStdMarkDataDuckDB({ query }) {
+
+
+    let students
+    let marks
+    let courses
 
 
     try {
 
+        await allJsonFile()
+            .then(data => {
+                students = data.students
+                courses = data.courses
+                marks = data.marks
 
-        let data = await readStreamJsonFile()
+                console.log(students);
+                console.log(marks);
+                console.log(courses);
+            })
+
 
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
@@ -565,17 +750,17 @@ export async function jsonStreamStdMarkDataDuckDB() {
 
         console.log("Database connection established");
 
-        await db.registerFileText('students', JSON.stringify(data.students));
-        await db.registerFileText('marks', JSON.stringify(data.marks));
-        await db.registerFileText('courses', JSON.stringify(data.courses));
+        await db.registerFileText('students', JSON.stringify(students));
+        await db.registerFileText('marks', JSON.stringify(marks));
+        await db.registerFileText('courses', JSON.stringify(courses));
 
-        await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-        await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-        await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+        // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
 
-        //await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
-        // await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
-        // await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
 
         let jsonQuery;
         let fullMarks;
@@ -652,6 +837,162 @@ export async function jsonStreamStdMarkDataDuckDB() {
     }
 }
 
+
+export async function jsonStreamComplexQueryDuckDB({ query }) {
+
+    let students
+    let marks
+    let courses
+
+
+    try {
+
+        await allJsonFile()
+            .then(data => {
+                students = data.students
+                courses = data.courses
+                marks = data.marks
+
+                console.log(students);
+                console.log(marks);
+                console.log(courses);
+            })
+
+
+        const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+        const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+
+        const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+
+        const logger = new duckdb.ConsoleLogger();
+
+
+        const db = new duckdb.AsyncDuckDB(logger, worker);
+
+
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+        console.log("DuckDB initialized successfully!");
+
+
+        const c = await db.connect()
+
+        console.log("Database connection established");
+
+
+        await db.registerFileText('students', JSON.stringify(students));
+        await db.registerFileText('marks', JSON.stringify(marks));
+        await db.registerFileText('courses', JSON.stringify(courses));
+
+
+        let allAttended;
+        // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
+        // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
+        // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+
+        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
+        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
+        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+
+        const marksSchema = await c.query(`DESCRIBE marks`);
+        const coursesSchema = await c.query(`DESCRIBE courses`);
+
+        console.log("Marks Schema:", marksSchema.toArray());
+        console.log("Courses Schema:", coursesSchema.toArray());
+
+
+        const sampleMarks = await c.query(`SELECT * FROM marks LIMIT 5`);
+        console.log("Sample Marks Data:", sampleMarks.toArray());
+
+        const sampleCourses = await c.query(`SELECT * FROM courses LIMIT 5`);
+        console.log("Sample Courses Data:", sampleCourses.toArray());
+
+        allAttended = await c.query(`
+                 SELECT c.cname AS course_name, COUNT(*) AS students_Count
+                  FROM marks m
+                  JOIN courses c ON m.cid = c.cid
+                  WHERE m.marks = 30
+                  GROUP BY c.cname
+                  ORDER BY c.cname;
+                    `);
+
+
+
+
+
+        const allAttendedArray = (allAttended.toArray()).map((row) => ({ ...row }))
+
+        const convertedBigIntAttended = allAttendedArray.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(
+                    ([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value]
+                )
+            )
+        )
+
+        await c.close()
+
+
+        return convertedBigIntAttended
+
+
+
+    } catch (error) {
+
+        console.error("error of fetching in BrowserDB", error)
+        return { error: true, message: error.message }
+
+    }
+}
+
+
+
+
+
+
+// export async function jsonStreamComplexQueryDuckDB({query}) {
+
+
+//     const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+//     const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+//     const worker = await duckdb.createWorker(bundle.mainWorker);
+//     const logger = new duckdb.ConsoleLogger();
+
+//     const db = new duckdb.AsyncDuckDB(logger, worker);
+//     await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+//     console.log("DuckDB initialized successfully!");
+
+//     const connection = await db.connect();
+//     console.log("Database connection established");
+
+//     // Ensure the table exists before streaming
+//     await connection.query(`
+//     CREATE TABLE IF NOT EXISTS json_data (
+//         json_content TEXT
+//     )
+// `);
+
+
+
+//     try{
+//     await streamJSONToDuckDB(connection);
+
+//     console.log("Streaming to DuckDB completed!");
+
+//         // Query the streamed data
+//         const result = await connection.query(`SELECT * FROM json_data LIMIT 5`);
+//         console.log("Sample Data from DuckDB:", result.toArray());
+
+//         await connection.close();
+
+//     } catch (error) {
+//         console.error("Error in main process:", error);
+//     }
+
+//     // return connection; // Return a working DB connection
+// }
 
 
 

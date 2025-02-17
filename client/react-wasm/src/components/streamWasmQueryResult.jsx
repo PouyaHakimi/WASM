@@ -13,7 +13,7 @@ import SpeedTest from './GaugePointer';
 import AlertTitle from '@mui/material/AlertTitle';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
-import { memoryJsonStreamData } from '../wasm/memoryData';
+import { memoryJsonStreamComplexQuery, memoryJsonStreamData } from '../wasm/memoryData';
 
 
 function renderRow({ index, style, data }) {
@@ -34,7 +34,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
       const [maxSpeed, setMaxSpeed] = useState(null)
       const [alert,setAlert]=useState(null)
       const [message ,setMessage] = useState(false)
-
+      const [complexQuery,setComplexQuery] = useState(false)
       
     
     const handleChange = (event) => {
@@ -92,6 +92,58 @@ function StreamWasmQueryResult({ query, setQuery}) {
         
     };
 
+    const handleComplexClick = async () => {
+            console.log("Query submitted: " + query);
+    
+            if (!query) {
+    
+                const speed1 = performance.now() // give us time in ms
+                const data = await memoryJsonStreamComplexQuery({ query })
+    
+    
+                setQueryResult(data || []);
+                if (data.error) {
+                    setAlert(data.message)
+                    setMessage(true)
+                } else {
+                    setAlert("")
+                    setMessage(true)
+                }
+    
+                setQueryResult(data || []);
+    
+                const speed2 = performance.now()
+                const speedResult = speed2 - speed1
+                setSpeed(speedResult)
+                setMaxSpeed(speed2)
+    
+            } else {
+    
+                const speed1 = performance.now() // give us time in ms
+                //const data = await jsonDataDuckDB({query})
+                const data = await memoryJsonStreamComplexQuery({ query })
+    
+    
+                setQueryResult(data || []);
+                if (data.error) {
+                    setAlert(data.message)
+                    setMessage(true)
+                } else {
+                    setAlert("")
+                    setMessage(true)
+                }
+    
+                setQueryResult(data || []);
+    
+                const speed2 = performance.now()
+                const speedResult = speed2 - speed1
+                setSpeed(speedResult)
+                setMaxSpeed(speed2)
+    
+            }
+    
+        };
+
     return (
         <div>
             
@@ -114,11 +166,22 @@ function StreamWasmQueryResult({ query, setQuery}) {
                              Execute Query
                          </Button>
                     </Grid>
-                <Grid item>
+
+                    <Grid item>
+                    <Button variant="contained" color="success" onClick={() => {
+                        handleComplexClick()
+                        setComplexQuery(true);
+
+                    }}>
+                        Execute Complex Query
+                    </Button>
+                    </Grid>
+
+                {/* <Grid item>
                          <Button variant="contained" color="info" onClick={async()=>{await writeJsonFile()}}>
                                Capture Json Data
                          </Button>
-                </Grid>
+                </Grid> */}
             </Grid>
             <br/>
             <br />
@@ -147,7 +210,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
             <br/>
             <br/>
             
-           {!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>}
+           {(!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>)}
          
         </div>
     );

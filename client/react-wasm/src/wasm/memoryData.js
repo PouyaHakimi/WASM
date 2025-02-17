@@ -1,5 +1,5 @@
 import { da } from "@faker-js/faker";
-import {fakeDataDuckDB, mainDataDuckDB, jsonDataDuckDB, jsonStreamDataDuckDB, jsonStreamStdMarkDataDuckDB ,jsonStdMarkDataDuckDB, jsonFullMarkDataDuckDB, jsonAttendedStdDataDuckDB } from "../DuckDB";
+import {fakeDataDuckDB, mainDataDuckDB, jsonDataDuckDB, jsonStreamDataDuckDB, jsonStreamStdMarkDataDuckDB ,jsonStdMarkDataDuckDB, jsonFullMarkDataDuckDB, jsonAttendedStdDataDuckDB, jsonStreamComplexQueryDuckDB } from "../DuckDB";
 import createModule from "../wasm/student2";
 import createMainModule from "./mainstudents3"
 
@@ -55,8 +55,10 @@ export async function memoryJsonStreamData({query}) {
    
     
     const data = await jsonStreamDataDuckDB({query})
+    console.log(data);
     
-    const mainData = data.convertedBigIntResult 
+    
+    const mainData = data
     const module = await createMainModule() // wraper Module that has created by makin import creatModule functional the name can be even asghar
 
     module._std_init(mainData.length)
@@ -96,10 +98,10 @@ export async function memoryJsonStreamData({query}) {
 
 }
 
-export async function memoryJsonStreamStdMarkData() {
+export async function memoryJsonStreamStdMarkData({query}) {
 
    
-    const mainData = await jsonStreamStdMarkDataDuckDB()
+    const mainData = await jsonStreamStdMarkDataDuckDB({query})
    
     const module = await createMainModule();
    
@@ -261,10 +263,10 @@ export async function memoryFullMarkData({query}) {
 
 }
 
-export async function memoryJsonAttendedStdData() {
+export async function memoryJsonStreamComplexQuery({query}) {
 
    
-    const mainData = await jsonAttendedStdDataDuckDB()
+    const mainData = await jsonStreamComplexQueryDuckDB({query})
    
     const module = await createMainModule();
    
@@ -282,16 +284,16 @@ export async function memoryJsonAttendedStdData() {
         const AttendedPtr = module._get_attended(index)
         const memoryDataAt = {
             course_name: module.UTF8ToString(AttendedPtr),
-            attended_students: module.HEAP32[(AttendedPtr+52)/4]
+            students_Count: module.HEAP32[(AttendedPtr+52)/4]
         }
         
         return memoryDataAt
     })
      
-    const resultAt = JSON.stringify(proceedDataAt)
+    // const resultAt = JSON.stringify(proceedDataAt)
 
     
-    return resultAt
+    return proceedDataAt
     
 
 }
