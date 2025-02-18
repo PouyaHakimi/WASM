@@ -7,7 +7,7 @@ const { error } = require('console');
 const db = new duckdb.Database(':memory:')
 
 
-exports.getAllJsonController = async (req, res) => {
+exports.getAllPagedJsonController = async (req, res) => {
 
 
     const stdPath = path.join(__dirname, '..', 'data', 'students.json');
@@ -19,10 +19,31 @@ exports.getAllJsonController = async (req, res) => {
     const offset = (page-1)*limit
   
 
+
+    // const stdQuery = `select * from student`
+    // const crsQuery = `select * from courses`
+    // const mrkQuery = `select * from marks`
     try {
         
+        // const std = await sequelize.query(stdQuery, { type: sequelize.QueryTypes.SELECT })
+        // const crs = await sequelize.query(crsQuery, { type: sequelize.QueryTypes.SELECT })
+        // const mrk = await sequelize.query(mrkQuery, { type: sequelize.QueryTypes.SELECT })
+
+        // await Promise.all([
+        //     writeJosnFile(stdPath, std),
+        //     writeJosnFile(mrkPath, mrk),
+        //     writeJosnFile(crsPath, crs)
+        // ])
+
+
         const connection = db.connect()
 
+
+        
+
+        // const allStudentsQuery = `SELECT * FROM read_json_auto('${stdPath}')`
+        // const allMarksQuery= `SELECT * FROM read_json_auto('${mrkPath}') `
+        // const allCoursesQuery = `SELECT * FROM read_json_auto('${crsPath}')`
 
         const allStudentsQuery = `SELECT * FROM read_json_auto('${stdPath}') LIMIT ${limit} OFFSET ${offset}`
         const allMarksQuery= `SELECT * FROM read_json_auto('${mrkPath}') LIMIT ${limit} OFFSET ${offset}`
@@ -92,7 +113,7 @@ exports.getAllJsonController = async (req, res) => {
             
             return res.status(200).json({
                 students:allStudentsResult,
-                marks: allMarksResult,
+                 marks: allMarksResult,
                 courses: allCoursesResult,
                 page,
                 limit

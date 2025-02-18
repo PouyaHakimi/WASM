@@ -4,9 +4,9 @@ import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-
-
-
+import { faker, it, Faker } from '@faker-js/faker';
+import { Button } from "@mui/material";
+import { insertstd, insertCourse, insertMarks, writeJsonFileServer } from '../../API/API';
 
 const Search = styled('div')(({ theme }) => ({
 
@@ -90,10 +90,88 @@ function mainHeader(props) {
                 />
               <CloseIcon onClick={handleClose}/>  
             </Search>
+            <div className="d-flex">
+            <Button
+            variant="success"
+            size="lg"
+            className="ml-auto"
+            onClick={async () => {
 
+
+              insertFakeData()
+
+
+            }}
+          >
+            Insert Fake Data in DB
+          </Button>
+          <Button
+            variant="success"
+            size="lg"
+            onClick={async () => {
+                
+                await writeJsonFileServer()
+
+            }}
+          >
+            Insert Data in Json
+          </Button>
+          </div>
         </form>
     </header>
 }
 
+
+const insertFakeData = async () => {
+    try {
+  
+      const datarangeMin = 9500001
+      const datarangeMax = 10000000
+      let students = []
+      let courses = []
+      let marks = []
+      const customFaker = new Faker({ locale: [it] });
+      for (let i = datarangeMin; i <= datarangeMax; i++) {
+        students.push({
+          id: i,
+          sname: customFaker.person.fullName().replace(/'/g, "''"),
+          age: faker.number.int({ min: 18, max: 45 })
+        })
+      }
+  
+      for (let i = 1; i <= 10; i++) {
+        courses.push({
+          cid: i,
+          cname: faker.commerce.productName(),
+          credits: customFaker.number.int({ min: 6, max: 10 }),
+  
+        })
+      }
+      for (let i = datarangeMin; i <= datarangeMax; i++) {
+        marks.push({
+          id: i,
+          sid: faker.number.int({ min: datarangeMin, max: datarangeMax }),
+          cid: faker.number.int({ min: 1, max: 10 }),
+          marks: faker.number.int({ min: 17, max: 30 })
+        })
+      }
+  
+  
+  
+      if (students) {
+        insertstd("student", students)
+      }
+      if (courses) {
+        insertCourse("courses", courses)
+  
+      }
+      if (marks) {
+        insertMarks("marks", marks)
+      }
+  
+    } catch (error) {
+      console.error('Error generating or inserting fake data:', error.message);
+    }
+  }
 
 export default mainHeader;

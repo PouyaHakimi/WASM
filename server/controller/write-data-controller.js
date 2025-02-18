@@ -3,7 +3,7 @@ const path = require('path');
 const writeJosnFile = require(`../data/writeJsonFile`)
 
 
-exports.writeJsonDataController = async (req, res) => {
+exports.writeInClientJsonDataController = async (req, res) => {
 
     const { q } = req.query
 
@@ -51,4 +51,51 @@ exports.writeJsonDataController = async (req, res) => {
 
 }
 
+
+exports.writeInServerJsonDataController = async (req, res) => {
+
+    const { q } = req.query
+
+    const stdPath = path.join(__dirname, '..', 'data', 'students.json');
+    const mrkPath = path.join(__dirname, '..', 'data', 'marks.json');
+    const crsPath = path.join(__dirname, '..', 'data', 'courses.json');
+    
+    
+     console.log(stdPath +"paaaatttthhhh");
+    
+
+    // const stdPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'data','students.json');
+    // const mrkPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'data','marks.json');
+    // const crsPathFront = path.join(__dirname, '..', '..', 'client', 'react-wasm', 'public', 'data','courses.json');
+        
+    // console.log(stdPathFront);
+    
+
+    const stdQuery = `select * from student`
+    const crsQuery = `select * from courses`
+    const mrkQuery = `select * from marks`
+
+    try {
+        const std = await sequelize.query(stdQuery, { type: sequelize.QueryTypes.SELECT })
+        const crs = await sequelize.query(crsQuery, { type: sequelize.QueryTypes.SELECT })
+        const mrk = await sequelize.query(mrkQuery, { type: sequelize.QueryTypes.SELECT })
+
+
+        console.log("+++++++" + q);
+
+        await Promise.all([
+            writeJosnFile(stdPath, std),
+            writeJosnFile(mrkPath, mrk),
+            writeJosnFile(crsPath, crs)
+        ])
+
+        
+        return res.status(200).json("data write success")
+
+    } catch (error) {
+        console.error("Error processing data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+
+}
 

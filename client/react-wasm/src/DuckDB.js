@@ -1,5 +1,5 @@
 
-import { allJsonFile, getFilteredStdCourseMark, getQueryJsonData, readStreamJsonFile, streamJSONToDuckDB } from "./API/API";
+import { allPagedJsonFile, getFilteredStdCourseMark, getQueryJsonData, readStreamJsonFile, streamJSONToDuckDB } from "./API/API";
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { faker, Faker, it, ro } from '@faker-js/faker';
 import { fetchJsonData } from "./data/fetchAllJson";
@@ -442,7 +442,7 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 //                 await c.query(`ALTER TABLE marks ALTER COLUMN marks SET DATA TYPE INTEGER`);
 //                 await c.query(`ALTER TABLE courses ALTER COLUMN cid SET DATA TYPE INTEGER`);
 //                 await c.query(`ALTER TABLE courses ALTER COLUMN credits SET DATA TYPE INTEGER`);
-        
+
 
 
 //                 // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
@@ -505,15 +505,15 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 // SELECT DISTINCT cid FROM courses limit 5;
 // `);
 //                 console.log("tttesssst", x);
-               
+
 //                     let rows = x.toArray().map(row =>
 //                         Object.fromEntries(
 //                             Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
 //                         )
 //                     );
-                    
+
 //                     console.log(rows);
-                    
+
 
 // // Access the batches (actual data) from the query result
 // const batches = x.batches; // this should contain the data
@@ -541,7 +541,7 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 //                 let hasMoreData = true;
 
 //                 while (hasMoreData) {
-                    
+
 //                     const paginatedQuery = `${baseQuery} LIMIT ${limit} OFFSET ${offset}`;
 
 //                     let result = await c.query(paginatedQuery);
@@ -564,7 +564,7 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 //                         offset = (page - 1) * limit; 
 //                         return rows
 //                     }
-                    
+
 //                 }
 
 //                 await c.close();
@@ -590,27 +590,50 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 // }
 
 
+async function insertDataInBatches(db, tableName, data, batchSize = 1000000) {
+    const c = await db.connect();
+
+    for (let i = 0; i < data.length; i += batchSize) {
+        const batch = data.slice(i, i + batchSize);
+        await c.query(`
+            INSERT INTO ${tableName} 
+            SELECT * FROM read_json_auto($1)
+        `, [JSON.stringify(batch)]);
+        console.log(`✅ Inserted ${i + batchSize} records into ${tableName}`);
+    }
+
+    await c.close();
+}
 
 
 export async function jsonStreamDataDuckDB({ query }) {
 
+   
     let students
     let marks
     let courses
-
-
+    let limit = 3000000
+    let stdpage = 0
+    let mrkpage = 0
+   
+    const wasmMemory =new WebAssembly.Memory({
+        initial: 256,  // 16 MB
+        maximum: 2048, // 128 MB
+    })
+    const memoryLimit = 1024 * 1024 * 1024
     try {
-
-        await allJsonFile()
+        await allPagedJsonFile()
             .then(async data => {
-                students = data.students
+                students = data.students.filter(student=>student.id >=1 && student.id<=7000000)
                 courses = data.courses
-                marks = data.marks
+                marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <=7000000)
+
+
 
                 console.log(students);
                 console.log(marks);
                 console.log(courses);
-           
+
             })
 
         query = query.replace(/studentsData/g, 'students')
@@ -629,7 +652,7 @@ export async function jsonStreamDataDuckDB({ query }) {
         const logger = new duckdb.ConsoleLogger();
 
 
-        const db = new duckdb.AsyncDuckDB(logger, worker);
+        const db = new duckdb.AsyncDuckDB(logger, worker, { wasmMemory:wasmMemory });
 
 
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
@@ -641,18 +664,107 @@ export async function jsonStreamDataDuckDB({ query }) {
 
         console.log("Database connection established");
 
+
+
+        await c.query(`
+            CREATE TABLE students (
+                id INTEGER PRIMARY KEY,
+                sname TEXT,
+                age INTEGER
+            );
+        `);
+        await c.query(`
+            CREATE TABLE courses(
+               cid INTEGER PRIMARY KEY,
+               cname TEXT,
+               credits INTEGER
+            );
+        `);
+        await c.query(`
+            CREATE TABLE marks(
+                id INTEGER PRIMARY KEY,
+                sid INTEGER NOT NULL,
+                cid INTEGER NOT NULL,
+                marks INTEGER,
+                FOREIGN KEY (sid) REFERENCES students (id),
+                FOREIGN KEY (cid) REFERENCES courses (cid)
+
+            );  
+         `)
+
+
+        console.log("Table created");
+
         await db.registerFileText('students', JSON.stringify(students));
         await db.registerFileText('marks', JSON.stringify(marks));
         await db.registerFileText('courses', JSON.stringify(courses));
 
-        // await c.query(`CREATE VIEW students AS SELECT * FROM read_json_auto('students')`);
-        // await c.query(`CREATE VIEW marks AS SELECT * FROM read_json_auto('marks')`);
-        // await c.query(`CREATE VIEW courses AS SELECT * FROM read_json_auto('courses')`);
+        while(true){
+            console.log(stdpage);
+            let offset =stdpage*limit
 
-        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students')`);
-        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks')`);
-        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses')`);
+           await c.query(
+        `INSERT OR IGNORE INTO students (id, sname, age)  SELECT id, sname, age FROM read_json_auto('students') LIMIT ${limit} OFFSET ${offset}`
+    );
 
+    // Fetch the inserted data to check if there were any new rows
+    const result = await c.query(
+        `SELECT COUNT(*) as count FROM read_json_auto('students') LIMIT ${limit} OFFSET ${offset}`
+    );
+
+    console.log(result);
+    console.log(result.length);
+    // If no more rows are being inserted, break the loop
+    if (result.numRows === 0) break; // Stop pagination when no more data
+
+        stdpage ++    
+    
+        }
+
+
+
+        await c.query(
+            `INSERT OR IGNORE INTO courses (cid,cname,credits) SELECT cid,cname,credits FROM read_json_auto('courses')`
+        );
+
+
+
+
+
+        while(true){
+          
+            let offset =mrkpage*limit
+            
+           
+
+    //        await c.query(
+    //     `INSERT OR IGNORE INTO marks (id,sid,cid,marks) SELECT id,sid,cid,marks FROM read_json_auto('marks') LIMIT ${limit} OFFSET ${offset}`
+    // );
+
+    await c.query(`
+    INSERT OR IGNORE INTO marks (id, sid, cid, marks)
+    SELECT id, sid, cid, marks 
+    FROM read_json_auto('marks') 
+    WHERE sid IN (SELECT id FROM students) 
+    AND cid IN (SELECT cid FROM courses) 
+    LIMIT ${limit} OFFSET ${offset}
+`);
+
+
+         
+    // Fetch the inserted data to check if there were any new rows
+    const result = await c.query(
+        `SELECT COUNT(*) as count FROM read_json_auto('marks') LIMIT ${limit} OFFSET ${offset}`
+    );
+
+    // If no more rows are being inserted, break the loop
+    if (result.numRows === 0) break; // Stop pagination when no more data
+
+           mrkpage ++    
+    
+        }
+
+       
         let jsonQuery;
         let result;
 
@@ -669,6 +781,144 @@ export async function jsonStreamDataDuckDB({ query }) {
             JOIN Courses c ON r.cid = c.cid
             ORDER BY s.sname;
             `
+            
+            result = await c.query(`${jsonQuery}`)
+
+
+        } else {
+
+            
+
+            jsonQuery = query  // Use double quotes for paths;  // Use provided query
+            result = await c.query(`${jsonQuery}`)
+
+
+        }
+
+
+        const resultArray = result.toArray().map(row => ({ ...row }))
+        console.log("***********" + resultArray);
+
+
+        const convertedBigIntResult = resultArray.map(row =>
+            Object.fromEntries(
+                Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+            )
+        );
+        await c.close()
+        console.log(convertedBigIntResult);
+
+        return convertedBigIntResult
+        // })
+
+    } catch (error) {
+
+        console.error("error of fetching in BrowserDB", error)
+        return { error: true, message: error.message }
+
+    }
+}
+
+
+export async function jsonStreamDataDuckDB2({ query }) {
+
+    let students = []
+    let marks = []
+    let courses = []
+    const mempryLimit = 1024 * 1024 * 1024
+
+
+    try {
+
+        const body = await readStreamJsonFile()
+
+        const jsonChunks = [];
+
+        await body.pipeThrough(
+            new TextDecoderStream()
+        )
+            .pipeTo(
+                new WritableStream({
+                    write(chunk) {
+                        jsonChunks.push(chunk.trim())
+                    }
+                })
+            )
+            const jsonData = jsonChunks.join(''); // Merge all chunks
+            const parsedData = JSON.parse(`[${jsonData.replace(/}\s*{/g, '},{')}]`); 
+
+            // Extract and filter the correct JSON objects
+            students = parsedData.filter(item => item.id !== undefined); 
+            //students =parsedData.filter(item =>item.id)
+            // students =parsedData.filter(item =>item.sname)
+            console.log("Students:", parsedData);
+
+   
+   
+        query = query.replace(/studentsData/g, 'students')
+            .replace(/marksData/g, 'marks')
+            .replace(/coursesData/g, 'courses');
+
+
+
+        const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+        const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+
+        const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
+
+        const logger = new duckdb.ConsoleLogger();
+
+
+        const db = new duckdb.AsyncDuckDB(logger, worker, { mempryLimit });
+
+
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+        console.log("DuckDB initialized successfully!");
+
+
+        const c = await db.connect()
+
+        console.log("Database connection established");
+
+        //stream into DuckDB*******
+         await db.registerFileText('students', JSON.stringify(parsedData));
+
+        //paged data to duckDB******
+
+
+        await c.query(`CREATE TABLE students AS SELECT * FROM read_json_auto('students') LIMIT 6090000 OFFSET 0`);
+        await c.query(`CREATE TABLE marks AS SELECT * FROM read_json_auto('marks') LIMIT 6090000 OFFSET 0`);
+        await c.query(`CREATE TABLE courses AS SELECT * FROM read_json_auto('courses') LIMIT 6090000 OFFSET 0`);
+
+
+        //         if (students.length > 0) {
+        //     await c.query(`CREATE TABLE students (id BIGINT, sname STRING, age INT);`);
+        //     await insertDataInBatches(c, "students", students);
+        // }
+
+        // if (marks.length > 0) {
+        //     await c.query(`CREATE TABLE marks (sid BIGINT, cid BIGINT, marks INT);`);
+        //     await insertDataInBatches(c, "marks", marks);
+        // }
+
+        // if (courses.length > 0) {
+        //     await c.query(`CREATE TABLE courses (cid BIGINT, cname STRING);`);
+        //     await insertDataInBatches(c, "courses", courses);
+        // }
+
+        let jsonQuery;
+        let result;
+
+
+        if (!query) {
+
+         
+            jsonQuery = `
+            SELECT * from students
+            `
             result = await c.query(`${jsonQuery}`)
 
 
@@ -683,18 +933,20 @@ export async function jsonStreamDataDuckDB({ query }) {
         }
 
 
-        const resultArray = result.toArray().map(row => ({ ...row }))
+        // const resultArray = result.toArray().map(row => ({ ...row }))
+        // console.log("***********" + resultArray);
 
-        const convertedBigIntResult = resultArray.map(row =>
-            Object.fromEntries(
-                Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
-            )
-        );
-        await c.close()
-        console.log(convertedBigIntResult);
-        
-        return convertedBigIntResult 
-    // })
+
+        // const convertedBigIntResult = resultArray.map(row =>
+        //     Object.fromEntries(
+        //         Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+        //     )
+        // );
+        // await c.close()
+        // console.log(convertedBigIntResult);
+
+        return result //convertedBigIntResult
+        // })
 
     } catch (error) {
 
@@ -715,7 +967,7 @@ export async function jsonStreamStdMarkDataDuckDB({ query }) {
 
     try {
 
-        await allJsonFile()
+        await allPagedJsonFile()
             .then(data => {
                 students = data.students
                 courses = data.courses
@@ -847,7 +1099,7 @@ export async function jsonStreamComplexQueryDuckDB({ query }) {
 
     try {
 
-        await allJsonFile()
+        await allPagedJsonFile()
             .then(data => {
                 students = data.students
                 courses = data.courses

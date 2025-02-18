@@ -1,7 +1,12 @@
 const fs = require('fs');
-const { parser } = require('stream-json');
+const { parser, Parser } = require('stream-json');
 const { streamArray } = require('stream-json/streamers/StreamArray');
 const path =require('path')
+const { Readable, Writable } = require('node:stream');
+const { createServer } = require('node:http');
+const { createReadStream } = require('node:fs');
+const { stat } =require('node:fs/promises')
+const { } = require('node:stream/web')
 
 exports.getStreamDataController = async (req, res) => {
     try {
@@ -9,65 +14,85 @@ exports.getStreamDataController = async (req, res) => {
         const mrkPath = path.join(__dirname, '..', 'data', 'marks.json');
         const crsPath = path.join(__dirname, '..', 'data', 'courses.json');
 
-        if (![stdPath, mrkPath, crsPath].every(fs.existsSync)) {
-            return res.status(404).json({ error: 'One or more files not found' });
-        }
+      const {size} = await stat(stdPath)
+      console.log(size);
 
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Transfer-Encoding', 'chunked');
+      await Readable.toWeb(createReadStream(stdPath)) 
+      .pipeThrough(      
+        new TransformStream({
+            async transformer(jsonLine , controller) {
+                console.log("jsonLine",JSON.parse(Buffer.from(jsonLine)));
+                controller.enqueue(jsonLine)
+                console.log("teeesssstttttttt");
+                
+            }
+        })
+      )
+      .pipeTo(
+        Writable.toWeb(res)
+      )
+       
 
-        const pipeJsonStream = (filePath) => {
-            return fs.createReadStream(filePath)
-                .pipe(parser())
-                .pipe(streamArray());
-        };
 
-        // Start the response JSON
-        res.write('{"students":[');
+        // if (![stdPath, mrkPath, crsPath].every(fs.existsSync)) {
+        //     return res.status(404).json({ error: 'One or more files not found' });
+        // }
 
-        const studentStream = pipeJsonStream(stdPath);
-        console.log("first stream");
+        // res.setHeader('Content-Type', 'application/json');
+        // res.setHeader('Transfer-Encoding', 'chunked');
+
+        // const pipeJsonStream = (filePath) => {
+        //     return fs.createReadStream(filePath)
+        //         .pipe(parser())
+        //         .pipe(streamArray());
+        // };
+
+        // // Start the response JSON
+        // res.write('{"students":[');
+
+        // const studentStream = pipeJsonStream(stdPath);
+        // console.log("first stream");
         
-        let first = true;
+        // let first = true;
 
-        studentStream.on('data', ({ value }) => {
-            console.log(value);
+        // studentStream.on('data', ({ value }) => {
+        //   //  console.log(value);
             
-            if (!first) res.write(',');
-            first = false;
-            res.write(JSON.stringify(value));  // Write each student object as it comes in
-        });
+        //     if (!first) res.write(',');
+        //     first = false;
+        //     res.write(JSON.stringify(value));  // Write each student object as it comes in
+        // });
 
-        studentStream.on('end', () => {
-            res.write('],');
-            res.write('"marks":[');
-            console.log("********"+studentStream);
+        // studentStream.on('end', () => {
+        //     res.write('],');
+        //     res.write('"marks":[');
+        //     //console.log("********"+studentStream);
             
-            const marksStream = pipeJsonStream(mrkPath);
-            marksStream.on('data', ({ value }) => {
-                res.write(JSON.stringify(value)); // Write each marks object
-            });
+        //     const marksStream = pipeJsonStream(mrkPath);
+        //     marksStream.on('data', ({ value }) => {
+        //         res.write(JSON.stringify(value)); // Write each marks object
+        //     });
 
-            marksStream.on('end', () => {
-                res.write('],');
-                res.write('"courses":[');
-                console.log("********"+marksStream);
-                const coursesStream = pipeJsonStream(crsPath);
-                coursesStream.on('data', ({ value }) => {
-                    res.write(JSON.stringify(value)); // Write each course object
-                });
+        //     marksStream.on('end', () => {
+        //         res.write('],');
+        //         res.write('"courses":[');
+        //         //console.log("********"+marksStream);
+        //         const coursesStream = pipeJsonStream(crsPath);
+        //         coursesStream.on('data', ({ value }) => {
+        //             res.write(JSON.stringify(value)); // Write each course object
+        //         });
 
-                coursesStream.on('end', () => {
-                    res.write(']');  // End the courses array and the response
-                    res.end();
-                });
-            });
-        });
+        //         coursesStream.on('end', () => {
+        //             res.write(']');  // End the courses array and the response
+        //             res.end();
+        //         });
+        //     });
+        // });
 
-        studentStream.on('error', (err) => {
-            console.error('Error streaming students data:', err);
-            res.status(500).json({ error: 'Error streaming students data' });
-        });
+        // studentStream.on('error', (err) => {
+        //     console.error('Error streaming students data:', err);
+        //     res.status(500).json({ error: 'Error streaming students data' });
+        // });
 
     } catch (error) {
         console.error('Stream Error:', error);

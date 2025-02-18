@@ -289,6 +289,28 @@ async function writeJsonFile() {
 
 
 
+async function writeJsonFileServer() {
+
+
+    const URL = BACKENDURL + `/writeJsonDataServer`
+    try {
+
+        // await new Promise((resolve) => setTimeout(resolve, 500));
+        const response = await fetch(URL)
+        const result = await response.json();
+        console.log("in APIIIII)))   " + result);
+
+        return result
+
+    } catch (error) {
+        console.error("Fetch Error" + error)
+
+    }
+
+}
+
+
+
 // async function readStreamJsonFile() {
 
 
@@ -328,40 +350,57 @@ async function readStreamJsonFile() {
         const response = await fetch(URL);
         if (!response.body) throw new Error('ReadableStream not supported!');
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let partialJSON = '';  // Store incomplete JSON fragments
+        return response.body
+        // .pipeThrough(
+        //     new TextDecoderStream()
+        // )
+        // .pipeTo(
+        //     new WritableStream ({
+        //         write(chunk){
+        //             console.log('chunk' , chunk);
+        //         }
+        //     })
+        // )
+        // .pipeThrough(
+           
+        // )
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;  // End of stream
 
-            // Decode and accumulate chunks
-            partialJSON += decoder.decode(value, { stream: true });
 
-            try {
-                // Process valid JSON chunks line by line
-                let boundaryIndex;
-                while ((boundaryIndex = partialJSON.indexOf("\n")) !== -1) {
-                    const chunk = partialJSON.slice(0, boundaryIndex).trim(); // Get one JSON object
-                    partialJSON = partialJSON.slice(boundaryIndex + 1); // Remove processed chunk
+        // const reader = response.body.getReader();
+        // const decoder = new TextDecoder();
+        // let partialJSON = '';  // Store incomplete JSON fragments
 
-                    if (chunk) {
-                        try {
-                            const jsonChunk = JSON.parse(chunk);
-                            console.log('Processed JSON Chunk:', jsonChunk);
-                            // Process each chunk separately instead of storing everything
-                        } catch (parseError) {
-                            console.error('JSON Parse Error:', parseError);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error processing JSON chunk:', error);
-            }
-        }
+        // while (true) {
+        //     const { done, value } = await reader.read();
+        //     if (done) break;  // End of stream
 
-        return "Processing in progress"; // JSON is processed in chunks
+        //     // Decode and accumulate chunks
+        //     partialJSON += decoder.decode(value, { stream: true });
+
+        //     try {
+        //         // Process valid JSON chunks line by line
+        //         let boundaryIndex;
+        //         while ((boundaryIndex = partialJSON.indexOf("\n")) !== -1) {
+        //             const chunk = partialJSON.slice(0, boundaryIndex).trim(); // Get one JSON object
+        //             partialJSON = partialJSON.slice(boundaryIndex + 1); // Remove processed chunk
+
+        //             if (chunk) {
+        //                 try {
+        //                     const jsonChunk = JSON.parse(chunk);
+        //                     console.log('Processed JSON Chunk:', jsonChunk);
+        //                     // Process each chunk separately instead of storing everything
+        //                 } catch (parseError) {
+        //                     console.error('JSON Parse Error:', parseError);
+        //                 }
+        //             }
+        //         }
+            // } catch (error) {
+            //     console.error('Error processing JSON chunk:', error);
+            // }
+        // }
+
+        // return "Processing in progress"; // JSON is processed in chunks
     } catch (error) {
         console.error("Fetch Error: " + error);
     }
@@ -475,7 +514,7 @@ async function streamJSONToDuckDB(dbConnection) {
 // }
 
 
-async function allJsonFile() {
+async function allPagedJsonFile() {
 
     let allStudents = []
     let allMarks = []
@@ -483,15 +522,17 @@ async function allJsonFile() {
     let page = 1
     const limit = 5000000
 
-    // const URL = BACKENDURL + `/allJsonData`
+    // const URL = BACKENDURL + `/allPagedJsonData`
     try {
 
         // return await fetch(URL)
         //     .then(response => response.json())
+           
+            
 
         while (true) {
 
-            const response = await fetch(BACKENDURL + `/allJsonData?page=${page}&limit=${limit}`);
+            const response = await fetch(BACKENDURL + `/allPagedJsonData?page=${page}&limit=${limit}`);
 
             if (!response.ok) {
                 throw new Error(`API request failed with status ${response.status}`);
@@ -560,8 +601,8 @@ async function getJsonAttended() {
 
 
 export {
-    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile, getJsonFulleMark, getJsonAttended,
-    getStudentCourseMark, getFulleMark, getAttendedStudents, insertstd, insertCourse, insertMarks, getsearch, getQueryJsonData, allJsonFile, streamJSONToDuckDB
+    getDuckDBStd, getDuckDBCourses, getDuckDBMarks, getFilteredStdCourseMark, writeJsonFile, readStreamJsonFile, getJsonFulleMark, getJsonAttended,writeJsonFileServer,
+    getStudentCourseMark, getFulleMark, getAttendedStudents, insertstd, insertCourse, insertMarks, getsearch, getQueryJsonData, allPagedJsonFile, streamJSONToDuckDB
 };
 
 

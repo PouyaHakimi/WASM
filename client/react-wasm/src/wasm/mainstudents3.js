@@ -2,8 +2,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable  no-restricted-globals */
 /* eslint-disable import/no-amd */
-
-
 var Module = (() => {
   var _scriptName = typeof document != 'undefined' ? document.currentScript?.src : undefined;
   if (typeof __filename != 'undefined') _scriptName = _scriptName || __filename;
