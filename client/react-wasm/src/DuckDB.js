@@ -618,8 +618,9 @@ export async function jsonStreamDataDuckDB({ query }) {
    
     const wasmMemory =new WebAssembly.Memory({
         initial: 256,  // 16 MB
-        maximum: 2048, // 128 MB
+        maximum: 32768, // 2 GB
     })
+    console.log(WebAssembly.Memory.maximum);
     const memoryLimit = 1024 * 1024 * 1024
     try {
         await allPagedJsonFile()
