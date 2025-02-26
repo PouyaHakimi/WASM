@@ -51,10 +51,10 @@ export async function memoryJsonData({query}) {
 
 }
 
-export async function memoryJsonStreamData({query}) {
+export async function memoryJsonStreamData({query,counter}) {
    
     
-    const data = await jsonStreamDataDuckDB({query})
+    const data = await jsonStreamDataDuckDB({query,counter})
     console.log(data);
     
     
@@ -263,10 +263,10 @@ export async function memoryFullMarkData({query}) {
 
 }
 
-export async function memoryJsonStreamComplexQuery({query}) {
+export async function memoryJsonStreamComplexQuery({query,complexCounter}) {
 
    
-    const mainData = await jsonStreamComplexQueryDuckDB({query})
+    const mainData = await jsonStreamComplexQueryDuckDB({query,complexCounter})
    
     const module = await createMainModule();
    

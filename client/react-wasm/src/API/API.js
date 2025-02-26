@@ -111,6 +111,7 @@ async function getStudentCourseMark({ search }) {
     try {
         const URL = BACKENDURL + `/studentCourseMark?q=${search}`
         const response = (await fetch(URL)).json()
+        
         console.log(response + "in API");
         return response
     } catch (error) {
@@ -345,6 +346,7 @@ async function writeJsonFileServer() {
 async function readStreamJsonFile() {
     const URL = BACKENDURL + `/streamData`;
 
+let allstd = []
 
     try {
         const response = await fetch(URL);
@@ -358,6 +360,9 @@ async function readStreamJsonFile() {
         //     new WritableStream ({
         //         write(chunk){
         //             console.log('chunk' , chunk);
+
+                  
+                    
         //         }
         //     })
         // )

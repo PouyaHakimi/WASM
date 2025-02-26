@@ -3,6 +3,7 @@ import { allPagedJsonFile, getFilteredStdCourseMark, getQueryJsonData, readStrea
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { faker, Faker, it, ro } from '@faker-js/faker';
 import { fetchJsonData } from "./data/fetchAllJson";
+import { memoryAllJsonData } from "./wasm/memoryAllData";
 
 
 
@@ -606,7 +607,7 @@ async function insertDataInBatches(db, tableName, data, batchSize = 1000000) {
 }
 
 
-export async function jsonStreamDataDuckDB({ query }) {
+export async function jsonStreamDataDuckDB({ query,counter }) {
 
    
     let students
@@ -615,6 +616,7 @@ export async function jsonStreamDataDuckDB({ query }) {
     let limit = 3000000
     let stdpage = 0
     let mrkpage = 0
+  
    
     const wasmMemory =new WebAssembly.Memory({
         initial: 256,  // 16 MB
@@ -623,20 +625,9 @@ export async function jsonStreamDataDuckDB({ query }) {
     console.log(WebAssembly.Memory.maximum);
     const memoryLimit = 1024 * 1024 * 1024
     try {
-        await allPagedJsonFile()
-            .then(async data => {
-                students = data.students.filter(student=>student.id >=1 && student.id<=7000000)
-                courses = data.courses
-                marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <=7000000)
-
-
-
-                console.log(students);
-                console.log(marks);
-                console.log(courses);
-
-            })
-
+      
+      
+        
         query = query.replace(/studentsData/g, 'students')
             .replace(/marksData/g, 'marks')
             .replace(/coursesData/g, 'courses');
@@ -665,6 +656,40 @@ export async function jsonStreamDataDuckDB({ query }) {
 
         console.log("Database connection established");
 
+        console.log(counter +"  counteeeeeerrrrr");
+       
+        
+        // if(counter) {
+            console.log("iiiiiinnnnnssssiiiiidddeeeee");
+            
+        // await allPagedJsonFile()
+        //     .then(async data => {
+        //         students = data.students.filter(student=>student.id >=1 && student.id<=7000000)
+        //         courses = data.courses
+        //         marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <=7000000)
+
+
+
+        //         console.log(students);
+        //         console.log(marks);
+        //         console.log(courses);
+
+        //     })
+
+            await memoryAllJsonData({query,counter})
+            .then(async data =>{
+                students = data.stdproceeddata
+                courses = data.crsProceeddata
+                marks = data.mrkProceeddata
+
+                console.log(students);
+                console.log(marks);
+                console.log(courses);
+
+            })
+      
+            
+        
 
 
         await c.query(`
@@ -738,9 +763,9 @@ export async function jsonStreamDataDuckDB({ query }) {
             
            
 
-    //        await c.query(
-    //     `INSERT OR IGNORE INTO marks (id,sid,cid,marks) SELECT id,sid,cid,marks FROM read_json_auto('marks') LIMIT ${limit} OFFSET ${offset}`
-    // );
+           await c.query(
+        `INSERT OR IGNORE INTO marks (id,sid,cid,marks) SELECT id,sid,cid,marks FROM read_json_auto('marks') LIMIT ${limit} OFFSET ${offset}`
+    );
 
     await c.query(`
     INSERT OR IGNORE INTO marks (id, sid, cid, marks)
@@ -765,7 +790,19 @@ export async function jsonStreamDataDuckDB({ query }) {
     
         }
 
-       
+    // }
+
+    console.log("ooooooouuuuuttttt");
+
+    const tables = await c.query("SHOW TABLES;");
+    const tableNames = tables.toArray().map(row => row.name);
+
+    if (!tableNames.includes("marks")) {
+    console.error("Table 'marks' does not exist! Recreating...");
+    // Recreate tables or load data
+        }
+
+
         let jsonQuery;
         let result;
 
@@ -806,7 +843,7 @@ export async function jsonStreamDataDuckDB({ query }) {
                 Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
             )
         );
-        await c.close()
+        //await c.close()
         console.log(convertedBigIntResult);
 
         return convertedBigIntResult
@@ -1091,7 +1128,7 @@ export async function jsonStreamStdMarkDataDuckDB({ query }) {
 }
 
 
-export async function jsonStreamComplexQueryDuckDB({ query }) {
+export async function jsonStreamComplexQueryDuckDB({ query ,complexCounter}) {
 
     let students
     let marks
@@ -1100,6 +1137,7 @@ export async function jsonStreamComplexQueryDuckDB({ query }) {
 
     try {
 
+        if(complexCounter == 0){
         await allPagedJsonFile()
             .then(data => {
                 students = data.students
@@ -1110,7 +1148,7 @@ export async function jsonStreamComplexQueryDuckDB({ query }) {
                 console.log(marks);
                 console.log(courses);
             })
-
+        }
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
 

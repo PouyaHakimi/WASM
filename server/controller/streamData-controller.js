@@ -14,6 +14,8 @@ exports.getStreamDataController = async (req, res) => {
         const mrkPath = path.join(__dirname, '..', 'data', 'marks.json');
         const crsPath = path.join(__dirname, '..', 'data', 'courses.json');
 
+        console.log("+++++++++"+stdPath);
+        
       const {size} = await stat(stdPath)
       console.log(size);
 

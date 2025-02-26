@@ -71,9 +71,9 @@ exports.writeInServerJsonDataController = async (req, res) => {
     // console.log(stdPathFront);
     
 
-    const stdQuery = `select * from student`
+    const stdQuery = `select * from student order by id asc`
     const crsQuery = `select * from courses`
-    const mrkQuery = `select * from marks`
+    const mrkQuery = `select * from marks order by sid asc`
 
     try {
         const std = await sequelize.query(stdQuery, { type: sequelize.QueryTypes.SELECT })

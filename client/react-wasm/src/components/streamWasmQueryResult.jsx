@@ -14,6 +14,7 @@ import AlertTitle from '@mui/material/AlertTitle';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import { memoryJsonStreamComplexQuery, memoryJsonStreamData } from '../wasm/memoryData';
+import { memoryAllJsonData } from '../wasm/memoryAllData';
 
 
 function renderRow({ index, style, data }) {
@@ -35,8 +36,11 @@ function StreamWasmQueryResult({ query, setQuery}) {
       const [alert,setAlert]=useState(null)
       const [message ,setMessage] = useState(false)
       const [complexQuery,setComplexQuery] = useState(false)
-      
+      const [counter , setCounter] = useState(true)
+      const [complexCounter , setComplexCounter] = useState(true)
     
+   
+
     const handleChange = (event) => {
         setQuery(event.target.value);
     };
@@ -48,9 +52,9 @@ function StreamWasmQueryResult({ query, setQuery}) {
             
         
         const speed1 = performance.now() // give us time in ms
-        const data = await memoryJsonStreamData({query}) // to check the outcome
-       
-
+      //  const data = await memoryJsonStreamData({query,counter}) // to check the outcome
+        const data = await jsonStreamDataDuckDB({query,counter})
+      // const data = await memoryAllJsonData({query,counter}) 
         setQueryResult(data || []);
         if(data.error){
             setAlert(data.message)
@@ -71,7 +75,9 @@ function StreamWasmQueryResult({ query, setQuery}) {
         const speed1 = performance.now() // give us time in ms
         // const dataDB = await jsonStreamDataDuckDB({query}) // to check the outcome
         // const data = dataDB.convertedBigIntResult
-        const data = await memoryJsonStreamData({query})
+       // const data = await memoryJsonStreamData({query,counter})
+        const data = await jsonStreamDataDuckDB({query,counter})
+        //const data = await memoryAllJsonData({query,counter}) 
         
         setQueryResult(data || []);
         if(data.error){
@@ -98,7 +104,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
             if (!query) {
     
                 const speed1 = performance.now() // give us time in ms
-                const data = await memoryJsonStreamComplexQuery({ query })
+                const data = await memoryJsonStreamComplexQuery({ query,complexCounter })
     
     
                 setQueryResult(data || []);
@@ -121,7 +127,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
     
                 const speed1 = performance.now() // give us time in ms
                 //const data = await jsonDataDuckDB({query})
-                const data = await memoryJsonStreamComplexQuery({ query })
+                const data = await memoryJsonStreamComplexQuery({ query,complexCounter })
     
     
                 setQueryResult(data || []);
@@ -162,15 +168,19 @@ function StreamWasmQueryResult({ query, setQuery}) {
            
             <Grid container spacing={2}>
                    <Grid item>
-                         <Button variant="contained" color="success" onClick={handleClick}>
+                         <Button variant="contained" color="success" onClick={async()=>{
+                            await handleClick();
+                            setCounter(false)
+                            }}>
                              Execute Query
                          </Button>
                     </Grid>
 
                     <Grid item>
                     <Button variant="contained" color="success" onClick={() => {
-                        handleComplexClick()
-                        setComplexQuery(true);
+                        handleComplexClick();
+                        setComplexQuery(false);
+                         
 
                     }}>
                         Execute Complex Query
@@ -210,7 +220,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
             <br/>
             <br/>
             
-           {(!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>)}
+           {/* {(!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>)} */}
          
         </div>
     );
