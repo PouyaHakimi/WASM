@@ -591,122 +591,134 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 // }
 
 
-async function insertDataInBatches(db, tableName, data, batchSize = 1000000) {
-    const c = await db.connect();
+function getJsonSize(jsonData) {
+    let jsonString = JSON.stringify(jsonData);
+    let sizeInBytes = new TextEncoder().encode(jsonString).length;
+    let sizeInMB = sizeInBytes / (1024 * 1024);
+    console.log(`JSON Data Size: ${sizeInMB.toFixed(2)} MB`);
+    return sizeInMB;
+}
 
-    for (let i = 0; i < data.length; i += batchSize) {
-        const batch = data.slice(i, i + batchSize);
-        await c.query(`
-            INSERT INTO ${tableName} 
-            SELECT * FROM read_json_auto($1)
-        `, [JSON.stringify(batch)]);
-        console.log(`✅ Inserted ${i + batchSize} records into ${tableName}`);
+async function registerLargeJsonFile(db, name, data, chunkSize = 8000000) {
+    let chunks = [];
+    for (let i = 0; i < data.length; i += chunkSize) {
+        chunks.push(data.slice(i, i + chunkSize));
     }
 
-    await c.close();
+    for (let i = 0; i < chunks.length; i++) {
+        let fileName = `${name}_${i}`;
+        console.log(`Registering file: ${fileName}`);
+        await db.registerFileText(fileName, JSON.stringify(chunks[i]));
+    }
 }
 
 
-export async function jsonStreamDataDuckDB({ query,counter }) {
+let db = null
+let isDataLoaded = false
 
-   
+export async function jsonStreamDataDuckDB({ query, counter }) {
+
+
     let students
     let marks
     let courses
     let limit = 3000000
     let stdpage = 0
     let mrkpage = 0
-  
-   
-    const wasmMemory =new WebAssembly.Memory({
-        initial: 256,  // 16 MB
+
+
+    const wasmMemory = new WebAssembly.Memory({
+        initial: 512,  // 32 MB
         maximum: 32768, // 2 GB
+        shared:true
     })
-    console.log(WebAssembly.Memory.maximum);
+    // console.log(WebAssembly.Memory.maximum);
+    console.log(wasmMemory);
     const memoryLimit = 1024 * 1024 * 1024
     try {
-      
-      
-        
+
+
+
         query = query.replace(/studentsData/g, 'students')
             .replace(/marksData/g, 'marks')
             .replace(/coursesData/g, 'courses');
 
+        if (!db) {
+
+            const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+
+            const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
 
 
-        const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+            const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
 
-        const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
-
-
-        const worker = await duckdb.createWorker(bundle.mainWorker);// The worker was correctly instantiated as an actual Worker object.
-
-        const logger = new duckdb.ConsoleLogger();
+            const logger = new duckdb.ConsoleLogger();
 
 
-        const db = new duckdb.AsyncDuckDB(logger, worker, { wasmMemory:wasmMemory });
+            db = new duckdb.AsyncDuckDB(logger, worker, { wasmMemory: wasmMemory });
 
 
-        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+            await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
-        console.log("DuckDB initialized successfully!");
-
+            console.log("DuckDB initialized successfully!");
+        }
 
         const c = await db.connect()
 
         console.log("Database connection established");
 
-        console.log(counter +"  counteeeeeerrrrr");
-       
-        
-        // if(counter) {
+        console.log(counter + "  counteeeeeerrrrr");
+
+
+        if (counter && !isDataLoaded) {
             console.log("iiiiiinnnnnssssiiiiidddeeeee");
-            
-        // await allPagedJsonFile()
-        //     .then(async data => {
-        //         students = data.students.filter(student=>student.id >=1 && student.id<=7000000)
-        //         courses = data.courses
-        //         marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <=7000000)
+
+            // await allPagedJsonFile()
+            //     .then(async data => {
+            //         students = data.students.filter(student=>student.id >=1 && student.id<=7000000)
+            //         courses = data.courses
+            //         marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <=7000000)
 
 
 
-        //         console.log(students);
-        //         console.log(marks);
-        //         console.log(courses);
+            //         console.log(students);
+            //         console.log(marks);
+            //         console.log(courses);
 
-        //     })
+            //     })
 
-            await memoryAllJsonData({query,counter})
-            .then(async data =>{
-                students = data.stdproceeddata
-                courses = data.crsProceeddata
-                marks = data.mrkProceeddata
+            await memoryAllJsonData({ query, counter })
+                .then(async data => {
+                    students = data.stdproceeddata
+                    courses = data.crsProceeddata
+                    marks = data.mrkProceeddata
 
-                console.log(students);
-                console.log(marks);
-                console.log(courses);
+                    console.log(students);
+                    console.log(marks);
+                    console.log(courses);
+                   
 
-            })
-      
-            
-        
+                })
 
 
-        await c.query(`
+
+
+
+            await c.query(`
             CREATE TABLE students (
                 id INTEGER PRIMARY KEY,
                 sname TEXT,
                 age INTEGER
             );
         `);
-        await c.query(`
+            await c.query(`
             CREATE TABLE courses(
                cid INTEGER PRIMARY KEY,
                cname TEXT,
                credits INTEGER
             );
         `);
-        await c.query(`
+            await c.query(`
             CREATE TABLE marks(
                 id INTEGER PRIMARY KEY,
                 sid INTEGER NOT NULL,
@@ -719,113 +731,116 @@ export async function jsonStreamDataDuckDB({ query,counter }) {
          `)
 
 
-        console.log("Table created");
+            console.log("Table created");
 
-        await db.registerFileText('students', JSON.stringify(students));
-        await db.registerFileText('marks', JSON.stringify(marks));
-        await db.registerFileText('courses', JSON.stringify(courses));
+            // await db.registerFileText('students', JSON.stringify(students));
+            // await db.registerFileText('marks', JSON.stringify(marks));
+            // await db.registerFileText('courses', JSON.stringify(courses));
 
-        while(true){
-            console.log(stdpage);
-            let offset =stdpage*limit
+            await registerLargeJsonFile(db, 'students', students);
+            await registerLargeJsonFile(db, 'marks', marks);
+            await registerLargeJsonFile(db, 'courses', courses);
 
-           await c.query(
-        `INSERT OR IGNORE INTO students (id, sname, age)  SELECT id, sname, age FROM read_json_auto('students') LIMIT ${limit} OFFSET ${offset}`
-    );
+            while (true) {
+                console.log(stdpage);
+                let offset = stdpage * limit
 
-    // Fetch the inserted data to check if there were any new rows
-    const result = await c.query(
-        `SELECT COUNT(*) as count FROM read_json_auto('students') LIMIT ${limit} OFFSET ${offset}`
-    );
+                await c.query(
+                    `INSERT OR IGNORE INTO students (id, sname, age)  SELECT id, sname, age FROM read_json_auto('students_*') LIMIT ${limit} OFFSET ${offset}`
+                );
 
-    console.log(result);
-    console.log(result.length);
-    // If no more rows are being inserted, break the loop
-    if (result.numRows === 0) break; // Stop pagination when no more data
+                // Fetch the inserted data to check if there were any new rows
+                const result = await c.query(
+                    `SELECT COUNT(*) as count FROM read_json_auto('students_*') LIMIT ${limit} OFFSET ${offset}`
+                );
 
-        stdpage ++    
-    
+                console.log(result);
+                console.log(result.length);
+                // If no more rows are being inserted, break the loop
+                if (result.numRows === 0) break; // Stop pagination when no more data
+
+                stdpage++
+
+            }
+
+
+
+            await c.query(
+                `INSERT OR IGNORE INTO courses (cid,cname,credits) SELECT cid,cname,credits FROM read_json_auto('courses_*')`
+            );
+
+
+
+
+
+            while (true) {
+
+                let offset = mrkpage * limit
+
+
+
+                await c.query(
+                    `INSERT OR IGNORE INTO marks (id,sid,cid,marks) SELECT id,sid,cid,marks FROM read_json_auto('marks_*') LIMIT ${limit} OFFSET ${offset}`
+                );
+
+//                 await c.query(`
+//     INSERT OR IGNORE INTO marks (id, sid, cid, marks)
+//     SELECT id, sid, cid, marks 
+//     FROM read_json_auto('marks_*') 
+//     WHERE sid IN (SELECT id FROM students) 
+//     AND cid IN (SELECT cid FROM courses) 
+//     LIMIT ${limit} OFFSET ${offset}
+// `);
+
+
+
+                // Fetch the inserted data to check if there were any new rows
+                const result = await c.query(
+                    `SELECT COUNT(*) as count FROM read_json_auto('marks_*') LIMIT ${limit} OFFSET ${offset}`
+                );
+
+                // If no more rows are being inserted, break the loop
+                if (result.numRows === 0) break; // Stop pagination when no more data
+
+                mrkpage++
+
+            }
+            isDataLoaded = true
         }
 
+        console.log("ooooooouuuuuttttt");
 
 
-        await c.query(
-            `INSERT OR IGNORE INTO courses (cid,cname,credits) SELECT cid,cname,credits FROM read_json_auto('courses')`
-        );
-
-
-
-
-
-        while(true){
-          
-            let offset =mrkpage*limit
-            
-           
-
-           await c.query(
-        `INSERT OR IGNORE INTO marks (id,sid,cid,marks) SELECT id,sid,cid,marks FROM read_json_auto('marks') LIMIT ${limit} OFFSET ${offset}`
-    );
-
-    await c.query(`
-    INSERT OR IGNORE INTO marks (id, sid, cid, marks)
-    SELECT id, sid, cid, marks 
-    FROM read_json_auto('marks') 
-    WHERE sid IN (SELECT id FROM students) 
-    AND cid IN (SELECT cid FROM courses) 
-    LIMIT ${limit} OFFSET ${offset}
-`);
-
-
-         
-    // Fetch the inserted data to check if there were any new rows
-    const result = await c.query(
-        `SELECT COUNT(*) as count FROM read_json_auto('marks') LIMIT ${limit} OFFSET ${offset}`
-    );
-
-    // If no more rows are being inserted, break the loop
-    if (result.numRows === 0) break; // Stop pagination when no more data
-
-           mrkpage ++    
-    
-        }
-
-    // }
-
-    console.log("ooooooouuuuuttttt");
-
-    const tables = await c.query("SHOW TABLES;");
-    const tableNames = tables.toArray().map(row => row.name);
-
-    if (!tableNames.includes("marks")) {
-    console.error("Table 'marks' does not exist! Recreating...");
-    // Recreate tables or load data
-        }
 
 
         let jsonQuery;
-        let result;
-
+        let result;  
+        let resultArray 
 
         if (!query) {
 
             // Register JSON files as virtual tables instead of fully creating them
 
+        console.log("in not query conditiooooonnnnn **********  ");
+        
+   
+            // jsonQuery = `
+            // SELECT s.id, s.sname, c.cname , r.marks
+            // FROM marks r
+            // JOIN Students s ON r.sid = s.id
+            // JOIN Courses c ON r.cid = c.cid
+            // ORDER BY s.sname
+            // `
+            jsonQuery = ` SELECT * from courses`
 
-            jsonQuery = `
-            SELECT s.id, s.sname, c.cname , r.marks
-            FROM marks r
-            JOIN Students s ON r.sid = s.id
-            JOIN Courses c ON r.cid = c.cid
-            ORDER BY s.sname;
-            `
-            
-            result = await c.query(`${jsonQuery}`)
+            console.log("in looooooppppppp *****");
+            result= await c.query(`${jsonQuery}`)
+              
 
 
         } else {
 
-            
+
 
             jsonQuery = query  // Use double quotes for paths;  // Use provided query
             result = await c.query(`${jsonQuery}`)
@@ -833,8 +848,9 @@ export async function jsonStreamDataDuckDB({ query,counter }) {
 
         }
 
+        
 
-        const resultArray = result.toArray().map(row => ({ ...row }))
+        resultArray = result.toArray().map(row => ({ ...row }))
         console.log("***********" + resultArray);
 
 
@@ -882,17 +898,17 @@ export async function jsonStreamDataDuckDB2({ query }) {
                     }
                 })
             )
-            const jsonData = jsonChunks.join(''); // Merge all chunks
-            const parsedData = JSON.parse(`[${jsonData.replace(/}\s*{/g, '},{')}]`); 
+        const jsonData = jsonChunks.join(''); // Merge all chunks
+        const parsedData = JSON.parse(`[${jsonData.replace(/}\s*{/g, '},{')}]`);
 
-            // Extract and filter the correct JSON objects
-            students = parsedData.filter(item => item.id !== undefined); 
-            //students =parsedData.filter(item =>item.id)
-            // students =parsedData.filter(item =>item.sname)
-            console.log("Students:", parsedData);
+        // Extract and filter the correct JSON objects
+        students = parsedData.filter(item => item.id !== undefined);
+        //students =parsedData.filter(item =>item.id)
+        // students =parsedData.filter(item =>item.sname)
+        console.log("Students:", parsedData);
 
-   
-   
+
+
         query = query.replace(/studentsData/g, 'students')
             .replace(/marksData/g, 'marks')
             .replace(/coursesData/g, 'courses');
@@ -922,7 +938,7 @@ export async function jsonStreamDataDuckDB2({ query }) {
         console.log("Database connection established");
 
         //stream into DuckDB*******
-         await db.registerFileText('students', JSON.stringify(parsedData));
+        await db.registerFileText('students', JSON.stringify(parsedData));
 
         //paged data to duckDB******
 
@@ -953,7 +969,7 @@ export async function jsonStreamDataDuckDB2({ query }) {
 
         if (!query) {
 
-         
+
             jsonQuery = `
             SELECT * from students
             `
@@ -1128,7 +1144,7 @@ export async function jsonStreamStdMarkDataDuckDB({ query }) {
 }
 
 
-export async function jsonStreamComplexQueryDuckDB({ query ,complexCounter}) {
+export async function jsonStreamComplexQueryDuckDB({ query, complexCounter }) {
 
     let students
     let marks
@@ -1137,17 +1153,17 @@ export async function jsonStreamComplexQueryDuckDB({ query ,complexCounter}) {
 
     try {
 
-        if(complexCounter == 0){
-        await allPagedJsonFile()
-            .then(data => {
-                students = data.students
-                courses = data.courses
-                marks = data.marks
+        if (complexCounter == 0) {
+            await allPagedJsonFile()
+                .then(data => {
+                    students = data.students
+                    courses = data.courses
+                    marks = data.marks
 
-                console.log(students);
-                console.log(marks);
-                console.log(courses);
-            })
+                    console.log(students);
+                    console.log(marks);
+                    console.log(courses);
+                })
         }
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();

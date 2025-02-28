@@ -5,6 +5,7 @@ const duckdb = require('duckdb');
 const { rejects } = require('assert');
 const { error } = require('console');
 const db = new duckdb.Database(':memory:')
+const { stat } =require('node:fs/promises')
 
 
 exports.getAllPagedJsonController = async (req, res) => {
@@ -13,6 +14,8 @@ exports.getAllPagedJsonController = async (req, res) => {
     const stdPath = path.join(__dirname, '..', 'data', 'students.json');
     const mrkPath = path.join(__dirname, '..', 'data', 'marks.json');
     const crsPath = path.join(__dirname, '..', 'data', 'courses.json');
+
+    
     
     const page =parseInt(req.query.page) || 1
     const limit =parseInt(req.query.limit)||1000000
