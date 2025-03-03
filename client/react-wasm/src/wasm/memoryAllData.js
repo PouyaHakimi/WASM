@@ -9,9 +9,9 @@ export async function memoryAllJsonData({ query }) {
 
          await allPagedJsonFile({ query })
         .then(async data => {
-            students = data.students.filter(student => student.id >= 1 && student.id <= 12000000)
+            students = data.students.filter(student => student.id >= 1 && student.id <= 10000000)
             courses = data.courses
-            marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <= 12000000) 
+            marks = data.marks.filter(mark => mark.sid >= 1 && mark.sid <= 10000000) 
 
         })
    

@@ -15,6 +15,8 @@ import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import { memoryJsonStreamComplexQuery, memoryJsonStreamData } from '../wasm/memoryData';
 import { memoryAllJsonData } from '../wasm/memoryAllData';
+import StudentCourseMarkTable from './StudentCourseMarkTable';
+import QueryTable from './QueryTable';
 
 
 function renderRow({ index, style, data }) {
@@ -29,7 +31,7 @@ function renderRow({ index, style, data }) {
     );
 }
  
-function StreamWasmQueryResult({ query, setQuery}) {
+function StreamWasmQueryResult({ query, setQuery , search ,...props}) {
       const [queryResult, setQueryResult] = useState([]);  // Store API response data
       const [speed, setSpeed] = useState(null)
       const [maxSpeed, setMaxSpeed] = useState(null)
@@ -39,7 +41,7 @@ function StreamWasmQueryResult({ query, setQuery}) {
       const [counter , setCounter] = useState(true)
       const [complexCounter , setComplexCounter] = useState(true)
     
-   
+   console.log("in streamwasm" + search);
 
     const handleChange = (event) => {
         setQuery(event.target.value);
@@ -204,6 +206,12 @@ function StreamWasmQueryResult({ query, setQuery}) {
                         Your query works successfuly!
                 </Alert>)}
             <SpeedTest speed={speed} maxSpeed={maxSpeed} />
+
+            {(<QueryTable queryResult={queryResult} 
+           search={search}  
+           stdCourseMark={props.stdCourseMark}
+           setStdCourseMark={props.setStdCourseMark}
+           />)}
             
             <Box sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
                 <FixedSizeList
@@ -221,6 +229,8 @@ function StreamWasmQueryResult({ query, setQuery}) {
             <br/>
             
            {/* {(!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>)} */}
+
+          
          
         </div>
     );

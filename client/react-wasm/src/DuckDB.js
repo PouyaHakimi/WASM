@@ -622,7 +622,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
     let students
     let marks
     let courses
-    let limit = 3000000
+    let limit = 6000000
     let stdpage = 0
     let mrkpage = 0
 
@@ -630,7 +630,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
     const wasmMemory = new WebAssembly.Memory({
         initial: 512,  // 32 MB
         maximum: 32768, // 2 GB
-        shared:true
+        shared: true
     })
     // console.log(WebAssembly.Memory.maximum);
     console.log(wasmMemory);
@@ -696,7 +696,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                     console.log(students);
                     console.log(marks);
                     console.log(courses);
-                   
+
 
                 })
 
@@ -751,17 +751,18 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
 
                 // Fetch the inserted data to check if there were any new rows
                 const result = await c.query(
-                    `SELECT COUNT(*) as count FROM read_json_auto('students_*') LIMIT ${limit} OFFSET ${offset}`
+                    `SELECT * from students LIMIT ${limit} OFFSET ${offset}`
                 );
-
-                console.log(result);
-                console.log(result.length);
+                const resultArray = result.toArray().map(item => ({ ...item }))
+                console.log(resultArray);
+                console.log(resultArray.length);
                 // If no more rows are being inserted, break the loop
-                if (result.numRows === 0) break; // Stop pagination when no more data
+                if (resultArray.length === 0) break; // Stop pagination when no more data
 
                 stdpage++
 
             }
+
 
 
 
@@ -783,24 +784,25 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                     `INSERT OR IGNORE INTO marks (id,sid,cid,marks) SELECT id,sid,cid,marks FROM read_json_auto('marks_*') LIMIT ${limit} OFFSET ${offset}`
                 );
 
-//                 await c.query(`
-//     INSERT OR IGNORE INTO marks (id, sid, cid, marks)
-//     SELECT id, sid, cid, marks 
-//     FROM read_json_auto('marks_*') 
-//     WHERE sid IN (SELECT id FROM students) 
-//     AND cid IN (SELECT cid FROM courses) 
-//     LIMIT ${limit} OFFSET ${offset}
-// `);
+                //                 await c.query(`
+                //     INSERT OR IGNORE INTO marks (id, sid, cid, marks)
+                //     SELECT id, sid, cid, marks 
+                //     FROM read_json_auto('marks_*') 
+                //     WHERE sid IN (SELECT id FROM students) 
+                //     AND cid IN (SELECT cid FROM courses) 
+                //     LIMIT ${limit} OFFSET ${offset}
+                // `);
 
 
 
-                // Fetch the inserted data to check if there were any new rows
                 const result = await c.query(
-                    `SELECT COUNT(*) as count FROM read_json_auto('marks_*') LIMIT ${limit} OFFSET ${offset}`
+                    `SELECT * from students LIMIT ${limit} OFFSET ${offset}`
                 );
-
+                const resultArray = result.toArray().map(item => ({ ...item }))
+                console.log(resultArray);
+                console.log(resultArray.length);
                 // If no more rows are being inserted, break the loop
-                if (result.numRows === 0) break; // Stop pagination when no more data
+                if (resultArray.length === 0) break;
 
                 mrkpage++
 
@@ -814,16 +816,16 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
 
 
         let jsonQuery;
-        let result;  
-        let resultArray 
+        let result;
+        let resultArray
 
         if (!query) {
 
             // Register JSON files as virtual tables instead of fully creating them
 
-        console.log("in not query conditiooooonnnnn **********  ");
-        
-   
+            console.log("in not query conditiooooonnnnn **********  ");
+
+
             // jsonQuery = `
             // SELECT s.id, s.sname, c.cname , r.marks
             // FROM marks r
@@ -831,11 +833,10 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
             // JOIN Courses c ON r.cid = c.cid
             // ORDER BY s.sname
             // `
-            jsonQuery = ` SELECT * from courses`
+            jsonQuery = ` SELECT * from students`
 
             console.log("in looooooppppppp *****");
-            result= await c.query(`${jsonQuery}`)
-              
+            result = await c.query(`${jsonQuery}`)
 
 
         } else {
@@ -848,7 +849,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
 
         }
 
-        
+
 
         resultArray = result.toArray().map(row => ({ ...row }))
         console.log("***********" + resultArray);
@@ -859,9 +860,11 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                 Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
             )
         );
-        //await c.close()
+        result=[]; 
+        resultArray = []
+        await c.close()
         console.log(convertedBigIntResult);
-
+        console.log(convertedBigIntResult.length);
         return convertedBigIntResult
         // })
 

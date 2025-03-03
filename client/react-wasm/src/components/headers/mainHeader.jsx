@@ -125,8 +125,8 @@ function mainHeader(props) {
 const insertFakeData = async () => {
     try {
   
-      const datarangeMin = 11000001
-      const datarangeMax = 12000000
+      const datarangeMin = 12000001
+      const datarangeMax = 13000000
       let students = []
       let courses = []
       let marks = []

@@ -7,10 +7,10 @@ import Stack from '@mui/material/Stack';
 function PaginationRecords({ data, setVisibleData,setStartIndex }) {
 
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 100;
+    const pageSize = 10;
 
     //pagination
-    const totalPages = Math.ceil(data.length / pageSize);
+    const totalPages = data ? Math.ceil(data.length / pageSize):[];
 
     const handlePageChange = (event, value) => {
         setCurrentPage(value); // Update the current page

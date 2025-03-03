@@ -324,7 +324,12 @@ export default function DashboardLayoutBasic(props) {
                     {router.pathname === '/WASM-Stream-DuckDB-Json' && <div>API-Server Data Overview</div>}
                     {router.pathname === '/WASM-Stream-DuckDB-Json/WASM-Stream-DuckDB-Json' && (
 
-                        <StreamWasmQueryResult query={props.query} setQuery={props.setQuery} />
+                        <StreamWasmQueryResult query={props.query} setQuery={props.setQuery}
+                        search={props.search} 
+                        stdCourseMark={props.stdCourseMark}
+                        setStdCourseMark={props.setStdCourseMark}
+                        
+                        />
 
                     )}
                     {router.pathname === '/WASM-Stream-DuckDB-Json' && <div>API-Server Data Overview</div>}

@@ -40,7 +40,8 @@ function App() {
             <>
               <DashboardLayoutBasic stdCourseMark={stdCourseMark} setStdCourseMark={setStdCourseMark} fullMarks={fullMarks} setFullMarks={setFullMarks} attendedStd={attendedStd} setattendedStd={setattendedStd} search={search}
                 stdDuckDB={stdDuckDB} setStdDuckDB={setStdDuckDB} chartData={chartData} setChartData={setChartData} fakeDuckDB={fakeDuckDB} setFakeDuckDB={setFakeDuckDB} setSearch={setSearch} 
-                mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks} maxSpeed={maxSpeed} speed={speed} query={query} setQuery={setQuery}/>
+                mainDuckDB={mainDuckDB} setMainDuckDB={setMainDuckDB} setFakeFullMarks={setFakeFullMarks} fakeFullMarks={fakeFullMarks} maxSpeed={maxSpeed} speed={speed} query={query} setQuery={setQuery}
+                 />
 
            
             </>} />

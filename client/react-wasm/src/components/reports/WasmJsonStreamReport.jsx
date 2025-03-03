@@ -3,6 +3,7 @@ import { Button } from "react-bootstrap";
 import BarChart from '../BarChart';
 import { memoryJsonStreamStdMarkData } from '../../wasm/memoryData'
 import SpeedTest from "../GaugePointer";
+import { jsonStreamDataDuckDB } from "../../DuckDB";
 
 
 function WasmJsonStreamReport({query, ...props}) {
@@ -55,7 +56,18 @@ function WasmJsonStreamReport({query, ...props}) {
             //to test the speeed ********
             const speed1 = performance.now()
     
-            const stdMarkData = await memoryJsonStreamStdMarkData({query})
+            const query = `SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
+            FROM marks m
+            JOIN courses c ON m.cid = c.cid
+            WHERE m.cid IN (
+                    SELECT DISTINCT cid
+                    FROM marks
+                    WHERE marks = 30
+                    )
+            GROUP BY c.cname
+            ORDER BY c.cname;`
+
+            const stdMarkData = await jsonStreamDataDuckDB({query})
             props.setFullMarks(stdMarkData.resultFm);
             props.setattendedStd(stdMarkData.resultAt);
             generateChartData();

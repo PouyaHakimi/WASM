@@ -22,8 +22,7 @@ function StudentCourseMarkTable({ search, ...props }) {
   const [visibleData, setVisibleData] = useState([]);
   const [startIndex, setStartIndex] = useState();
 
-
-
+console.log(search);
   const pageSize = 100
 
 
