@@ -13,11 +13,8 @@ import SpeedTest from './GaugePointer';
 import AlertTitle from '@mui/material/AlertTitle';
 import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
-import { memoryJsonStreamComplexQuery, memoryJsonStreamData } from '../wasm/memoryData';
-import { memoryAllJsonData } from '../wasm/memoryAllData';
-import StudentCourseMarkTable from './StudentCourseMarkTable';
 import QueryTable from './QueryTable';
-
+import CircularIndeterminate from './load';
 
 function renderRow({ index, style, data }) {
     const rowData = data[index] || {};  // Get row data, avoid undefined errors
@@ -25,23 +22,23 @@ function renderRow({ index, style, data }) {
     return (
         <ListItem style={style} key={index} component="div" disablePadding>
             <ListItemButton>
-                <ListItemText primary={JSON.stringify(rowData)} /> 
+                <ListItemText primary={JSON.stringify(rowData)} />
             </ListItemButton>
         </ListItem>
     );
 }
- 
-function StreamWasmQueryResult({ query, setQuery , search ,...props}) {
-      const [queryResult, setQueryResult] = useState([]);  // Store API response data
-      const [speed, setSpeed] = useState(null)
-      const [maxSpeed, setMaxSpeed] = useState(null)
-      const [alert,setAlert]=useState(null)
-      const [message ,setMessage] = useState(false)
-      const [complexQuery,setComplexQuery] = useState(false)
-      const [counter , setCounter] = useState(true)
-      const [complexCounter , setComplexCounter] = useState(true)
-    
-   console.log("in streamwasm" + search);
+
+function StreamWasmQueryResult({ query, setQuery, search, ...props }) {
+    const [queryResult, setQueryResult] = useState([]);  // Store API response data
+    const [speed, setSpeed] = useState(null)
+    const [maxSpeed, setMaxSpeed] = useState(null)
+    const [alert, setAlert] = useState(null)
+    const [message, setMessage] = useState(false)
+    const [counter, setCounter] = useState(false)
+    const [success, setSuccess] = useState(null)
+    const [loadsign, setLoadSign] = useState(false)
+
+    console.log("in streamwasm" + search);
 
     const handleChange = (event) => {
         setQuery(event.target.value);
@@ -50,112 +47,85 @@ function StreamWasmQueryResult({ query, setQuery , search ,...props}) {
     const handleClick = async () => {
         console.log("Query submitted: " + query);
 
-        if (!query) {
-            
-        
-        const speed1 = performance.now() // give us time in ms
-      //  const data = await memoryJsonStreamData({query,counter}) // to check the outcome
-        const data = await jsonStreamDataDuckDB({query,counter})
-      // const data = await memoryAllJsonData({query,counter}) 
-        setQueryResult(data || []);
-        if(data.error){
-            setAlert(data.message)
-            setMessage(true)
-        }else{
-            setAlert("")
-            setMessage(true)
-        }
-        
-        setQueryResult(data || []); 
-        
-        const speed2 = performance.now()
-        const speedResult = speed2 - speed1
-        setSpeed(speedResult)
-        setMaxSpeed(speed2)
-    }else{
+        if (query) {
 
-        const speed1 = performance.now() // give us time in ms
-        // const dataDB = await jsonStreamDataDuckDB({query}) // to check the outcome
-        // const data = dataDB.convertedBigIntResult
-       // const data = await memoryJsonStreamData({query,counter})
-        const data = await jsonStreamDataDuckDB({query,counter})
-        //const data = await memoryAllJsonData({query,counter}) 
-        
-        setQueryResult(data || []);
-        if(data.error){
-            setAlert(data.message)
-            setMessage(true)
-        }else{
-            setAlert("")
-            setMessage(true)
+
+            const speed1 = performance.now() // give us time in ms
+
+            const data = await jsonStreamDataDuckDB({ query, counter })
+
+            setQueryResult(data || []);
+
+
+            if (data.error) {
+
+                setAlert("ERROR: " + data.message)
+                setMessage(true)
+            } else if (data.success) {
+                setAlert("")
+                setSuccess("Query done successfully ")
+                setMessage(true)
+            } else if (data.warning) {
+
+                setAlert("WARNING: " + data.warning)
+                setMessage(true)
+            } else {
+                setAlert("")
+                setSuccess("")
+                setMessage(true)
+            }
+
+            console.log(data);
+            console.log(data.data);
+            setQueryResult(data.data || []);
+
+            const speed2 = performance.now()
+            const speedResult = speed2 - speed1
+            setSpeed(speedResult)
+            setMaxSpeed(speed2)
+        } else {
+
+
+            const speed1 = performance.now() // give us time in ms
+
+            const data = await jsonStreamDataDuckDB({ query, counter })
+
+
+            if (data.error) {
+
+                setAlert("ERROR: " + data.message)
+                setMessage(true)
+            } else if (data.success) {
+
+                setSuccess(data.message)
+                setMessage(true)
+            } else if (data.warning) {
+
+                setAlert("WARNING: " + data.warning)
+                setMessage(true)
+            } else {
+                setAlert("")
+                setMessage(true)
+            }
+
+
+
+            setQueryResult(data.data || []);
+
+            const speed2 = performance.now()
+            const speedResult = speed2 - speed1
+            setSpeed(speedResult)
+            setMaxSpeed(speed2)
         }
-        
-        setQueryResult(data || []); 
-        
-        const speed2 = performance.now()
-        const speedResult = speed2 - speed1
-        setSpeed(speedResult)
-        setMaxSpeed(speed2)
-    }
-        
+
     };
 
-    const handleComplexClick = async () => {
-            console.log("Query submitted: " + query);
-    
-            if (!query) {
-    
-                const speed1 = performance.now() // give us time in ms
-                const data = await memoryJsonStreamComplexQuery({ query,complexCounter })
-    
-    
-                setQueryResult(data || []);
-                if (data.error) {
-                    setAlert(data.message)
-                    setMessage(true)
-                } else {
-                    setAlert("")
-                    setMessage(true)
-                }
-    
-                setQueryResult(data || []);
-    
-                const speed2 = performance.now()
-                const speedResult = speed2 - speed1
-                setSpeed(speedResult)
-                setMaxSpeed(speed2)
-    
-            } else {
-    
-                const speed1 = performance.now() // give us time in ms
-                //const data = await jsonDataDuckDB({query})
-                const data = await memoryJsonStreamComplexQuery({ query,complexCounter })
-    
-    
-                setQueryResult(data || []);
-                if (data.error) {
-                    setAlert(data.message)
-                    setMessage(true)
-                } else {
-                    setAlert("")
-                    setMessage(true)
-                }
-    
-                setQueryResult(data || []);
-    
-                const speed2 = performance.now()
-                const speedResult = speed2 - speed1
-                setSpeed(speedResult)
-                setMaxSpeed(speed2)
-    
-            }
-    
-        };
+
 
     return (
         <div>
-            
-            <Box sx={{ width: 1000, maxWidth: '100%'  }}>
+
+            <Box sx={{ width: 1000, maxWidth: '100%' }}>
                 <TextField
                     fullWidth
                     label="Insert Your SQL Query"
@@ -167,53 +137,59 @@ function StreamWasmQueryResult({ query, setQuery , search ,...props}) {
                 />
             </Box>
             <br />
-           
-            <Grid container spacing={2}>
-                   <Grid item>
-                         <Button variant="contained" color="success" onClick={async()=>{
-                            await handleClick();
-                            setCounter(false)
-                            }}>
-                             Execute Query
-                         </Button>
-                    </Grid>
 
-                    <Grid item>
-                    <Button variant="contained" color="success" onClick={() => {
-                        handleComplexClick();
-                        setComplexQuery(false);
-                         
+            <Grid container spacing={2}>
+                <Grid item>
+
+
+
+                    <Button variant="contained" color="success" disabled={!counter} onClick={async () => {
+                        await handleClick()
+                        
+                    }}>
+                        Execute Query
+                    </Button>
+
+                </Grid>
+
+                <Grid item>
+
+                    <Button variant="contained" color="success" onClick={async () => {
+                        setLoadSign(true)
+                        await handleClick()
+                        setCounter(true)
+                        setLoadSign(false)
+
 
                     }}>
-                        Execute Complex Query
+                        Upload WASM Data
                     </Button>
-                    </Grid>
 
-                {/* <Grid item>
-                         <Button variant="contained" color="info" onClick={async()=>{await writeJsonFile()}}>
-                               Capture Json Data
-                         </Button>
-                </Grid> */}
+                </Grid>
+
             </Grid>
-            <br/>
             <br />
-          { message && (alert ? ( <Alert severity="error">
-               <AlertTitle>Error</AlertTitle>
-                     {alert}
-             </Alert>):
-             <Alert severity="success">
-                  <AlertTitle>Success</AlertTitle>
-                        Your query works successfuly!
+            <br />
+            <Grid container justifyContent="center" alignItems="center" >
+                {loadsign&& <CircularIndeterminate />}
+            </Grid>
+            {message && (alert ? (<Alert severity="error">
+                <AlertTitle>Error</AlertTitle>
+                {alert}
+            </Alert>) :
+                <Alert severity="success">
+                    <AlertTitle>Success</AlertTitle>
+                    {success}
                 </Alert>)}
             <SpeedTest speed={speed} maxSpeed={maxSpeed} />
 
-            {(<QueryTable queryResult={queryResult} 
-           search={search}  
-           stdCourseMark={props.stdCourseMark}
-           setStdCourseMark={props.setStdCourseMark}
-           />)}
-            
-            <Box sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
+            {(<QueryTable queryResult={queryResult}
+                search={search}
+                stdCourseMark={props.stdCourseMark}
+                setStdCourseMark={props.setStdCourseMark}
+            />)}
+
+            {/* <Box sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
                 <FixedSizeList
                     height={400}
                     width={1000}
@@ -224,14 +200,14 @@ function StreamWasmQueryResult({ query, setQuery , search ,...props}) {
                 >
                     {renderRow}
                 </FixedSizeList>
-            </Box>
-            <br/>
-            <br/>
-            
-           {/* {(!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>)} */}
+            </Box> */}
+            <br />
+            <br />
 
-          
-         
+            {/* {(!alert && message && <CustomPaginationActionsTable queryResult={queryResult}/>)} */}
+
+
+
         </div>
     );
 }
