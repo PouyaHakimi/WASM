@@ -11,52 +11,18 @@ function WasmJsonStreamReport({query, ...props}) {
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [speed, setSpeed] = useState()
     const [maxSpeed, setMaxSpeed] = useState()
+    const [counter , setCounter] =useState(true)
+  
 
 
-    const generateChartData = () => {
-    
-            if (!props.fullMarks || !props.attendedStd || props.fullMarks.length === 0 || props.attendedStd.length === 0) {
-                console.error("Data is not available yet for generating chart.");
-                return;
-            }
-    
-            let fullMarks1 = Array.isArray(props.fullMarks)
-                ? props.fullMarks
-                : JSON.parse(props.fullMarks);
-    
-            let attendedStd1 = Array.isArray(props.attendedStd)
-                ? props.attendedStd
-                : JSON.parse(props.attendedStd);
-    
-            const labels = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.course_name) : [] // course names
-    
-    
-            const data = Array.isArray(fullMarks1) ? fullMarks1.map((data) => data.student_count) : []
-            const attendedData = Array.isArray(attendedStd1) ? attendedStd1.map((data) => data.attended_students) : []
-    
-    
-    
-            setChartData({
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Number Of Students',
-                        data: data,
-                        attendedData: attendedData,//attendedData,
-                        backgroundColor: 'rgba(54, 235, 99, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                    },
-                ],
-            });
-        };
+  
     
         const handleGenerateChart = async () => {
     
             //to test the speeed ********
             const speed1 = performance.now()
     
-            const query = `SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
+            let query = `SELECT c.cname AS course_name, COUNT(DISTINCT m.sid) AS attended_students
             FROM marks m
             JOIN courses c ON m.cid = c.cid
             WHERE m.cid IN (
@@ -67,10 +33,49 @@ function WasmJsonStreamReport({query, ...props}) {
             GROUP BY c.cname
             ORDER BY c.cname;`
 
+            const stdAttendedData = await jsonStreamDataDuckDB({query})
+            Array.isArray(stdAttendedData)
+            console.log("In report******" + JSON.stringify(stdAttendedData.data));
+            let courseName = []
+            let attended = []
+
+            stdAttendedData.data.map(item => courseName.push(item.course_name))
+            stdAttendedData.data.map(item => attended.push(item.attended_students))
+
+            query = `SELECT c.cname AS course_name, COUNT(*) AS student_count
+            FROM marks m
+            JOIN courses c ON m.cid = c.cid
+            WHERE m.marks = 30
+            GROUP BY c.cname
+            ORDER BY c.cname;`
+
             const stdMarkData = await jsonStreamDataDuckDB({query})
-            props.setFullMarks(stdMarkData.resultFm);
-            props.setattendedStd(stdMarkData.resultAt);
-            generateChartData();
+            Array.isArray(stdMarkData)
+            console.log("In report******" + JSON.stringify(stdMarkData.data));
+           
+            let fullMarks = []
+          
+            stdMarkData.data.map(item => fullMarks.push(item.student_count))
+            
+            setChartData({
+                labels: courseName,
+                datasets: [
+                    {
+                        label: 'Number Of Students',
+                        data: fullMarks,
+                        attendedData: attended,//attendedData,
+                        backgroundColor: 'rgba(54, 235, 99, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            });
+
+
+            console.log(courseName);   
+            // props.setFullMarks();
+            // props.setattendedStd(attended);
+            // generateChartData();
     
             const speed2 = performance.now()
             const speedResult = speed2 - speed1
@@ -79,15 +84,19 @@ function WasmJsonStreamReport({query, ...props}) {
             console.log(speedResult);
     
         }
-    
+       
         useEffect(() => {
+                         
+          handleGenerateChart()
+       
     
-            handleGenerateChart()
-    
-        }, [props.fullMarks, props.attendedStd]);
+        }, [query]);
+
+
         return (<>
             <div><BarChart chartData={chartData} /></div>
             <div><SpeedTest speed={speed} maxSpeed={maxSpeed} /></div>
+           
     
         </>)
 }

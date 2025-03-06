@@ -48,8 +48,8 @@ exports.getAllPagedJsonController = async (req, res) => {
         // const allMarksQuery= `SELECT * FROM read_json_auto('${mrkPath}') `
         // const allCoursesQuery = `SELECT * FROM read_json_auto('${crsPath}')`
 
-        const allStudentsQuery = `SELECT * FROM read_json_auto('${stdPath}') LIMIT ${1000000} OFFSET ${offset}`
-        const allMarksQuery= `SELECT * FROM read_json_auto('${mrkPath}') LIMIT ${1000000} OFFSET ${offset}`
+        const allStudentsQuery = `SELECT * FROM read_json_auto('${stdPath}') LIMIT ${limit} OFFSET ${offset}`
+        const allMarksQuery= `SELECT * FROM read_json_auto('${mrkPath}') LIMIT ${limit} OFFSET ${offset}`
         const allCoursesQuery = `SELECT * FROM read_json_auto('${crsPath}')`
 
 

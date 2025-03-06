@@ -15,6 +15,7 @@ import Alert from '@mui/material/Alert';
 import Grid from '@mui/material/Grid';
 import QueryTable from './QueryTable';
 import CircularIndeterminate from './load';
+import ReportDialogs from './dialogReport';
 
 function renderRow({ index, style, data }) {
     const rowData = data[index] || {};  // Get row data, avoid undefined errors
@@ -38,7 +39,7 @@ function StreamWasmQueryResult({ query, setQuery, search, ...props }) {
     const [success, setSuccess] = useState(null)
     const [loadsign, setLoadSign] = useState(false)
 
-    console.log("in streamwasm" + search);
+  
 
     const handleChange = (event) => {
         setQuery(event.target.value);
@@ -72,7 +73,7 @@ function StreamWasmQueryResult({ query, setQuery, search, ...props }) {
             } else {
                 setAlert("")
                 setSuccess("")
-                setMessage(true)
+                setMessage(false)
             }
 
             console.log(data);
@@ -105,7 +106,7 @@ function StreamWasmQueryResult({ query, setQuery, search, ...props }) {
                 setMessage(true)
             } else {
                 setAlert("")
-                setMessage(true)
+                setMessage(false)
             }
 
 
@@ -145,7 +146,7 @@ function StreamWasmQueryResult({ query, setQuery, search, ...props }) {
 
                     <Button variant="contained" color="success" disabled={!counter} onClick={async () => {
                         await handleClick()
-                        
+
                     }}>
                         Execute Query
                     </Button>
@@ -165,13 +166,21 @@ function StreamWasmQueryResult({ query, setQuery, search, ...props }) {
                         Upload WASM Data
                     </Button>
 
+
+                </Grid>
+
+                <Grid item>
+                    <ReportDialogs queryResult={queryResult} fullMarks={props.fullMarks}
+                            setFullMarks={props.setFullMarks}
+                            attendedStd={props.attendedStd}
+                            setattendedStd={props.setattendedStd} />
                 </Grid>
 
             </Grid>
             <br />
             <br />
             <Grid container justifyContent="center" alignItems="center" >
-                {loadsign&& <CircularIndeterminate />}
+                {loadsign && <CircularIndeterminate />}
             </Grid>
             {message && (alert ? (<Alert severity="error">
                 <AlertTitle>Error</AlertTitle>

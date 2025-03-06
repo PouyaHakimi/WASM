@@ -328,6 +328,10 @@ export default function DashboardLayoutBasic(props) {
                         search={props.search} 
                         stdCourseMark={props.stdCourseMark}
                         setStdCourseMark={props.setStdCourseMark}
+                        fullMarks={props.fullMarks}
+                        setFullMarks={props.setFullMarks}
+                        attendedStd={props.attendedStd}
+                        setattendedStd={props.setattendedStd}
                         
                         />
 

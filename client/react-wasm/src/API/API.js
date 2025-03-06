@@ -556,8 +556,8 @@ async function allPagedJsonFile() {
             courses = data.courses
 
             console.log(`Fetched Page ${page}: Students=${data.students.length}, Marks=${data.marks.length}`);
-            //page++
-            page = page + 9
+            page++
+            // page = page + 9
         }
 
         console.log("All data loaded!", { students: allStudents.length, marks: allMarks.length, courses });

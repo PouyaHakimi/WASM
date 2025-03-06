@@ -341,13 +341,13 @@ export async function jsonFullMarkDataDuckDB({ query }) {
 
 
 
-function getJsonSize(jsonData) {
-    let jsonString = JSON.stringify(jsonData);
-    let sizeInBytes = new TextEncoder().encode(jsonString).length;
-    let sizeInMB = sizeInBytes / (1024 * 1024);
-    console.log(`JSON Data Size: ${sizeInMB.toFixed(2)} MB`);
-    return sizeInMB;
-}
+// function getJsonSize(jsonData) {
+//     let jsonString = JSON.stringify(jsonData);
+//     let sizeInBytes = new TextEncoder().encode(jsonString).length;
+//     let sizeInMB = sizeInBytes / (1024 * 1024);
+//     console.log(`JSON Data Size: ${sizeInMB.toFixed(2)} MB`);
+//     return sizeInMB;
+// }
 
 async function registerLargeJsonFile(db, name, data, chunkSize = 8000000) {
     let chunks = [];
@@ -363,19 +363,194 @@ async function registerLargeJsonFile(db, name, data, chunkSize = 8000000) {
 }
 
 
+//************************** */
+
+// let db = null;
+// let isDataLoaded = false;
+
+// export async function jsonStreamDataDuckDB({ query, counter }) {
+
+//     console.log("heeereeeee in duckDBBBB 111111");
+//     let students = [];
+//     let marks = [];
+//     let courses = [];
+//     let limit = 6000000; // Adjust the chunk size based on your needs
+//     let stdpage = 0;
+//     let mrkpage = 0;
+//     console.log("heeereeeee in duckDBBBB 2222222");
+
+//     const wasmMemory = new WebAssembly.Memory({
+//         initial: 512,  // 32 MB
+//         maximum: 32768, // 2 GB
+//         shared: true
+//     });
+
+//     console.log(wasmMemory);
+//     const memoryLimit = 1024 * 1024 * 1024;
+
+//     try {
+//         // Adjust the query if necessary
+//         query = query.replace(/studentsData/g, 'students')
+//             .replace(/marksData/g, 'marks')
+//             .replace(/coursesData/g, 'courses');
+
+//         // Initialize DuckDB connection
+//         if (!db) {
+//             const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+//             const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+//             const worker = await duckdb.createWorker(bundle.mainWorker); // Create the worker
+//             const logger = new duckdb.ConsoleLogger();
+//             db = new duckdb.AsyncDuckDB(logger, worker, { wasmMemory: wasmMemory });
+
+//             await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+//             console.log("DuckDB initialized successfully!");
+//         }
+
+//         const c = await db.connect();
+//         console.log("Database connection established");
+
+//         let stdSize;
+//         let mrkSize;
+//         let crsSize;
+//         let totalSize = stdSize + mrkSize + crsSize;
+//         let chunk = 4000000; // Size of the chunk
+//         let offset = 1;
+
+//         if (!isDataLoaded) {
+//             console.log("heeereeeee in duckDBBBB 333333");
+
+//             // Fetch the chunked data using memoryAllJsonData function
+//             await memoryAllJsonData({ query })
+//                 .then(async data => {
+//                     students = data.stdproceeddata;
+//                     marks = data.mrkProceeddata;
+//                     courses = data.crsProceeddata;
+
+//                     // Get the size of the data
+//                     stdSize = getJsonSize(students);
+//                     console.log("student size**: " + stdSize);
+//                     mrkSize = getJsonSize(marks);
+//                     console.log("marks size**: " + mrkSize);
+//                     crsSize = getJsonSize(courses);
+//                     console.log("courses size**: " + crsSize);
+//                     totalSize = stdSize + mrkSize + crsSize;
+//                     console.log("total sizeee : ***" + totalSize);
+
+//                     console.log(students);
+//                 });
+
+//             // Create tables in DuckDB
+//             await c.query(`
+//                 CREATE TABLE students (
+//                     id INTEGER PRIMARY KEY,
+//                     sname TEXT,
+//                     age INTEGER
+//                 );
+//             `);
+//             await c.query(`
+//                 CREATE TABLE courses(
+//                    cid INTEGER PRIMARY KEY,
+//                    cname TEXT,
+//                    credits INTEGER
+//                 );
+//             `);
+//             await c.query(`
+//                 CREATE TABLE marks(
+//                     id INTEGER PRIMARY KEY,
+//                     sid INTEGER NOT NULL,
+//                     cid INTEGER NOT NULL,
+//                     marks INTEGER,
+//                     FOREIGN KEY (sid) REFERENCES students (id),
+//                     FOREIGN KEY (cid) REFERENCES courses (cid)
+//                 );
+//             `);
+
+//             console.log("Table created");
+
+//             // Insert chunked data for students
+//             for (let chunkIndex = 0; chunkIndex < students.length; chunkIndex++) {
+//                 const chunkData = students.slice(chunkIndex * chunk, (chunkIndex + 1) * chunk);
+//                 console.log(`Inserting students chunk ${chunkIndex + 1}...`);
+//                 await registerLargeJsonFile(db, 'students', chunkData);
+//             }
+
+//             // Insert chunked data for courses
+//             for (let chunkIndex = 0; chunkIndex < courses.length; chunkIndex++) {
+//                 const chunkData = courses.slice(chunkIndex * chunk, (chunkIndex + 1) * chunk);
+//                 console.log(`Inserting courses chunk ${chunkIndex + 1}...`);
+//                 await registerLargeJsonFile(db, 'courses', chunkData);
+//             }
+
+//             // Insert chunked data for marks
+//             for (let chunkIndex = 0; chunkIndex < marks.length; chunkIndex++) {
+//                 const chunkData = marks.slice(chunkIndex * chunk, (chunkIndex + 1) * chunk);
+//                 console.log(`Inserting marks chunk ${chunkIndex + 1}...`);
+//                 await registerLargeJsonFile(db, 'marks', chunkData);
+//             }
+
+//             isDataLoaded = true;
+//         }
+
+//         console.log("ooooooouuuuuttttt");
+
+//         let jsonQuery;
+//         let result;
+//         let resultArray;
+
+//         if (!query && counter) {
+//             return {
+//                 warning: true,
+//                 warning: "Please first insert your query!" // Include a warning message
+//             };
+//         } else if (query) {
+//             jsonQuery = query; // Use the provided query
+//             result = await c.query(`${jsonQuery}`);
+//         }
+
+//         if (result) {
+//             resultArray = result.toArray().map(row => ({ ...row }));
+
+//             const convertedBigIntResult = resultArray.map(row =>
+//                 Object.fromEntries(
+//                     Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
+//                 )
+//             );
+
+//             return {
+//                 data: convertedBigIntResult,
+//                 success: true,
+//                 message: "Data fetched successfully",
+//             };
+//         } else {
+//             console.log("Data Uploaded Successfully");
+//             return { success: true, message: `Data with size of ${totalSize} has been uploaded successfully` };
+//         }
+
+//     } catch (error) {
+//         console.error("Error fetching in BrowserDB", error);
+//         return { error: true, message: error.message };
+//     }
+// }
+
+
+
+//****************************** */
+
 let db = null
 let isDataLoaded = false
 
 export async function jsonStreamDataDuckDB({ query, counter }) {
 
 
-    let students
-    let marks
-    let courses
-    let limit = 6000000
+
+    console.log("heeereeeee in duckDBBBB 111111");
+    let students = []
+    let marks = []
+    let courses = []
+    let limit = 2000000
     let stdpage = 0
     let mrkpage = 0
-
+    console.log("heeereeeee in duckDBBBB 2222222");
 
     const wasmMemory = new WebAssembly.Memory({
         initial: 512,  // 32 MB
@@ -417,24 +592,59 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
 
         console.log("Database connection established");
 
+        let stdSize
+        let mrkSize
+        let crsSize
+        let totalSize = stdSize + mrkSize + crsSize
+        let chunk = 4000000
+        let offset = 1
+        let nextChunk =4000000
 
 
         if (!isDataLoaded) {
-           
 
-            await memoryAllJsonData({ query })
-                .then(async data => {
-                    students = data.stdproceeddata
-                    courses = data.crsProceeddata
-                    marks = data.mrkProceeddata
+        
 
-                    console.log(students);
-                    console.log(marks);
-                    console.log(courses);
+            console.log("heeereeeee in duckDBBBB 333333");
+            await memoryAllJsonData({ query } )
+                 .then(async data => {
+                    // while (true) {
+
+                       students = data.stdproceeddata
+                       marks =data.mrkProceeddata
+                       courses =data.crsProceeddata
+
+                        // let studentschunk = data.students.filter(student => student.id >= offset && student.id <= chunk)  
+                        // let marksChunk = data.marks.filter(mark => mark.sid >= offset && mark.sid <= chunk)
+
+                     
+                        // marks.push(...result.marks)
+                        // courses = result.courses
+                        
+                        // offset = offset + nextChunk
+                        // chunk = nextChunk + chunk
+
+                        // if(studentschunk.length === 0 || marksChunk.length === 0 ) break;
+                        
+
+                        // stdSize = getJsonSize(students);
+                        // console.log("student size**: " + stdSize);
+                        // mrkSize = getJsonSize(marks);
+                        // console.log("student size**: " + mrkSize);
+                        // crsSize = getJsonSize(courses);
+
+                        // console.log("total sizeee : ***" + totalSize);
+                        console.log(students);
+                        console.log(marks);
+                        console.log(courses);
 
 
-                })
+                    // }
 
+                    
+
+                 })
+           // })
 
             await c.query(`
             CREATE TABLE students (
@@ -546,7 +756,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                 warning: "Please first insert your query!" // ✅ Include a warning message
             };
 
-        } else if (query && counter) {
+        } else if (query) {
 
             jsonQuery = query  // Use double quotes for paths;  // Use provided query
             result = await c.query(`${jsonQuery}`)
@@ -564,18 +774,18 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                     Object.entries(row).map(([key, value]) => [key, typeof value === 'bigint' ? Number(value) : value])
                 )
             );
-            
-            await c.close()
-           
-            return{ 
+
+            //  await c.close()
+
+            return {
                 data: convertedBigIntResult,
-                success:true,
-                message:"data fetched successfully",
-              
+                success: true,
+                message: "data fetched successfully",
+
             }
         } else {
             console.log("Data Uploaded Successfully ")
-            return { success: true, message: "Data Uploaded Successfully" }
+            return { success: true, message: `Data with size of ${totalSize} has Uploaded Successfully` }
         }
 
     } catch (error) {
