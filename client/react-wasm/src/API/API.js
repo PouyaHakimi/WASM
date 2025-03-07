@@ -544,7 +544,7 @@ async function allPagedJsonFile() {
             }
            
             const data = await response.json();
-            console.log("APIIIII" + JSON.stringify(data.courses));
+            //console.log("APIIIII" + JSON.stringify(data.courses));
 
             if (!data.students || !data.marks || !data.courses) {
                 throw new Error("Invalid API response format. Missing 'students' or 'marks'");

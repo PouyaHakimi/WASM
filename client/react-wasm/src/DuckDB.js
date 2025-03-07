@@ -547,7 +547,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
     let students = []
     let marks = []
     let courses = []
-    let limit = 2000000
+    let limit = 6000000
     let stdpage = 0
     let mrkpage = 0
     console.log("heeereeeee in duckDBBBB 2222222");
@@ -634,9 +634,9 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                         // crsSize = getJsonSize(courses);
 
                         // console.log("total sizeee : ***" + totalSize);
-                        console.log(students);
-                        console.log(marks);
-                        console.log(courses);
+                        console.log("student length:  " +students.length);
+                        console.log("mark length:  "+marks.length);
+                        console.log("courses length:  "+ courses.length);
 
 
                     // }
@@ -693,7 +693,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                     `SELECT * from students LIMIT ${limit} OFFSET ${offset}`
                 );
                 const resultArray = result.toArray().map(item => ({ ...item }))
-                console.log(resultArray);
+              //  console.log(resultArray);
                 console.log(resultArray.length);
                 // If no more rows are being inserted, break the loop
                 if (resultArray.length === 0) break; // Stop pagination when no more data
@@ -729,7 +729,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
                     `SELECT * from students LIMIT ${limit} OFFSET ${offset}`
                 );
                 const resultArray = result.toArray().map(item => ({ ...item }))
-                console.log(resultArray);
+               // console.log(resultArray);
                 console.log(resultArray.length);
                 // If no more rows are being inserted, break the loop
                 if (resultArray.length === 0) break;
