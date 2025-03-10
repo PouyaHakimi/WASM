@@ -32,7 +32,7 @@ export default function ReportDialogs(props) {
   return (
     <React.Fragment>
       <Button variant="outlined" onClick={handleClickOpen}>
-        Open dialog
+        Report 
       </Button>
       <BootstrapDialog
         onClose={handleClose}
@@ -42,7 +42,7 @@ export default function ReportDialogs(props) {
         fullWidth  
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Modal title
+          Full Mark Proportion vs All Attended
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -63,7 +63,7 @@ export default function ReportDialogs(props) {
                         />
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
-            Save changes
+           Close 
           </Button>
         </DialogActions>
       </BootstrapDialog>

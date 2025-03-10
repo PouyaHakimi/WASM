@@ -785,7 +785,7 @@ export async function jsonStreamDataDuckDB({ query, counter }) {
             }
         } else {
             console.log("Data Uploaded Successfully ")
-            return { success: true, message: `Data with size of ${totalSize} has Uploaded Successfully` }
+            return { success: true, message: `Data has Uploaded Successfully` }
         }
 
     } catch (error) {

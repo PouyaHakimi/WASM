@@ -23,6 +23,7 @@ export default function BasicBars({ chartData }) {
 
 
   return (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
     <BarChart
       width={1000}
       height={300}
@@ -32,7 +33,7 @@ export default function BasicBars({ chartData }) {
       ]}
       xAxis={[{ data: xLabels, scaleType: 'band' }]}
     />
-
+</div >
   );
 }
 

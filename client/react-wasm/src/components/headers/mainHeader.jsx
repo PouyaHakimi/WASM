@@ -72,7 +72,7 @@ function mainHeader(props) {
     }
    
     return <header className="header">
-        <h1> WASM Application</h1>
+        <h1 > WASM Application</h1>
         <form className="search-bar " 
         onSubmit={handleSearchSubmit}
         >     
